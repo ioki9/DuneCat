@@ -1,6 +1,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-
+#include <qobject.h>
 #include <QLocale>
 #include <QTranslator>
 #include <io.h>
