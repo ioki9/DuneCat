@@ -6,11 +6,10 @@
 bool tools::bootUpStart(bool isOn)
 {
     #ifdef Q_OS_WIN
-    QSettings bootUpSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
-    QString base_dir = qApp->applicationDirPath() + '\\' + PROJECT_NAME + ".exe";
-    
+    QSettings bootUpSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
+    QString app_path = QCoreApplication::applicationFilePath();
     if (isOn) {
-        bootUpSettings.setValue(PROJECT_NAME,"\""+base_dir+"\"");
+        bootUpSettings.setValue(PROJECT_NAME, app_path);
     } else {
         bootUpSettings.remove(PROJECT_NAME);
     }
