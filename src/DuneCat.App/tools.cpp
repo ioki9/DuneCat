@@ -15,6 +15,7 @@ bool tools::bootUpStart(bool isOn)
     return false;
 }
 #elif defined(Q_OS_UNIX)
+#include <qprocess.h>
 bool tools::bootUpStart(bool isOn)
 {
         // Path to the autorun folder
@@ -55,6 +56,8 @@ bool tools::bootUpStart(bool isOn)
                 autorunFile.setPermissions(QFileDevice::ExeUser|QFileDevice::ExeOwner|QFileDevice::ExeOther|QFileDevice::ExeGroup|
                                        QFileDevice::WriteUser|QFileDevice::ReadUser);
                 autorunFile.close();
+                QProcess process;
+                process.start("chmod +x",QStringList() << autostartPath + QLatin1String("/DuneCat.desktop"));
             }
         }
     } else {
