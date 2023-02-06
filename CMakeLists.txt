@@ -7,7 +7,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 message("Looking for Qt...")
-find_package(Qt6 COMPONENTS Quick REQUIRED)
+find_package(Qt6 COMPONENTS Quick Qml REQUIRED)
 if (${Qt6_FOUND})
     message("Found Qt " ${Qt6_VERSION})
 else()

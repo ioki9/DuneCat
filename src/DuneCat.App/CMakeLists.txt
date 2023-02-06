@@ -5,19 +5,15 @@ qt_add_executable(${PROJECT_NAME}
     tools.cpp
 )
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE Qt6::Quick)
+    PRIVATE Qt6::Qml Qt6::Quick)
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE)
 
 qt_add_qml_module(${PROJECT_NAME}
-URI GUI
+URI UI_Basics
 VERSION 1.0
-QML_FILES GUI/main.qml
+QML_FILES UI/main.qml
 )
 
 install(TARGETS DuneCat

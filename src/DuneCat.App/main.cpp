@@ -19,14 +19,13 @@ int main(int argc, char *argv[])
     }
 
     QQmlApplicationEngine engine;
-    const QUrl url(u"qrc:/GUI/main.qml"_qs);
+    const QUrl url(u"qrc:/UI_Basics/UI/main.qml"_qs);
     tools::bootUpStart(true);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
         if (!obj && url == objUrl)
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
-    engine.addImportPath(":/src/DuneCat.App/GUI");
     engine.load(url);
     
     return app.exec();
