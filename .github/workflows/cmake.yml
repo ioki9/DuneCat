@@ -50,7 +50,7 @@ jobs:
         name: my-artifact
         path: ${{github.workspace}}/build
     - name: download artifact
-        uses: actions/download-artifact@v3 
+      uses: actions/download-artifact@v3 
     - name: Test
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.
