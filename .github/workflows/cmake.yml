@@ -47,8 +47,7 @@ jobs:
     - name: release 
       uses: actions/download-artifact@v3
     
-    - name: Display structure of downloaded files
-        run: ls -a
+    - run: ls -a
 
     - name: Test
       working-directory: ${{github.workspace}}/build
