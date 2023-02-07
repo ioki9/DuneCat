@@ -68,11 +68,11 @@ bool tools::bootUpStart(bool isOn)
     }
  
     // Now install the login item, if needed.
-    if ( startAutomatically )
+    if ( isOn )
     {
         QStringList args;
-        args << "-e tell application \"System Events\" to make login item at end " + 
-            "with properties {path:\"" + macOSXAppBundlePath() + "\", hidden:false}";
+        args << ("-e tell application \"System Events\" to make login item at end " + 
+        "with properties {path:\"" + macOSXAppBundlePath() + "\", hidden:false}");
          
         QProcess::execute("osascript", args);
     }
@@ -89,7 +89,7 @@ bool tools::bootUpStart(bool isOn)
 }
 #endif
 
-QString macOSXAppBundlePath()
+QString tools::macOSXAppBundlePath()
 {
 #ifdef Q_OS_MAC
     QDir dir = QDir ( QCoreApplication::applicationDirPath() );
@@ -107,7 +107,7 @@ QString macOSXAppBundlePath()
 #endif
 }
   
-QString macOSXAppBundleName()
+QString tools::macOSXAppBundleName()
 {
 #ifdef Q_OS_MAC
     QString bundlePath = macOSXAppBundlePath();
