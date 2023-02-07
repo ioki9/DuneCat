@@ -8,6 +8,8 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE Qt6::Qml Qt6::Quick)
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
+    MACOSX_BUNDLE ON
+    LINUX ON
     WIN32_EXECUTABLE TRUE)
 
 qt_add_qml_module(${PROJECT_NAME}
