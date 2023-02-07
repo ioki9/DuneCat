@@ -26,8 +26,6 @@ jobs:
           version: '6.4.2'
           target: 'desktop'
           arch: 'clang_64'
-          host: 'mac'
-          target: 'desktop'
           dir: '${{ github.workspace }}/Qt6Lib/'
           install-deps: 'true'
           cache: 'true'
