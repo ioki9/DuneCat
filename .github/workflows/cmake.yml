@@ -48,7 +48,7 @@ jobs:
     - uses: actions/upload-artifact@v3
         with:
           name: my-artifact
-          path: path/to/artifact/
+          path: ${{github.workspace}}/build
     - name: download artifact
         uses: actions/download-artifact@v3 
     - name: Test
