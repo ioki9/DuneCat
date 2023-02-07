@@ -49,8 +49,8 @@ jobs:
       with:
         name: my-artifact
         path: |
-        ${{github.workspace}}
-        !${{github.workspace}}/Qt6Lib
+          ${{github.workspace}}
+          !${{github.workspace}}/Qt6Lib
     - name: Test
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.
