@@ -48,7 +48,7 @@ jobs:
       uses: actions/download-artifact@v3
     
     - name: Display structure of downloaded files
-        run: ls -R
+        run: ls -a
 
     - name: Test
       working-directory: ${{github.workspace}}/build
