@@ -47,8 +47,8 @@ jobs:
     - name: release 
       uses: actions/download-artifact@v3
     
+    - run: cd ${{github.workspace}}/build 
     - run: ls -a
-
     - name: Test
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.
