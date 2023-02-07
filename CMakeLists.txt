@@ -16,6 +16,11 @@ endif()
 qt6_standard_project_setup()
 
 add_subdirectory(src/DuneCat.App)
+add_subdirectory(src/DuneCat.app/UI)
+
+install(TARGETS DuneCat
+    BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 configure_file(DuneCatConfig.h.in DuneCatConfig.h)
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
