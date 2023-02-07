@@ -45,7 +45,12 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
     - name: release 
-      uses: ncipollo/release-action@v1
+      uses: actions/download-artifact@v3
+        with:
+        name: my-artifact
+    
+    - name: Display structure of downloaded files
+        run: ls -R
 
     - name: Test
       working-directory: ${{github.workspace}}/build
