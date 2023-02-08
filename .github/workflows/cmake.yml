@@ -11,14 +11,15 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  strategy:
-    matrix:
-      include:
-        - os: macos-latest
-          qtArch: clang_64
-        - os: windows-latest
-          qtArch: win64_msvc2019_64
-          
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            qtArch: clang_64
+          - os: windows-latest
+            qtArch: win64_msvc2019_64
+
     runs-on: ${{matrix.os}}
     permissions:
     contents: write
