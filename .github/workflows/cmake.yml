@@ -11,10 +11,6 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  build:
-    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
-    # You can convert this to a matrix build if you need cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
   strategy:
     matrix:
       include:
@@ -22,10 +18,10 @@ jobs:
           qtArch: clang_64
         - os: windows-latest
           qtArch: win64_msvc2019_64
-      
-      runs-on: ${{matrix.os}}
-      permissions:
-      contents: write
+  build:
+    runs-on: ${{matrix.os}}
+    permissions:
+    contents: write
     steps:
     - uses: actions/checkout@v3
     
