@@ -18,7 +18,7 @@ jobs:
           - os: macos-latest
             qtArch: clang_64
           - os: windows-latest
-            qtArch: win64_msvc2019_64
+            qtArch: win64_mingw
 
     runs-on: ${{matrix.os}}
     permissions:
@@ -52,3 +52,4 @@ jobs:
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
+      
