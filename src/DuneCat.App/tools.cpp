@@ -74,15 +74,18 @@ bool tools::bootUpStart(bool isOn)
         args << ("-e tell application \"System Events\" to make login item at end " + 
         "with properties {path:\"" + macOSXAppBundlePath() + "\", hidden:false}");
          
-        QProcess::execute("osascript", args);
+        QProcess::execute("osascript", args);  
+        return true;
     }
     #elif defined(Q_OS_WIN)
     QSettings bootUpSettings("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
     if (isOn) {
         bootUpSettings.setValue(PROJECT_NAME, QDir::toNativeSeparators(QCoreApplication::applicationFilePath()));
         bootUpSettings.sync();
+        return true;
     } else {
         bootUpSettings.remove(PROJECT_NAME);
+        return false;
     }
     #endif
     return false;
