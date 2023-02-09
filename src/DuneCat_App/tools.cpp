@@ -4,7 +4,7 @@
 
 using namespace tools;
 
-#if defined(Q_OS_UNIX)
+#if defined(Q_OS_LINUX)
 #include <qprocess.h>
 bool tools::bootUpStart(bool isOn)
 {
