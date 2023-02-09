@@ -71,8 +71,7 @@ bool tools::bootUpStart(bool isOn)
     if ( isOn )
     {
         QStringList args;
-        args << ("-e tell application \"System Events\" to make login item at end " + 
-        "with properties {path:\"" + macOSXAppBundlePath() + "\", hidden:false}");
+        args << ("-e tell application \"System Events\" to make login item at end with properties {path:\"" + macOSXAppBundlePath() + "\", hidden:false}");
          
         QProcess::execute("osascript", args);
     }
