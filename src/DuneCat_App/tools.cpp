@@ -4,7 +4,8 @@
 
 using namespace tools;
 
-#if defined(Q_OS_UNIX)
+//TODO: for linux make a more generic way to autostart an app (with .sh script after deployment)
+#if defined(Q_OS_LINUX)
 #include <qprocess.h>
 bool tools::bootUpStart(bool isOn)
 {
@@ -30,7 +31,7 @@ bool tools::bootUpStart(bool isOn)
                 QString autorunContent("[Desktop Entry]\n"
                                        "Type=Application\n"
                                        "Exec=" + QCoreApplication::applicationFilePath() + "\n"
-                                       "Hidden=true\n"
+                                       "Hidden=flase\n"
                                        "NoDisplay=false\n"
                                        "X-GNOME-Autostart-enabled=true\n"
                                        "Name[en_GB]=DuneCat\n"
@@ -71,8 +72,7 @@ bool tools::bootUpStart(bool isOn)
     if ( isOn )
     {
         QStringList args;
-        args << ("-e tell application \"System Events\" to make login item at end " + 
-        "with properties {path:\"" + macOSXAppBundlePath() + "\", hidden:false}");
+        args << ("-e tell application \"System Events\" to make login item at end with properties {path:\"" + macOSXAppBundlePath() + "\", hidden:false}");
          
         QProcess::execute("osascript", args);  
         return true;
