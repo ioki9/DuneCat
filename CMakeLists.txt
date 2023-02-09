@@ -15,8 +15,8 @@ else()
 endif()
 qt6_standard_project_setup()
 
-add_subdirectory(src/DuneCat.App)
-add_subdirectory(src/DuneCat.app/UI)
+add_subdirectory(src/DuneCat_App)
+add_subdirectory(src/DuneCat_App/UI)
 
 install(TARGETS DuneCat
     BUNDLE DESTINATION .
