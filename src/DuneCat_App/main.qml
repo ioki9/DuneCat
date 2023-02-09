@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls 2.5
 Window {
     color: "white"
     width: 640

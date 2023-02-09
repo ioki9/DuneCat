@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     }
 
     QQmlApplicationEngine engine;
-    const QUrl url(u"qrc:/DuneCat/UI/main.qml"_qs);
+    const QUrl url(u"qrc:UI/main.qml"_qs);
     tools::bootUpStart(true);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
