@@ -17,7 +17,6 @@ qt6_standard_project_setup()
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_subdirectory(src/DuneCat_App)
 
-
 install(TARGETS DuneCat
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

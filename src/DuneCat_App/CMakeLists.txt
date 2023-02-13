@@ -1,7 +1,9 @@
 qt_add_executable(${PROJECT_NAME}
     main.cpp
-    tools.h
-    tools.cpp
+    DCSettings.h
+    DCSettings.cpp
+    DCTools.cpp
+    DCTools.h
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -14,5 +16,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 qt_add_qml_module(${PROJECT_NAME}
     URI UI
     VERSION 1.0
-    QML_FILES main.qml
+    SOURCES
+        DCSettings.cpp DCSettings.h
+    QML_FILES
+        main.qml
     )
