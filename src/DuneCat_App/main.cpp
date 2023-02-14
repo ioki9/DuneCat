@@ -2,7 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QLocale>
 #include <QTranslator>
-#include "tools.h"
+#include "DCSettings.h"
 
 int main(int argc, char *argv[])
 {
@@ -18,14 +18,13 @@ int main(int argc, char *argv[])
     }
 
     QQmlApplicationEngine engine;
-    const QUrl url(u"qrc:/DuneCat/UI/main.qml"_qs);
-    tools::bootUpStart(true);
+    const QUrl url(u"qrc:DuneCat/qml/DCBase/main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
         if (!obj && url == objUrl)
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
     engine.load(url);
-    
+
     return app.exec();
 }

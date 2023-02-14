@@ -1,14 +1,13 @@
-#include "tools.h"
-#include <QtCore>
 #include <DuneCatConfig.h>
-
-using namespace tools;
+#include "DCTools.h"
+#include <QtGlobal>
+#include <QProcess>
+#include <QtCore>
 
 //TODO: for linux make a more generic way to autostart an app (with .sh script after deployment)
-#if defined(Q_OS_LINUX)
-#include <qprocess.h>
 bool tools::bootUpStart(bool isOn)
 {
+    #ifdef Q_OS_LINUX
     // Path to the autorun folder
     QString autostartPath = QStandardPaths::standardLocations(QStandardPaths::ConfigLocation).at(0) + QLatin1String("/autostart");
     /* Check whether there is a directory in which to store the autorun file.*/
@@ -22,12 +21,12 @@ bool tools::bootUpStart(bool isOn)
     if(isOn) {
         // Next, check the availability of the startup file
         if(!autorunFile.exists()){
- 
+
             /* Next, open the file and writes the necessary data
              * with the path to the executable file, using QCoreApplication::applicationFilePath()
              * */
             if(autorunFile.open(QFile::WriteOnly)){
- 
+
                 QString autorunContent("[Desktop Entry]\n"
                                        "Type=Application\n"
                                        "Exec=" + QCoreApplication::applicationFilePath() + "\n"
@@ -46,17 +45,16 @@ bool tools::bootUpStart(bool isOn)
                 autorunFile.close();
                 QProcess process;
                 process.start("chmod +x",QStringList() << autostartPath + QLatin1String("/DuneCat.desktop"));
+                return true;
             }
         }
     } else {
         // Delete the startup file
         if(autorunFile.exists()) autorunFile.remove();
+        return false;
     }
-}
-#else
-bool tools::bootUpStart(bool isOn)
-{   
-    #if defined ( Q_OS_MAC )
+
+    #elif defined(Q_OS_MAC)
 
     // Remove any existing login entry for this app first, in case there was one
     // from a previous installation, that may be under a different launch path.
@@ -64,19 +62,22 @@ bool tools::bootUpStart(bool isOn)
         QStringList args;
         args << "-e tell application \"System Events\" to delete login item\""
             + macOSXAppBundleName() + "\"";
-         
+
         QProcess::execute("osascript", args);
     }
- 
+
     // Now install the login item, if needed.
     if ( isOn )
     {
         QStringList args;
         args << ("-e tell application \"System Events\" to make login item at end with properties {path:\"" + macOSXAppBundlePath() + "\", hidden:false}");
-         
-        QProcess::execute("osascript", args);  
+
+        QProcess::execute("osascript", args);
         return true;
     }
+    else
+        return false;
+
     #elif defined(Q_OS_WIN)
     QSettings bootUpSettings("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
     if (isOn) {
@@ -90,33 +91,32 @@ bool tools::bootUpStart(bool isOn)
     #endif
     return false;
 }
-#endif
+
+QString tools::macOSXAppBundleName()
+{
+    #ifdef Q_OS_MAC
+        QString bundlePath = macOSXAppBundlePath();
+        QFileInfo fileInfo(bundlePath);
+        return fileInfo.baseName();
+    #else
+        return "";
+    #endif
+}
 
 QString tools::macOSXAppBundlePath()
 {
-#ifdef Q_OS_MAC
-    QDir dir = QDir ( QCoreApplication::applicationDirPath() );
-    dir.cdUp();
-    dir.cdUp();
-    QString absolutePath = dir.absolutePath();
-    // absolutePath will contain a "/" at the end,
-    // but we want the clean path to the .app bundle
-    if ( absolutePath.length() > 0 && absolutePath.right(1) == "/" ) {
-        absolutePath.chop(1);
-    }
-    return absolutePath;
-#else
-    return "";
-#endif
-}
-  
-QString tools::macOSXAppBundleName()
-{
-#ifdef Q_OS_MAC
-    QString bundlePath = macOSXAppBundlePath();
-    QFileInfo fileInfo(bundlePath);
-    return fileInfo.baseName();
-#else
-    return "";
-#endif
+    #ifdef Q_OS_MAC
+        QDir dir = QDir ( QCoreApplication::applicationDirPath() );
+        dir.cdUp();
+        dir.cdUp();
+        QString absolutePath = dir.absolutePath();
+        // absolutePath will contain a "/" at the end,
+        // but we want the clean path to the .app bundle
+        if ( absolutePath.length() > 0 && absolutePath.right(1) == "/" ) {
+            absolutePath.chop(1);
+        }
+        return absolutePath;
+    #else
+        return "";
+    #endif
 }

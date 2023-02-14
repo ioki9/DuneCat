@@ -14,9 +14,11 @@ else()
     message("Couldn't find Qt")
 endif()
 qt6_standard_project_setup()
+
+set (QT_QML_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/qml)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 add_subdirectory(src/DuneCat_App)
-add_subdirectory(src/DuneCat_App/UI)
 
 install(TARGETS DuneCat
     BUNDLE DESTINATION .
@@ -24,7 +26,14 @@ install(TARGETS DuneCat
 
 configure_file(DuneCatConfig.h.in DuneCatConfig.h)
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
-
+set (
+    QML_IMPORT_PATH
+    ${CMAKE_BINARY_DIR}
+    CACHE
+    STRING
+    "Path used to locate CMake modules by Qt Creator"
+    FORCE
+)
 
 
 
