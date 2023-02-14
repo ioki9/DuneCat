@@ -6,6 +6,7 @@ namespace tools
 {
     QString macOSXAppBundlePath();
     QString macOSXAppBundleName();
+
     bool bootUpStart(bool isOn);
 }
 #endif // DCTOOLS_H

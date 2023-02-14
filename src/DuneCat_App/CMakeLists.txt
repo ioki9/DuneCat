@@ -1,23 +1,30 @@
+include_directories(${QtQml_INCLUDE_DIRS})
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
 qt_add_executable(${PROJECT_NAME}
     main.cpp
-    DCSettings.h
-    DCSettings.cpp
     DCTools.cpp
     DCTools.h
 )
 
-target_link_libraries(${PROJECT_NAME}
-    PRIVATE Qt6::Qml Qt6::Quick)
-    
 set_target_properties(${PROJECT_NAME} PROPERTIES
     MACOSX_BUNDLE ON
     WIN32_EXECUTABLE TRUE)
 
 qt_add_qml_module(${PROJECT_NAME}
-    URI UI
+    URI DCBase
     VERSION 1.0
-    SOURCES
-        DCSettings.cpp DCSettings.h
+    RESOURCE_PREFIX /DuneCat/qml
     QML_FILES
         main.qml
-    )
+        DCLaunchButton.qml
+    SOURCES
+        DCSettings.h DCSettings.cpp
+    RESOURCES
+        img/LaunchButton.png
+
+)
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE Qt6::Qml Qt6::Quick)

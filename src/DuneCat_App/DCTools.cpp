@@ -4,6 +4,7 @@
 #include <QProcess>
 #include <QtCore>
 
+//TODO: for linux make a more generic way to autostart an app (with .sh script after deployment)
 bool tools::bootUpStart(bool isOn)
 {
     #ifdef Q_OS_LINUX
