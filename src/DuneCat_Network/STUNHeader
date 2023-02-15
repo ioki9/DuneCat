@@ -1,0 +1,10 @@
+#pragma once
+#include <netioapi.h>
+#include <QtGlobal>
+
+struct stun_header
+{
+    quint16 msg_type{};
+    quint16 msg_length{0};
+    constexpr quint32 magic_cookie {htonl(0x2112A442)};
+};
