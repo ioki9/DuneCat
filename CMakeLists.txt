@@ -7,7 +7,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 message("Looking for Qt...")
-find_package(Qt6 COMPONENTS Quick Qml REQUIRED)
+find_package(Qt6 COMPONENTS Quick Qml Network REQUIRED)
 if (${Qt6_FOUND})
     message("Found Qt " ${Qt6_VERSION})
 else()
@@ -19,6 +19,7 @@ set (QT_QML_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/qml)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_subdirectory(src/DuneCat_App)
+add_subdirectory(src/DuneCat_Network)
 
 install(TARGETS DuneCat
     BUNDLE DESTINATION .
