@@ -1,6 +1,6 @@
 #pragma once
-#include <QObject>
-#include <QtQml/qqmlregistration.h>
+
+#include "EssentialHeaders.pch"
 
 class DCSettings : public QObject
 {

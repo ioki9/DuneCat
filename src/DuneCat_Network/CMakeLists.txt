@@ -6,3 +6,4 @@ qt_add_qml_module(DCNetwork
     stunclient.cpp  stunclient.h
     DCNetworkModels.h
 )
+target_precompile_headers(DCNetwork PUBLIC NetworkHeaders.pch)

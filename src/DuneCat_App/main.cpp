@@ -1,5 +1,4 @@
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
+#include "EssentialHeaders.pch"
 #include <QLocale>
 #include <QTranslator>
 #include "DCSettings.h"

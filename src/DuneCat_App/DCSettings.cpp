@@ -2,8 +2,6 @@
 #include "DCTools.h"
 #include <DuneCatConfig.h>
 
-
-
 DCSettings::DCSettings(QObject *parent)
     : QObject{parent}
 {

@@ -1,6 +1,7 @@
 #ifndef DCTOOLS_H
 #define DCTOOLS_H
-#include <QString>
+
+#include "EssentialHeaders.pch"
 
 namespace tools
 {

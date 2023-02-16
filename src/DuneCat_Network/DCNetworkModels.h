@@ -1,7 +1,6 @@
 #pragma once
-#include <netioapi.h>
 #include <QtGlobal>
-#include <QtNetwork>
+#include "NetworkHeaders.pch"
 
 struct DCSTUNHeader
 {
