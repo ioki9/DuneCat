@@ -4,5 +4,5 @@ qt_add_qml_module(DCNetwork
     RESOURCE_PREFIX /DuneCat/qml
     SOURCES
     stunclient.cpp  stunclient.h
-    STUNHeader.h
+    DCNetworkModels.h
 )
