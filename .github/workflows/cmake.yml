@@ -1,4 +1,4 @@
-name: CMake win/mac build
+name: CMake win/mac/ubuntu build
 
 on:
   push:
