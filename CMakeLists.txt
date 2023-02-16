@@ -29,7 +29,7 @@ configure_file(DuneCatConfig.h.in DuneCatConfig.h)
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
 set (
     QML_IMPORT_PATH
-    ${CMAKE_BINARY_DIR}
+    ${CMAKE_BINARY_DIR}/qml
     CACHE
     STRING
     "Path used to locate CMake modules by Qt Creator"

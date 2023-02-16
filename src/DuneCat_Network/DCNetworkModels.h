@@ -2,12 +2,21 @@
 #include <QtGlobal>
 #include "NetworkHeaders.pch"
 
-struct DCSTUNHeader
+struct DCStunAttribute
 {
-    quint16 msg_type{};
-    quint16 msg_length{0};
-    constexpr quint32 magic_cookie {htonl(0x2112A442)};
-    quint32 transaction_id[3];
+    quint16_be type;
+    quint16_be length;
+    quint32_be value[];
+};
+
+struct DCStunHeader
+{
+    quint16_be msg_type{};
+    quint16_be msg_length{0};
+    //constant according to RFC5389
+    const quint32_be magic_cookie {0x2112A442};
+    quint32_be transaction_id[3];
+    DCStunAttribute attr[];
 };
 
 struct DCEndPoint
