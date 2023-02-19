@@ -18,14 +18,18 @@ private:
     void prepareData();
     void sendRequest();
     void waitResponse();
+    void computeRTO();
     void setHeader(quint16 message_type = quint16(0x0001));
     std::unique_ptr<DCEndPoint> m_mapped_address;
     QTimer* m_timer;
     DCStunHeader m_msgHeader;
     QByteArray m_data;
-    DCEndPoint* m_currentServer;
+    int m_rto{1000};
+    std::unique_ptr<DCEndPoint> m_currentServer;
 
 signals:
+    void processingError();
+    void updated();
 private slots:
     void resendRequest();
     bool processData();

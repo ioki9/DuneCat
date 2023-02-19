@@ -24,3 +24,13 @@ struct DCEndPoint
     QHostAddress address;
     quint16 port;
 };
+
+struct DCRTO
+{
+    float RTO;
+    float SRTT;
+    float RTTVAR;
+    const float alpha{0.125f};
+    const float beta{0.25f};
+    const quint8 k{4};
+};

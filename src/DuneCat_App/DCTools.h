@@ -1,5 +1,6 @@
 #ifndef DCTOOLS_H
 #define DCTOOLS_H
+#include <type_traits>
 #include "EssentialHeaders.pch"
 
 namespace tools
@@ -9,7 +10,7 @@ namespace tools
     bool bootUpStart(bool isOn);
 
     //intentionally doesn't modify bytes
-    template<typename T>
+    template<typename T, typename = std::enable_if<std::is_integral<T>::value>>
     inline T QByteArrayToInt(QByteArray&& bytes,QDataStream::ByteOrder orderOfBytes = QDataStream::BigEndian)
     {
         if(orderOfBytes == QDataStream::BigEndian)
