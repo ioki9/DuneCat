@@ -4,19 +4,19 @@
 
 struct DCStunAttribute
 {
-    quint16_be type;
-    quint16_be length;
-    quint32_be value[];
+    quint16 type;
+    quint16 length;
+    QByteArray body;
 };
 
 struct DCStunHeader
 {
-    quint16_be msg_type{};
-    quint16_be msg_length{0};
+    quint16 msg_type{};
+    quint16 msg_length{0};
     //constant according to RFC5389
-    const quint32_be magic_cookie {0x2112A442};
-    quint32_be transaction_id[3];
-    DCStunAttribute attr[];
+    const quint32 magic_cookie {0x2112A442};
+    quint32 transaction_id[3];
+    QVector<DCStunAttribute> attributes;
 };
 
 struct DCEndPoint

@@ -117,3 +117,5 @@ QString tools::macOSXAppBundlePath()
         return "";
     #endif
 }
+
+

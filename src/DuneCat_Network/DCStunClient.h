@@ -12,12 +12,21 @@ public:
     explicit DCStunClient(QVector<DCEndPoint> stunServers, QObject *parent = nullptr);
     explicit DCStunClient(DCEndPoint stunServer, QObject *parent = nullptr);
     ~DCStunClient();
+
 private:
     QVector<DCEndPoint> m_stunServers;
-    QNetworkDatagram sendRequest(DCEndPoint stunAddr);
-    DCStunHeader create_header(quint16_be message_type = quint16_be(0x0001));
+    void prepareData();
+    void sendRequest();
+    void waitResponse();
+    void setHeader(quint16 message_type = quint16(0x0001));
     std::unique_ptr<DCEndPoint> m_mapped_address;
+    QTimer* m_timer;
+    DCStunHeader m_msgHeader;
+    QByteArray m_data;
+    DCEndPoint* m_currentServer;
+
 signals:
-
-
+private slots:
+    void resendRequest();
+    bool processData();
 };

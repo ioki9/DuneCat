@@ -1,3 +1,4 @@
+qt_add_library(DCNetwork STATIC)
 qt_add_qml_module(DCNetwork
     URI DCNetwork
     VERSION 1.0
@@ -6,4 +7,4 @@ qt_add_qml_module(DCNetwork
     DCStunClient.cpp  DCStunClient.h
     DCNetworkModels.h
 )
-target_precompile_headers(DCNetwork PUBLIC NetworkHeaders.pch)
+target_precompile_headers(DCNetwork PUBLIC NetworkHeaders.pch )
