@@ -7,4 +7,6 @@ qt_add_qml_module(DCNetwork
     DCStunClient.cpp  DCStunClient.h
     DCNetworkModels.h
 )
-target_precompile_headers(DCNetwork PUBLIC NetworkHeaders.pch )
+
+target_precompile_headers(DCNetwork PUBLIC NetworkHeaders.pch)
+target_link_libraries(DCNetwork PUBLIC qt_libs)
