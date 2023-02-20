@@ -1,8 +1,8 @@
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
+#include "EssentialHeaders.h"
 #include <QLocale>
 #include <QTranslator>
 #include "DCSettings.h"
+#include "../DuneCat_Network/DCStunClient.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,7 +16,9 @@ int main(int argc, char *argv[])
             break;
         }
     }
-
+    QHostAddress host("77.72.169.212");
+    std::unique_ptr<DCStunClient> client =
+            std::make_unique<DCStunClient>(DCEndPoint{host,3478});
     QQmlApplicationEngine engine;
     const QUrl url(u"qrc:DuneCat/qml/DCBase/main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

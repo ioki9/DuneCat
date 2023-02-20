@@ -24,7 +24,8 @@ qt_add_qml_module(${PROJECT_NAME}
         DCSettings.h DCSettings.cpp
     RESOURCES
         img/LaunchButton.png
-
 )
-target_link_libraries(${PROJECT_NAME}
-    PRIVATE Qt6::Qml Qt6::Quick)
+target_precompile_headers(${PROJECT_NAME} PUBLIC EssentialHeaders.h)
+target_link_libraries(${PROJECT_NAME} PUBLIC qt_libs DCNetwork)
+
+
