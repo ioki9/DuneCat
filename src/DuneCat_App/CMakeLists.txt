@@ -27,3 +27,5 @@ qt_add_qml_module(${PROJECT_NAME}
 )
 target_precompile_headers(${PROJECT_NAME} PUBLIC EssentialHeaders.h)
 target_link_libraries(${PROJECT_NAME} PUBLIC qt_libs DCNetwork)
+
+
