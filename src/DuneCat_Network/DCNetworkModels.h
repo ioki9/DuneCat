@@ -1,6 +1,6 @@
 #pragma once
 #include <QtGlobal>
-#include "NetworkHeaders.pch"
+#include "NetworkHeaders.h"
 
 struct DCStunAttribute
 {

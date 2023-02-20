@@ -1,7 +1,7 @@
 #pragma once
 #include <QObject>
 #include <memory>
-#include "NetworkHeaders.pch"
+#include "NetworkHeaders.h"
 #include "DCNetworkModels.h"
 
 class DCStunClient : public QUdpSocket
