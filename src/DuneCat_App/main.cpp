@@ -3,6 +3,7 @@
 #include <QTranslator>
 #include "DCSettings.h"
 #include "../DuneCat_Network/DCStunClient.h"
+
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);

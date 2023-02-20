@@ -1,5 +1,5 @@
 #include "DCStunClient.h"
-#include "../DuneCat_App/DCTools.h"
+#include "DCTools.h"
 DCStunClient::DCStunClient(QVector<DCEndPoint> stunServers, QObject *parent)
     : QUdpSocket{parent}, m_stunServers{stunServers}
 {
