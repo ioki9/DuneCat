@@ -2,7 +2,8 @@
 #include <QLocale>
 #include <QTranslator>
 #include "DCSettings.h"
-#include "../DuneCat_Network/DCStunClient.h"
+#include "DCStunClient.h"
+#include "dctrackermanager.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,9 +17,10 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    QHostAddress host("77.72.169.212");
-    std::unique_ptr<DCStunClient> client =
-            std::make_unique<DCStunClient>(DCEndPoint{host,3478});
+    quint16 port = static_cast<quint16>(QUrl("udp://public.popcorn-tracker.org:6969").port());
+    QHostAddress host=QHostInfo::fromName(QUrl("udp://opentracker.i2p.rocks:6969").host()).addresses()[0];
+    std::unique_ptr<DCTrackerManager> manager =
+            std::make_unique<DCTrackerManager>(DCEndPoint{host,port});
     QQmlApplicationEngine engine;
     const QUrl url(u"qrc:DuneCat/qml/DCBase/main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

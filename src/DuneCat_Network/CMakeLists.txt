@@ -5,7 +5,9 @@ qt_add_qml_module(DCNetwork
     RESOURCE_PREFIX /DuneCat/qml
     SOURCES
     DCStunClient.cpp  DCStunClient.h
+    dctrackermanager.cpp dctrackermanager.h
     DCNetworkModels.h
+
 )
 
 target_precompile_headers(DCNetwork

@@ -5,7 +5,8 @@ DCStunClient::DCStunClient(QVector<DCEndPoint> stunServers, QObject *parent)
 {
 
 }
-DCStunClient::DCStunClient(DCEndPoint stunServer, QObject *parent)
+
+DCStunClient::DCStunClient(const DCEndPoint& stunServer, QObject *parent)
     : QUdpSocket{parent}, m_stunServers{stunServer}
 {
     setHeader();
@@ -16,14 +17,15 @@ DCStunClient::DCStunClient(DCEndPoint stunServer, QObject *parent)
     prepareData();
     sendRequest();
 }
+
 DCStunClient::~DCStunClient()
 {
     m_timer->deleteLater();
 }
+
 //m_msgHeader should be created before calling this function
 void DCStunClient::prepareData()
 {
-    bind(m_currentServer->address,m_currentServer->port);
     QDataStream out(&m_data,QIODevice::WriteOnly);
     out.setByteOrder(QDataStream::BigEndian);
     //header.msg_length = quint16(sizeof(header.attr));
@@ -31,6 +33,7 @@ void DCStunClient::prepareData()
     out<<m_msgHeader.transaction_id[0]<<m_msgHeader.transaction_id[1]<<m_msgHeader.transaction_id[2];
     //out<<header.attr.type<<header.attr.length;
 }
+
 //call when m_data is ready to be sent
 void DCStunClient::sendRequest()
 {
@@ -113,14 +116,14 @@ bool DCStunClient::processData()
         if(tools::QByteArrayToInt<quint16>(attr.body.sliced(0,2)) == 0x0001)
         {
             //MAPPED-ADDRESS
-            if(attr.type == 0x0001)
+            if(attr.type == 0x01)
                 m_mapped_address->address =
-                        QHostAddress(tools::QByteArrayToInt<quint32>(attr.body.sliced(4,4)));
+                    QHostAddress(tools::QByteArrayToInt<quint32>(attr.body.sliced(4,4)));
             //XOR-MAPPED-ADDRESS
             else
             {
                 m_mapped_address->address =
-                        QHostAddress(tools::QByteArrayToInt<quint32>(attr.body.sliced(4,4)) ^ m_msgHeader.magic_cookie);
+                    QHostAddress(qFromBigEndian(*(reinterpret_cast<quint32*>(attr.body.sliced(4,4).data()))^m_msgHeader.magic_cookie));
             }
         }
         //IPv6
@@ -139,7 +142,7 @@ bool DCStunClient::processData()
 
                 for(quint8 b{0};b<4;b++)
                     ipv6[b] = ipv6[b] ^ magic_cookie[b];
-                for(quint8 p{4},t{0}; t<12; t++)
+                for(quint8 p{4},t{0}; t<12; t++,p++)
                     ipv6[p] = ipv6[p] ^ transactionID[t];
 
                 m_mapped_address->address = QHostAddress(ipv6);
@@ -163,5 +166,4 @@ void DCStunClient::setHeader(quint16 message_type)
 
     m_msgHeader.msg_type = message_type;
 }
-
 
