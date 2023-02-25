@@ -15,8 +15,10 @@ class DCTrackerManager : public QObject
         DCTrackerAnnounce m_announce{};
         DCTrackerConnect::Request m_conn_req{};
         quint64 m_connection_id;
+
     private slots:
         bool connectToTracker();
+        void recieveMessage();
 };
 
 #endif // DCCONNECTIONMANAGER_H

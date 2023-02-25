@@ -33,7 +33,7 @@ bool DCTrackerManager::connectToTracker()
     announce.downloaded = announce.uploaded = announce.left = 0;
     for(quint8 i; i<20;i++)
     {
-        announce.info_hash[i] = static_cast<quint8>(QRandomGenerator().global()->generate());
+        announce.info_hash[i] = static_cast<quint8>(i*846253);
         announce.peer_id[i] = static_cast<quint8>(QRandomGenerator().global()->generate());
     }
     announce.transaction_id = QRandomGenerator().global()->generate();
@@ -68,16 +68,18 @@ bool DCTrackerManager::connectToTracker()
     QVector<quint16> ports;
     for(quint8 n{0};(n*6)<(data.size()-20);n++)
     {
-        ips.push_back(quint32());
-        ports.push_back(quint16());
-        outAn>>ips[n]>>ports[n];
+        quint32 tempIP;
+        quint16 tempPort;
+        outAn>>tempIP>>tempPort;
+        ips.push_back(tempIP);
+        ports.push_back(tempPort);
     }
     connect(socket.get(),&QUdpSocket::readyRead,this,&DCTrackerManager::recieveMessage);
     for(quint8 i{0};i<ips.size();i++)
     {
         QHostAddress ip(ips[i]);
-        if(ip != socket->m_mapped_address->address && port[i] != socket->m_mapped_address->port)
-            socket->writeDatagram(QByteArray("Hello there"),ip,port);
+        if(ip != socket->m_mapped_address->address && ports[i] != socket->m_mapped_address->port)
+            socket->writeDatagram(QByteArray("Hello there"),ip,ports[i]);
     }
 
     return true;
@@ -85,7 +87,7 @@ bool DCTrackerManager::connectToTracker()
 
 void DCTrackerManager::recieveMessage()
 {
-    QNetworkDatagram datagram = socket->recieveDatagram();
+    QNetworkDatagram datagram = socket->receiveDatagram();
     qDebug()<<"sender ip:port="<<datagram.senderAddress()<<":"<<datagram.senderPort();
     qDebug()<<"message:"<<datagram.data().data();
 }
