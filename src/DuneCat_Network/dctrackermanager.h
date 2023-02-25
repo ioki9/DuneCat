@@ -2,7 +2,7 @@
 #define DCCONNECTIONMANAGER_H
 
 #include <QObject>
-#include "DCStunClient.h"
+#include "dcstunclient.h"
 #include "dctrackermanager.h"
 
 class DCTrackerManager : public QObject
@@ -13,8 +13,8 @@ class DCTrackerManager : public QObject
         std::unique_ptr<DCStunClient> socket;
         DCEndPoint m_tracker;
         DCTrackerAnnounce m_announce{};
-        DCTrackerConnect::Request m_connect{};
-
+        DCTrackerConnect::Request m_conn_req{};
+        quint64 m_connection_id;
     private slots:
         bool connectToTracker();
 };

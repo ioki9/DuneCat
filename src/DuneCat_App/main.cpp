@@ -2,7 +2,7 @@
 #include <QLocale>
 #include <QTranslator>
 #include "DCSettings.h"
-#include "DCStunClient.h"
+#include "dcstunclient.h"
 #include "dctrackermanager.h"
 
 int main(int argc, char *argv[])
