@@ -1,6 +1,4 @@
 #pragma once
-#include <QObject>
-#include <memory>
 #include "networkheaders.h"
 #include "dcnetworkmodels.h"
 
@@ -14,7 +12,7 @@ public:
     explicit DCStunClient(const DCEndPoint& stunServer, QObject *parent = nullptr);
     ~DCStunClient();
     std::unique_ptr<DCEndPoint> m_mapped_address;
-
+    inline DCEndPoint get_current_server() const {return m_currentServer;}
 private:
     QVector<DCEndPoint> m_stunServers;
     void prepareData();
@@ -26,11 +24,12 @@ private:
     DCStunHeader m_msgHeader;
     QByteArray m_data;
     int m_rto{1000};
-    std::unique_ptr<DCEndPoint> m_currentServer;
+    DCEndPoint m_currentServer;
 
 signals:
     void processingError();
     void updated();
+
 private slots:
     void resendRequest();
     bool processData();

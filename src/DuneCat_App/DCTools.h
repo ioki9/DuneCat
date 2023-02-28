@@ -9,7 +9,6 @@ namespace tools
     QString macOSXAppBundleName();
     bool bootUpStart(bool isOn);
 
-    //intentionally doesn't modify bytes
     template<typename T, typename = std::enable_if<std::is_integral<T>::value>>
     inline T QByteArrayToInt(QByteArray&& bytes,QDataStream::ByteOrder orderOfBytes = QDataStream::BigEndian)
     {
@@ -18,5 +17,6 @@ namespace tools
         else
             return qFromLittleEndian(*(reinterpret_cast<T*>(bytes.data())));
     }
+
 }
 #endif // DCTOOLS_H

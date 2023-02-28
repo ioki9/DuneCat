@@ -1,5 +1,6 @@
 #include "dcstunclient.h"
 #include "DCTools.h"
+
 DCStunClient::DCStunClient(QVector<DCEndPoint> stunServers, QObject *parent)
     : QUdpSocket{parent}, m_stunServers{stunServers}
 {
@@ -11,7 +12,7 @@ DCStunClient::DCStunClient(const DCEndPoint& stunServer, QObject *parent)
 {
     setHeader();
     m_timer = new QTimer();
-    m_currentServer = std::make_unique<DCEndPoint>(DCEndPoint{stunServer.address,stunServer.port});
+    m_currentServer = DCEndPoint{stunServer.address,stunServer.port};
     m_mapped_address = std::make_unique<DCEndPoint>(DCEndPoint{QHostAddress(),0});
     m_rto = 1000;
     prepareData();
@@ -37,7 +38,7 @@ void DCStunClient::prepareData()
 //call when m_data is ready to be sent
 void DCStunClient::sendRequest()
 {
-    qDebug()<<"Bytes sent: "<<writeDatagram(m_data,m_currentServer->address, m_currentServer->port);
+    qDebug()<<"Bytes sent: "<<writeDatagram(m_data,m_currentServer.address, m_currentServer.port);
     waitResponse();
 }
 
@@ -50,7 +51,7 @@ void DCStunClient::resendRequest()
     }
     m_rto = m_rto * 2 + 500;
     m_timer->setInterval(m_rto);
-    qDebug()<<"Bytes resent: "<<writeDatagram(m_data,m_currentServer->address, m_currentServer->port);
+    qDebug()<<"Bytes resent: "<<writeDatagram(m_data,m_currentServer.address, m_currentServer.port);
 }
 
 void DCStunClient::waitResponse()
@@ -69,6 +70,7 @@ void DCStunClient::computeRTO()
 
 bool DCStunClient::processData()
 {
+
     m_timer->stop();
     disconnect(this,&QUdpSocket::readyRead,this,&DCStunClient::processData);
     if(!bytesAvailable())

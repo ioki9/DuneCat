@@ -1,7 +1,80 @@
 #pragma once
-#include <QtGlobal>
 #include "networkheaders.h"
-#include <QVariant>
+
+template<typename E>
+struct enable_bitmask_operators{ static constexpr bool enable = false;};
+
+template<typename E>
+typename std::enable_if<enable_bitmask_operators<E>::enable,E>::type
+operator|(E lhs,E rhs)
+{
+    typedef typename std::underlying_type<E>::type underlying;
+    return static_cast<E>(
+    static_cast<underlying>(lhs) | static_cast<underlying>(rhs));
+}
+template<typename E>
+typename std::enable_if<enable_bitmask_operators<E>::enable,E>::type
+operator&(E lhs,E rhs)
+{
+    typedef typename std::underlying_type<E>::type underlying;
+    return static_cast<E>(
+    static_cast<underlying>(lhs) & static_cast<underlying>(rhs));
+}
+
+template<typename E>
+typename std::enable_if<enable_bitmask_operators<E>::enable,E>::type
+operator^(E lhs,E rhs){
+    typedef typename std::underlying_type<E>::type underlying;
+    return static_cast<E>(
+        static_cast<underlying>(lhs) ^ static_cast<underlying>(rhs));
+}
+
+template<typename E>
+typename std::enable_if<enable_bitmask_operators<E>::enable,E>::type
+operator~(E lhs){
+    typedef typename std::underlying_type<E>::type underlying;
+    return static_cast<E>(
+        ~static_cast<underlying>(lhs));
+}
+
+template<typename E>
+typename std::enable_if<enable_bitmask_operators<E>::enable,E&>::type
+operator|=(E& lhs,E rhs){
+    typedef typename std::underlying_type<E>::type underlying;
+    lhs=static_cast<E>(
+        static_cast<underlying>(lhs) | static_cast<underlying>(rhs));
+    return lhs;
+}
+
+template<typename E>
+typename std::enable_if<enable_bitmask_operators<E>::enable,E&>::type
+operator&=(E& lhs,E rhs){
+    typedef typename std::underlying_type<E>::type underlying;
+    lhs=static_cast<E>(
+        static_cast<underlying>(lhs) & static_cast<underlying>(rhs));
+    return lhs;
+}
+
+template<typename E>
+typename std::enable_if<enable_bitmask_operators<E>::enable,E&>::type
+operator^=(E& lhs,E rhs){
+    typedef typename std::underlying_type<E>::type underlying;
+    lhs=static_cast<E>(
+        static_cast<underlying>(lhs) ^ static_cast<underlying>(rhs));
+    return lhs;
+}
+
+enum class DatagramType : quint8
+{
+    undefined = 1 << 1,
+    stun_response = 1 << 2,
+    tracker_connResponse = 1 << 3,
+    tracker_announResponse = 1 << 4
+};
+template<> struct enable_bitmask_operators<DatagramType>
+{
+    static constexpr bool enable=true;
+};
 
 struct DCStunAttribute
 {
@@ -48,6 +121,8 @@ struct DCTrackerConnect
         quint32 transaction_id;
         quint64 connection_id;
     };
+    Request request{};
+    Response response{};
 };
 
 struct DCTrackerAnnounce
@@ -75,6 +150,6 @@ struct DCTrackerAnnounce
         quint32 seeders;
 
     };
-
-
+    Request request{};
+    Response response{};
 };
