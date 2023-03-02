@@ -1,4 +1,5 @@
 #pragma once
+#include <QtGlobal>
 #include "networkheaders.h"
 
 template<typename E>
@@ -153,3 +154,4 @@ struct DCTrackerAnnounce
     Request request{};
     Response response{};
 };
+

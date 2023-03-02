@@ -1,3 +1,4 @@
+
 #include "dcstunclient.h"
 #include "DCTools.h"
 
@@ -8,11 +9,13 @@ DCStunClient::DCStunClient(QVector<DCEndPoint> stunServers, QObject *parent)
 }
 
 DCStunClient::DCStunClient(const DCEndPoint& stunServer, QObject *parent)
+
     : QUdpSocket{parent}, m_stunServers{stunServer}
 {
     setHeader();
     m_timer = new QTimer();
     m_currentServer = DCEndPoint{stunServer.address,stunServer.port};
+
     m_mapped_address = std::make_unique<DCEndPoint>(DCEndPoint{QHostAddress(),0});
     m_rto = 1000;
     prepareData();
@@ -26,7 +29,7 @@ DCStunClient::~DCStunClient()
 
 //m_msgHeader should be created before calling this function
 void DCStunClient::prepareData()
-{
+
     QDataStream out(&m_data,QIODevice::WriteOnly);
     out.setByteOrder(QDataStream::BigEndian);
     //header.msg_length = quint16(sizeof(header.attr));
@@ -52,6 +55,7 @@ void DCStunClient::resendRequest()
     m_rto = m_rto * 2 + 500;
     m_timer->setInterval(m_rto);
     qDebug()<<"Bytes resent: "<<writeDatagram(m_data,m_currentServer.address, m_currentServer.port);
+
 }
 
 void DCStunClient::waitResponse()
@@ -70,7 +74,6 @@ void DCStunClient::computeRTO()
 
 bool DCStunClient::processData()
 {
-
     m_timer->stop();
     disconnect(this,&QUdpSocket::readyRead,this,&DCStunClient::processData);
     if(!bytesAvailable())
@@ -118,14 +121,17 @@ bool DCStunClient::processData()
         if(tools::QByteArrayToInt<quint16>(attr.body.sliced(0,2)) == 0x0001)
         {
             //MAPPED-ADDRESS
+
             if(attr.type == 0x01)
                 m_mapped_address->address =
                     QHostAddress(tools::QByteArrayToInt<quint32>(attr.body.sliced(4,4)));
+
             //XOR-MAPPED-ADDRESS
             else
             {
                 m_mapped_address->address =
                     QHostAddress(qFromBigEndian(*(reinterpret_cast<quint32*>(attr.body.sliced(4,4).data()))^m_msgHeader.magic_cookie));
+
             }
         }
         //IPv6
@@ -144,6 +150,7 @@ bool DCStunClient::processData()
 
                 for(quint8 b{0};b<4;b++)
                     ipv6[b] = ipv6[b] ^ magic_cookie[b];
+
                 for(quint8 p{4},t{0}; t<12; t++,p++)
                     ipv6[p] = ipv6[p] ^ transactionID[t];
 

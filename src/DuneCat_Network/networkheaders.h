@@ -1,3 +1,4 @@
+
 #include <memory>
 #include <QtGlobal>
 #include <QObject>

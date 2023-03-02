@@ -1,6 +1,8 @@
 #pragma once
+
 #include "networkheaders.h"
 #include "dcnetworkmodels.h"
+
 
 class DCStunClient : public QUdpSocket
 {
@@ -13,6 +15,7 @@ public:
     ~DCStunClient();
     std::unique_ptr<DCEndPoint> m_mapped_address;
     inline DCEndPoint get_current_server() const {return m_currentServer;}
+
 private:
     QVector<DCEndPoint> m_stunServers;
     void prepareData();
@@ -26,10 +29,10 @@ private:
     int m_rto{1000};
     DCEndPoint m_currentServer;
 
+
 signals:
     void processingError();
     void updated();
-
 private slots:
     void resendRequest();
     bool processData();
