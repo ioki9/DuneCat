@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
     std::unique_ptr<DCTrackerManager> manager =
             std::make_unique<DCTrackerManager>(DCEndPoint{host,port});
     manager->open_connection(DCEndPoint{QHostAddress("37.139.120.14"),3478});
+
     QQmlApplicationEngine engine;
     const QUrl url(u"qrc:DuneCat/qml/DCBase/main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
@@ -29,7 +30,7 @@ int main(int argc, char *argv[])
         if (!obj && url == objUrl)
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
-    engine.load(url);
 
+    engine.load(url);
     return app.exec();
 }

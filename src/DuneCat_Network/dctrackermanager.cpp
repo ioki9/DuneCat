@@ -174,6 +174,7 @@ void DCTrackerManager::receive_announce(QNetworkDatagram& datagram)
     m_timeout_timer->singleShot(m_reannounce_interval,this,&DCTrackerManager::send_announce);
     emit endpoints_updated();
 }
+
 void DCTrackerManager::force_announce()
 {
     //if timer is active,then we didnt get a response from previous announce so we just retun
@@ -181,6 +182,7 @@ void DCTrackerManager::force_announce()
         return;
     send_announce();
 }
+
 void DCTrackerManager::send_message()
 {
     for(quint8 i{0};i<m_endpoints.size();i++)
@@ -193,6 +195,6 @@ void DCTrackerManager::send_message()
 
 void DCTrackerManager::receive_message(QNetworkDatagram& datagram)
 {
-    qDebug()<<"sender ip:port = "<<datagram.senderAddress()<<":"<<datagram.senderPort();
+    qDebug()<<"sender ip:port = "<<datagram.senderAddress().toString()<<":"<<datagram.senderPort();
     qDebug()<<"message:"<<datagram.data();
 }

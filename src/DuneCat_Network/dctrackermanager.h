@@ -15,7 +15,7 @@ public:
     inline DCStunClient* get_socket() const { return m_socket.get();}
     inline int get_announce_interval() const {return m_reannounce_interval;}
     inline void set_announce_interval(int interval) { m_reannounce_interval = interval;}
-
+    inline QVector<DCEndPoint>& get_endpoints() const {return m_endpoints;}
     void open_connection(DCEndPoint stun_server);
     void open_connection(QVector<DCEndPoint> stun_servers);
     void force_announce();
@@ -27,10 +27,10 @@ signals:
     void endpoints_updated();
 private:
     std::unique_ptr<DCStunClient> m_socket;
-    DCEndPoint m_current_tracker;
+    DCEndPoint m_current_tracker{};
     DCTrackerAnnounce m_announce{};
     DCTrackerConnect m_connect{};
-    QVector<DCEndPoint> m_endpoints;
+    QVector<DCEndPoint> m_endpoints{};
     QTimer* m_timeout_timer;
     int m_reannounce_interval{10000};
 
