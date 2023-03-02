@@ -10,30 +10,40 @@ class DCTrackerManager : public QObject
     Q_OBJECT
 public:
     explicit DCTrackerManager(const DCEndPoint& tracker_addr,QObject* parent = nullptr);
+    ~DCTrackerManager();
+    inline DCEndPoint get_current_tracker() const {return m_current_tracker;}
+    inline DCStunClient* get_socket() const { return m_socket.get();}
+    inline int get_announce_interval() const {return m_reannounce_interval;}
+    inline void set_announce_interval(int interval) { m_reannounce_interval = interval;}
+
+    void open_connection(DCEndPoint stun_server);
+    void open_connection(QVector<DCEndPoint> stun_servers);
+    void force_announce();
+
+signals:
+    void tracker_not_responding();
+    void conn_succeed();
+    void conn_resp_error();
+    void endpoints_updated();
+private:
     std::unique_ptr<DCStunClient> m_socket;
     DCEndPoint m_current_tracker;
     DCTrackerAnnounce m_announce{};
     DCTrackerConnect m_connect{};
     QVector<DCEndPoint> m_endpoints;
-    QTimer* m_trackerTimer;
-    bool setupConnection();
-signals:
-    void trackerNotResponding();
-    void connSucceed();
-    void connRespError();
-    void endpointsUpdate();
-private:
-    void initParameters();
+    QTimer* m_timeout_timer;
+    int m_reannounce_interval{10000};
 
-    void sendMessage();
-    void receiveAnnounce(QNetworkDatagram& datagram);
+    void init_parameters();
+    void send_message();
+    void receive_announce(QNetworkDatagram& datagram);
 private slots:
-    void sendAnnounce();
-    void handleTimer();
-    void handleDatagram();
-    void connectionRequest();
-    void receiveMessage(QNetworkDatagram& datagram);
-    bool receiveConnResponse(QNetworkDatagram& datagram);
+    void send_announce();
+    void handle_timer();
+    void handle_datagram();
+    void connection_request();
+    void receive_message(QNetworkDatagram& datagram);
+    bool receive_conn_response(QNetworkDatagram& datagram);
 };
 
 #endif // DCCONNECTIONMANAGER_H
