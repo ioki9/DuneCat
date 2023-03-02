@@ -32,7 +32,7 @@ private slots:
     void handleTimer();
     void handleDatagram();
     void connectionRequest();
-    void recieveMessage();
+    void receiveMessage(QNetworkDatagram& datagram);
     bool receiveConnResponse(QNetworkDatagram& datagram);
 };
 

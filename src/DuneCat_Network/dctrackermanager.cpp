@@ -7,9 +7,12 @@ DCTrackerManager::DCTrackerManager(const DCEndPoint &tracker, QObject *parent)
     m_trackerTimer = new QTimer();
     DCEndPoint end{QHostAddress("77.72.169.212"),3478};
     m_socket = std::make_unique<DCStunClient>(end);
+    connect(m_socket.get(),&DCStunClient::updated,this,&DCTrackerManager::initParameters);
     connect(m_socket.get(),&DCStunClient::updated,this,&DCTrackerManager::connectionRequest);
     connect(this,&DCTrackerManager::connSucceed,this,&DCTrackerManager::sendAnnounce);
+    connect(this, &DCTrackerManager::endpointsUpdate,this, &DCTrackerManager::sendMessage);
 }
+
 void DCTrackerManager::initParameters()
 {
     m_connect.request.transaction_id = QRandomGenerator::global()->generate();
@@ -47,6 +50,8 @@ void DCTrackerManager::handleDatagram()
         receiveConnResponse(datagram);
     else if(action == 1)
         receiveAnnounce(datagram);
+    else
+        receiveMessage(datagram);
 }
 
 void DCTrackerManager::handleTimer()
@@ -67,11 +72,11 @@ void DCTrackerManager::handleTimer()
         disconnect(m_trackerTimer,&QTimer::timeout,nullptr,nullptr);
         return;
     }
-
 }
 
 void DCTrackerManager::connectionRequest()
 {
+
     QByteArray data;
     QDataStream in(&data,QIODevice::ReadWrite);
     in.setByteOrder(QDataStream::BigEndian);
@@ -124,9 +129,13 @@ void DCTrackerManager::sendAnnounce()
       <<m_announce.request.num_want<<m_announce.request.port;
     qDebug()<<"Announce bytes sent:"
            <<m_socket->writeDatagram(data,m_current_tracker.address,m_current_tracker.port);
-
-    connect(m_trackerTimer,&QTimer::timeout,this,&DCTrackerManager::handleTimer);
-    connect(m_trackerTimer,&QTimer::timeout,this,&DCTrackerManager::connectionRequest);
+    if(!m_trackerTimer->isActive())
+    {
+        m_trackerTimer->setInterval(1000*3);
+        m_trackerTimer->start();
+        connect(m_trackerTimer,&QTimer::timeout,this,&DCTrackerManager::handleTimer);
+        connect(m_trackerTimer,&QTimer::timeout,this,&DCTrackerManager::sendAnnounce);
+    }
 }
 
 void DCTrackerManager::receiveAnnounce(QNetworkDatagram& datagram)
@@ -139,7 +148,8 @@ void DCTrackerManager::receiveAnnounce(QNetworkDatagram& datagram)
     if(m_announce.response.transaction_id == m_announce.request.transaction_id
             && m_announce.response.action == 1 && data.size() >= 20)
         qDebug()<<"Announce response is correct.";
-
+    else
+        qDebug()<<"Announce response is wrong.";
     m_endpoints.clear();
     for(quint8 n{0};(n*6)<(data.size()-20);n++)
     {
@@ -148,8 +158,9 @@ void DCTrackerManager::receiveAnnounce(QNetworkDatagram& datagram)
         out>>tempIP>>tempPort;
         m_endpoints.push_back(DCEndPoint{QHostAddress(tempIP),tempPort});
     }
+
+    m_trackerTimer->singleShot(15 * 1000,this,&DCTrackerManager::sendAnnounce);
     emit endpointsUpdate();
-    connect(m_socket.get(),&QUdpSocket::readyRead,this,&DCTrackerManager::recieveMessage);
 }
 
 void DCTrackerManager::sendMessage()
@@ -160,12 +171,10 @@ void DCTrackerManager::sendMessage()
                 m_endpoints[i].port != m_socket->m_mapped_address->port)
             m_socket->writeDatagram(QByteArray("Hello there"),m_endpoints[i].address,m_endpoints[i].port);
     }
-    while(!m_socket->hasPendingDatagrams());
 }
 
-void DCTrackerManager::recieveMessage()
+void DCTrackerManager::receiveMessage(QNetworkDatagram& datagram)
 {
-    QNetworkDatagram datagram = m_socket->receiveDatagram();
     qDebug()<<"sender ip:port="<<datagram.senderAddress()<<":"<<datagram.senderPort();
     qDebug()<<"message:"<<datagram.data();
 }
