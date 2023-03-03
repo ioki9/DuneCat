@@ -1,6 +1,8 @@
 #pragma once
+
 #include "networkheaders.h"
 #include "dcnetworkmodels.h"
+
 
 class DCStunClient : public QUdpSocket
 {
@@ -28,10 +30,10 @@ private:
     int m_rto{1000};
     DCEndPoint m_current_server;
 
+
 signals:
     void processing_error();
     void updated();
-
 private slots:
     void resend_request();
     bool process_data();

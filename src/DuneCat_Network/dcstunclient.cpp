@@ -1,3 +1,4 @@
+
 #include "dcstunclient.h"
 #include "DCTools.h"
 
@@ -70,7 +71,6 @@ void DCStunClient::compute_RTO()
 
 bool DCStunClient::process_data()
 {
-
     m_timer->stop();
     disconnect(this,&QUdpSocket::readyRead,this,&DCStunClient::process_data);
     if(!bytesAvailable())
@@ -118,9 +118,11 @@ bool DCStunClient::process_data()
         if(tools::QByteArrayToInt<quint16>(attr.body.sliced(0,2)) == 0x0001)
         {
             //MAPPED-ADDRESS
+
             if(attr.type == 0x01)
                 m_mapped_address->address =
                     QHostAddress(tools::QByteArrayToInt<quint32>(attr.body.sliced(4,4)));
+
             //XOR-MAPPED-ADDRESS
             else
             {
@@ -144,6 +146,7 @@ bool DCStunClient::process_data()
 
                 for(quint8 b{0};b<4;b++)
                     ipv6[b] = ipv6[b] ^ magic_cookie[b];
+
                 for(quint8 p{4},t{0}; t<12; t++,p++)
                     ipv6[p] = ipv6[p] ^ transactionID[t];
 
