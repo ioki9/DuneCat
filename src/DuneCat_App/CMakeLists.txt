@@ -27,5 +27,6 @@ qt_add_qml_module(${PROJECT_NAME}
 )
 target_precompile_headers(${PROJECT_NAME} PUBLIC EssentialHeaders.h)
 target_link_libraries(${PROJECT_NAME} PUBLIC qt_libs DCNetwork)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/src/DuneCat_Network)
 
 

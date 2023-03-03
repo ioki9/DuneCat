@@ -1,36 +1,40 @@
 #pragma once
-#include <QObject>
-#include <memory>
-#include "NetworkHeaders.h"
-#include "DCNetworkModels.h"
+
+#include "networkheaders.h"
+#include "dcnetworkmodels.h"
+
 
 class DCStunClient : public QUdpSocket
 {
     Q_OBJECT
 
 public:
-    explicit DCStunClient(QVector<DCEndPoint> stunServers, QObject *parent = nullptr);
-    explicit DCStunClient(DCEndPoint stunServer, QObject *parent = nullptr);
+    DCStunClient() = delete;
+    explicit DCStunClient(QVector<DCEndPoint> stun_servers, QObject *parent = nullptr);
+    explicit DCStunClient(const DCEndPoint& stun_server, QObject *parent = nullptr);
     ~DCStunClient();
-
+    inline quint16 get_mapped_port() const {return m_mapped_address->port;}
+    inline QHostAddress get_mapped_address() const { return m_mapped_address->address;}
+    inline DCEndPoint get_current_server() const {return m_current_server;}
 private:
     QVector<DCEndPoint> m_stunServers;
-    void prepareData();
-    void sendRequest();
-    void waitResponse();
-    void computeRTO();
-    void setHeader(quint16 message_type = quint16(0x0001));
+    void prepare_data();
+    void send_request();
+    void wait_response();
     std::unique_ptr<DCEndPoint> m_mapped_address;
+    void compute_RTO();
+    void set_header(quint16 message_type = quint16(0x0001));
     QTimer* m_timer;
-    DCStunHeader m_msgHeader;
+    DCStunHeader m_msg_header;
     QByteArray m_data;
     int m_rto{1000};
-    std::unique_ptr<DCEndPoint> m_currentServer;
+    DCEndPoint m_current_server;
+
 
 signals:
-    void processingError();
+    void processing_error();
     void updated();
 private slots:
-    void resendRequest();
-    bool processData();
+    void resend_request();
+    bool process_data();
 };

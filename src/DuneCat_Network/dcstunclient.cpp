@@ -1,44 +1,49 @@
-#include "DCStunClient.h"
+
+#include "dcstunclient.h"
 #include "DCTools.h"
-DCStunClient::DCStunClient(QVector<DCEndPoint> stunServers, QObject *parent)
-    : QUdpSocket{parent}, m_stunServers{stunServers}
+
+DCStunClient::DCStunClient(QVector<DCEndPoint> stun_servers, QObject *parent)
+    : QUdpSocket{parent}, m_stunServers{stun_servers}
 {
 
 }
-DCStunClient::DCStunClient(DCEndPoint stunServer, QObject *parent)
-    : QUdpSocket{parent}, m_stunServers{stunServer}
+
+DCStunClient::DCStunClient(const DCEndPoint& stun_server, QObject *parent)
+    : QUdpSocket{parent}, m_stunServers{stun_server}
 {
-    setHeader();
+    set_header();
     m_timer = new QTimer();
-    m_currentServer = std::make_unique<DCEndPoint>(DCEndPoint{stunServer.address,stunServer.port});
+    m_current_server = DCEndPoint{stun_server.address,stun_server.port};
     m_mapped_address = std::make_unique<DCEndPoint>(DCEndPoint{QHostAddress(),0});
     m_rto = 1000;
-    prepareData();
-    sendRequest();
+    prepare_data();
+    send_request();
 }
+
 DCStunClient::~DCStunClient()
 {
     m_timer->deleteLater();
 }
+
 //m_msgHeader should be created before calling this function
-void DCStunClient::prepareData()
+void DCStunClient::prepare_data()
 {
-    bind(m_currentServer->address,m_currentServer->port);
     QDataStream out(&m_data,QIODevice::WriteOnly);
     out.setByteOrder(QDataStream::BigEndian);
     //header.msg_length = quint16(sizeof(header.attr));
-    out<<m_msgHeader.msg_type<<m_msgHeader.msg_length<<m_msgHeader.magic_cookie;
-    out<<m_msgHeader.transaction_id[0]<<m_msgHeader.transaction_id[1]<<m_msgHeader.transaction_id[2];
+    out<<m_msg_header.msg_type<<m_msg_header.msg_length<<m_msg_header.magic_cookie;
+    out<<m_msg_header.transaction_id[0]<<m_msg_header.transaction_id[1]<<m_msg_header.transaction_id[2];
     //out<<header.attr.type<<header.attr.length;
 }
+
 //call when m_data is ready to be sent
-void DCStunClient::sendRequest()
+void DCStunClient::send_request()
 {
-    qDebug()<<"Bytes sent: "<<writeDatagram(m_data,m_currentServer->address, m_currentServer->port);
-    waitResponse();
+    qDebug()<<"Bytes sent: "<<writeDatagram(m_data,m_current_server.address, m_current_server.port);
+    wait_response();
 }
 
-void DCStunClient::resendRequest()
+void DCStunClient::resend_request()
 {
     if(m_rto > 38000)
     {
@@ -47,27 +52,27 @@ void DCStunClient::resendRequest()
     }
     m_rto = m_rto * 2 + 500;
     m_timer->setInterval(m_rto);
-    qDebug()<<"Bytes resent: "<<writeDatagram(m_data,m_currentServer->address, m_currentServer->port);
+    qDebug()<<"Bytes resent: "<<writeDatagram(m_data,m_current_server.address, m_current_server.port);
 }
 
-void DCStunClient::waitResponse()
+void DCStunClient::wait_response()
 {
     m_timer->setInterval(m_rto);
-    connect(this, &QUdpSocket::readyRead, this, &DCStunClient::processData);
+    connect(this, &QUdpSocket::readyRead, this, &DCStunClient::process_data);
     //resend if timed out
-    connect(m_timer, &QTimer::timeout, this, &DCStunClient::resendRequest);
+    connect(m_timer, &QTimer::timeout, this, &DCStunClient::resend_request);
     m_timer->start();
 }
 
-void DCStunClient::computeRTO()
+void DCStunClient::compute_RTO()
 {
 
 }
 
-bool DCStunClient::processData()
+bool DCStunClient::process_data()
 {
     m_timer->stop();
-    disconnect(this,&QUdpSocket::readyRead,this,&DCStunClient::processData);
+    disconnect(this,&QUdpSocket::readyRead,this,&DCStunClient::process_data);
     if(!bytesAvailable())
         return false;
     QNetworkDatagram datagram = receiveDatagram();
@@ -76,14 +81,14 @@ bool DCStunClient::processData()
     if(tools::QByteArrayToInt<quint16>(recData.sliced(0,2)) == 0x0111)
     {
         qDebug()<<"Server returned error.";
-        emit processingError();
+        emit processing_error();
         return false;
     }
     //check if transactionID is the same
     if(recData.sliced(8,12) != m_data.sliced(8,12))
     {
         qDebug()<<"transactionID is not the same!";
-        emit processingError();
+        emit processing_error();
         return false;
     }
 
@@ -113,14 +118,16 @@ bool DCStunClient::processData()
         if(tools::QByteArrayToInt<quint16>(attr.body.sliced(0,2)) == 0x0001)
         {
             //MAPPED-ADDRESS
-            if(attr.type == 0x0001)
+
+            if(attr.type == 0x01)
                 m_mapped_address->address =
-                        QHostAddress(tools::QByteArrayToInt<quint32>(attr.body.sliced(4,4)));
+                    QHostAddress(tools::QByteArrayToInt<quint32>(attr.body.sliced(4,4)));
+
             //XOR-MAPPED-ADDRESS
             else
             {
                 m_mapped_address->address =
-                        QHostAddress(tools::QByteArrayToInt<quint32>(attr.body.sliced(4,4)) ^ m_msgHeader.magic_cookie);
+                    QHostAddress(qFromBigEndian(*(reinterpret_cast<quint32*>(attr.body.sliced(4,4).data()))^m_msg_header.magic_cookie));
             }
         }
         //IPv6
@@ -134,12 +141,13 @@ bool DCStunClient::processData()
             else
             {
                 quint8* ipv6 = reinterpret_cast<quint8*>(attr.body.sliced(4,16).data());
-                quint8* magic_cookie = reinterpret_cast<quint8*>(m_msgHeader.magic_cookie);
-                quint8* transactionID = reinterpret_cast<quint8*>(m_msgHeader.transaction_id);
+                quint8* magic_cookie = reinterpret_cast<quint8*>(m_msg_header.magic_cookie);
+                quint8* transactionID = reinterpret_cast<quint8*>(m_msg_header.transaction_id);
 
                 for(quint8 b{0};b<4;b++)
                     ipv6[b] = ipv6[b] ^ magic_cookie[b];
-                for(quint8 p{4},t{0}; t<12; t++)
+
+                for(quint8 p{4},t{0}; t<12; t++,p++)
                     ipv6[p] = ipv6[p] ^ transactionID[t];
 
                 m_mapped_address->address = QHostAddress(ipv6);
@@ -154,14 +162,13 @@ bool DCStunClient::processData()
     return true;
 }
 
-void DCStunClient::setHeader(quint16 message_type)
+void DCStunClient::set_header(quint16 message_type)
 {
     QRandomGenerator generator;
     //transaction id should be random
     for(quint8 i{0}; i<3; i++)
-        m_msgHeader.transaction_id[i] = generator.generate();
+        m_msg_header.transaction_id[i] = generator.generate();
 
-    m_msgHeader.msg_type = message_type;
+    m_msg_header.msg_type = message_type;
 }
-
 
