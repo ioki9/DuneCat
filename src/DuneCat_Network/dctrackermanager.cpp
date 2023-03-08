@@ -1,5 +1,5 @@
 #include "dctrackermanager.h"
-#include "DCTools.h"
+#include "dctools.h"
 
 DCTrackerManager::DCTrackerManager(const DCEndPoint &tracker, QObject *parent)
     : QObject{parent}, m_current_tracker{tracker}
