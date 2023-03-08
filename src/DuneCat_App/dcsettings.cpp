@@ -1,4 +1,4 @@
-#include "DCSettings.h"
+#include "dcsettings.h"
 #include "DCTools.h"
 #include <DuneCatConfig.h>
 
