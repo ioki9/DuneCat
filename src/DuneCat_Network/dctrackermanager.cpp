@@ -89,7 +89,6 @@ void DCTrackerManager::handle_timer()
 
 void DCTrackerManager::connection_request()
 {
-
     QByteArray data;
     QDataStream in(&data,QIODevice::ReadWrite);
     in.setByteOrder(QDataStream::BigEndian);
