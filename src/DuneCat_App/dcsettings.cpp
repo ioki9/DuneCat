@@ -1,5 +1,5 @@
 #include "dcsettings.h"
-#include "DCTools.h"
+#include "dctools.h"
 #include <DuneCatConfig.h>
 
 DCSettings::DCSettings(QObject *parent)
