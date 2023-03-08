@@ -1,5 +1,5 @@
 #pragma once
-#include "EssentialHeaders.h"
+#include "essentialheaders.h"
 
 class DCSettings : public QObject
 {
