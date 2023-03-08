@@ -1,7 +1,7 @@
-#include "EssentialHeaders.h"
+#include "essentialheaders.h"
 #include <QLocale>
 #include <QTranslator>
-#include "DCSettings.h"
+#include "dcsettings.h"
 #include "dcstunclient.h"
 #include "dctrackermanager.h"
 
