@@ -3,7 +3,7 @@ set(DCAPP_DIR ${CMAKE_SOURCE_DIR}/src/DuneCat_App)
 set(DCNET_DIR ${CMAKE_SOURCE_DIR}/src/DuneCat_Network)
 add_executable(networking_tests tst_networkingtests.cpp
     ${DCNET_DIR}/dcstunclient.cpp ${DCNET_DIR}/dcstunclient.h
-    ${DCAPP_DIR}/DCTools.h ${DCAPP_DIR}/DCTools.cpp
+    ${DCAPP_DIR}/dctools.h ${DCAPP_DIR}/dctools.cpp
 )
 add_test(NAME networking_tests COMMAND networking_tests)
 
