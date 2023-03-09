@@ -19,7 +19,7 @@ qt_add_qml_module(${PROJECT_NAME}
     RESOURCE_PREFIX /DuneCat/qml
     QML_FILES
         main.qml
-        dclaunchbutton.qml
+        DCLaunchButton.qml
     SOURCES
         dcsettings.h dcsettings.cpp
     RESOURCES

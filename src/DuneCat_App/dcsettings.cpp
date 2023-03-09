@@ -11,6 +11,7 @@ DCSettings::DCSettings(QObject *parent)
 bool DCSettings::setAutoStart(bool isOn)
 {
     emit autoStartChanged();
+    m_autoStart = isOn;
     return tools::bootUpStart(isOn);
 }
 bool DCSettings::isAutoStartOn() const

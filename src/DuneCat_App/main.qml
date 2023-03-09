@@ -16,9 +16,9 @@ Window {
         width:300
         height:300
         anchors.centerIn: parent
-        property bool isOn:false
+        property bool isOn:DCSettings.autoStart
         onClicked:{
             isOn = isOn === false ? true: false
-            DCSettings.autoStart = isOn}
+            DCSettings.autoStart = !DCSettings.autoStart}
         }
 }
