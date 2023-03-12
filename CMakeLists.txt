@@ -9,7 +9,7 @@ enable_testing()
 
 
 message("Looking for Qt...")
-find_package(Qt6 COMPONENTS Quick Qml Network Test REQUIRED)
+find_package(Qt6 COMPONENTS Quick Qml Network Test QuickControls2 REQUIRED)
 if (${Qt6_FOUND})
     message("Found Qt " ${Qt6_VERSION})
 else()

@@ -1,5 +1,6 @@
 #include "essentialheaders.h"
 #include <QLocale>
+#include <QIcon>
 #include <QTranslator>
 #include "dcsettings.h"
 #include "dcstunclient.h"
@@ -17,19 +18,24 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    quint16 port = static_cast<quint16>(QUrl("udp://tracker.openbittorrent.com:6969/announce").port());
-    QHostAddress host=QHostInfo::fromName(QUrl("udp://tracker.openbittorrent.com:6969/announce").host()).addresses()[0];
-    std::unique_ptr<DCTrackerManager> manager =
-            std::make_unique<DCTrackerManager>(DCEndPoint{host,port});
-    manager->open_connection(DCEndPoint{QHostAddress("37.139.120.14"),3478});
+    //quint16 port = static_cast<quint16>(QUrl("udp://tracker.openbittorrent.com:6969/announce").port());
+    //QHostAddress host=QHostInfo::fromName(QUrl("udp://tracker.openbittorrent.com:6969/announce").host()).addresses()[0];
+    //std::unique_ptr<DCTrackerManager> manager =
+    //        std::make_unique<DCTrackerManager>(DCEndPoint{host,port});
+    //manager->open_connection(DCEndPoint{QHostAddress("37.139.120.14"),3478});
 
+    QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << QString(":/DuneCat/qml/icons"));
+    QIcon::setThemeName("Default");
+    qDebug()<<QIcon::themeSearchPaths()[0];
     QQmlApplicationEngine engine;
-    const QUrl url(u"qrc:DuneCat/qml/DCBase/main.qml"_qs);
+    const QUrl url(u"qrc:/DuneCat/qml/main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
         if (!obj && url == objUrl)
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
+
+
 
     engine.load(url);
     return app.exec();

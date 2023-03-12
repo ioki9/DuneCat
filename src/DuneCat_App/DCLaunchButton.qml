@@ -1,9 +1,12 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.5
 
-Image {
+ToolButton {
     id: root
-    source: Qt.resolvedUrl("img/LaunchButton.png")
+    icon.name: "LaunchButton"
+    icon.source: "qrc:/DuneCat/qml/img/LaunchButton.png"
+    icon.height: 300
+    icon.width: 300
     signal clicked
     MouseArea{
         anchors.fill: parent
