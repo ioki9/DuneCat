@@ -37,10 +37,11 @@ DCMainWindow
                 ListElement { title: "About"; source: "qrc:/DuneCat/imports/SettingsDialog.qml"; icon:"menu" }
 
             }
-            Component : SettingsDialog{
+            Component{
                 id: settingsDialog
                 width:300
                 height:300
+                
             }
         }
     }

@@ -1,10 +1,10 @@
-import QtQuick 2.9
-import QtQuick.Controls 2.5
+import QtQuick
+import QtQuick.Controls
 
 ToolButton {
     id: root
     icon.name: "LaunchButton"
-    icon.source: "qrc:/DuneCat/qml/img/LaunchButton.png"
+    icon.source: "qrc:/DuneCat/imports/img/LaunchButton.png"
     icon.height: 300
     icon.width: 300
     signal clicked

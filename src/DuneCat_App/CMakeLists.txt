@@ -17,10 +17,12 @@ qt_add_qml_module(${PROJECT_NAME}
     URI DCBase
     VERSION 1.0
     NO_RESOURCE_TARGET_PATH
-    RESOURCE_PREFIX /DuneCat/qml
+    RESOURCE_PREFIX /DuneCat/imports
     QML_FILES
         "main.qml"
-        "DCLaunchButton.qml"
+        "qml/controls/DCLaunchButton.qml"
+        "qml/pages/SettingsDialog.qml"
+        "qml/DCMainWindow.qml"
     SOURCES
         "dcsettings.h" "dcsettings.cpp"
     RESOURCES

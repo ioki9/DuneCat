@@ -24,18 +24,15 @@ int main(int argc, char *argv[])
     //        std::make_unique<DCTrackerManager>(DCEndPoint{host,port});
     //manager->open_connection(DCEndPoint{QHostAddress("37.139.120.14"),3478});
 
-    QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << QString(":/DuneCat/qml/icons"));
+    QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << QString(":/DuneCat/imports/icons"));
     QIcon::setThemeName("Default");
-    qDebug()<<QIcon::themeSearchPaths()[0];
     QQmlApplicationEngine engine;
-    const QUrl url(u"qrc:/DuneCat/qml/main.qml"_qs);
+    const QUrl url(u"qrc:/DuneCat/imports/main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
         if (!obj && url == objUrl)
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
-
-
 
     engine.load(url);
     return app.exec();
