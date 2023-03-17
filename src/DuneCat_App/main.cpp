@@ -5,6 +5,7 @@
 #include "dcsettings.h"
 #include "dcstunclient.h"
 #include "dctrackermanager.h"
+#include <QQuickStyle>
 
 int main(int argc, char *argv[])
 {
@@ -18,15 +19,17 @@ int main(int argc, char *argv[])
             break;
         }
     }
+
     //quint16 port = static_cast<quint16>(QUrl("udp://tracker.openbittorrent.com:6969/announce").port());
     //QHostAddress host=QHostInfo::fromName(QUrl("udp://tracker.openbittorrent.com:6969/announce").host()).addresses()[0];
     //std::unique_ptr<DCTrackerManager> manager =
     //        std::make_unique<DCTrackerManager>(DCEndPoint{host,port});
     //manager->open_connection(DCEndPoint{QHostAddress("37.139.120.14"),3478});
-
+    qputenv("QT_QUICK_CONTROLS_CONF",":/DuneCat/imports/qtquickcontrols2.conf");
     QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << QString(":/DuneCat/imports/icons"));
     QIcon::setThemeName("Default");
     QQmlApplicationEngine engine;
+
     const QUrl url(u"qrc:/DuneCat/imports/main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {

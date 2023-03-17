@@ -4,45 +4,29 @@ import DCBase
 
 DCMainWindow
 {
-    width:640
+    palette.highlightedText: "white"
+    width:1024
+
     height:480
     id: root
     onDrawerButtonClicked: drawer.open()
-    Drawer {
-        id: drawer
-        width: Math.min(parent.width, parent.height) / 3
+    DCAdminPanel{
+        id:adminPanel
+        width: 180
+        listSpacing: 5
         height: parent.height
-        ListView
-        {
-            id: listView
-            clip:true
-            focus: true
-            currentIndex: -1
-            anchors.fill: parent
-            delegate: ItemDelegate {
-                width: listView.width
-                text: model.title
-                icon.name: model.icon
-                highlighted: hovered
-                onClicked: {
-                    listView.currentIndex = index
-                    if(model.title === "Settings")
-                        settingsDialog.open()
-                    drawer.close()
-                }
-            }
-            model:ListModel {
-                ListElement { title: "Settings"; source: "qrc:/DuneCat/imports/SettingsDialog.qml"; icon:"menu" }
-                ListElement { title: "Profile"; source: "qrc:/DuneCat/imports/SettingsDialog.qml"; icon:"drawer" }
-                ListElement { title: "About"; source: "qrc:/DuneCat/imports/SettingsDialog.qml"; icon:"menu" }
-
-            }
-            Component : SettingsDialog{
-                id: settingsDialog
-                width:300
-                height:300
-            }
-        }
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.topMargin: 30
+        anchors.leftMargin: 15
+    }
+    DCMainPage
+    {
+        width:200
+        height: 300
+        anchors.right:parent.right
+        anchors.left:adminPanel.right
+        anchors.leftMargin: 30
     }
 }
 

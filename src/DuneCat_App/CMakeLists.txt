@@ -12,7 +12,6 @@ qt_add_executable(${PROJECT_NAME}
 set_target_properties(${PROJECT_NAME} PROPERTIES
     MACOSX_BUNDLE ON
     WIN32_EXECUTABLE TRUE)
-
 qt_add_qml_module(${PROJECT_NAME}
     URI DCBase
     VERSION 1.0
@@ -20,9 +19,13 @@ qt_add_qml_module(${PROJECT_NAME}
     RESOURCE_PREFIX /DuneCat/imports
     QML_FILES
         "main.qml"
+        "qml/controls/DCDeviceTable.qml"
         "qml/controls/DCLaunchButton.qml"
-        "qml/pages/SettingsDialog.qml"
+        "qml/pages/DCSettingsPage.qml"
+        "qml/pages/DCMainPage.qml"
+        "qml/DCStyle.qml"
         "qml/DCMainWindow.qml"
+        "qml/DCAdminPanel.qml"
     SOURCES
         "dcsettings.h" "dcsettings.cpp"
     RESOURCES
@@ -40,7 +43,9 @@ qt_add_qml_module(${PROJECT_NAME}
         "icons/20x20@4/menu.png"
         "icons/index.theme"
         "img/LaunchButton.png"
+        "qtquickcontrols2.conf"
 )
+
 target_precompile_headers(${PROJECT_NAME} PUBLIC essentialheaders.h)
 target_link_libraries(${PROJECT_NAME} PUBLIC qt_libs Qt6::QuickControls2 DCNetwork)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/src/DuneCat_Network)
