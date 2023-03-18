@@ -4,6 +4,7 @@
 class DCSettings : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(DCSettings)
     QML_ELEMENT
     QML_SINGLETON
 

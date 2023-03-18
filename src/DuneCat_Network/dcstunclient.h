@@ -7,6 +7,7 @@
 class DCStunClient : public QUdpSocket
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(DCStunClient)
 
 public:
     DCStunClient() = delete;

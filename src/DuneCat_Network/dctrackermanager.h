@@ -8,6 +8,7 @@
 class DCTrackerManager : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(DCTrackerManager)
 public:
     explicit DCTrackerManager(const DCEndPoint& tracker_addr,QObject* parent = nullptr);
     ~DCTrackerManager();
