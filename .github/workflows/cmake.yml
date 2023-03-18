@@ -43,7 +43,9 @@ jobs:
           tools-only: 'false'
           aqtversion: '==2.1.*'
           py7zrversion: '==0.19.*'
-
+    - name: install Linux deps
+      if: matrix.os == ubuntu-latest
+      run: sudo apt-get install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}}
 
