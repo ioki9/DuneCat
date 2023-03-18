@@ -26,10 +26,14 @@ int main(int argc, char *argv[])
     //        std::make_unique<DCTrackerManager>(DCEndPoint{host,port});
     //manager->open_connection(DCEndPoint{QHostAddress("37.139.120.14"),3478});
     qputenv("QT_QUICK_CONTROLS_CONF",":/DuneCat/imports/qtquickcontrols2.conf");
+
+    qmlRegisterSingletonType(QUrl("qrc:/DuneCat/imports/qml/DCStyle.qml"), "DCStyle", 1, 0, "DCStyle");
     QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << QString(":/DuneCat/imports/icons"));
     QIcon::setThemeName("Default");
     QQmlApplicationEngine engine;
-
+    engine.addImportPath(":/DuneCat/imports/qml");
+    engine.addImportPath(":/DuneCat/imports/qml/controls");
+    engine.addImportPath(":/DuneCat/imports/qml/pages");
     const QUrl url(u"qrc:/DuneCat/imports/main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {

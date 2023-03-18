@@ -1,7 +1,10 @@
 import QtQuick
 import QtQuick.Controls.Material
 Rectangle {
+
+    color:Material.primaryColor
     property alias listSpacing : listView.spacing
+    property alias activePageUrl: listView.activePage
     ListView
     {
         id: listView
@@ -9,47 +12,45 @@ Rectangle {
         focus: true
         currentIndex: 0
         interactive: false
+        anchors.topMargin: 70
         anchors.fill: parent
+
+        property string activePage:"qrc:/DuneCat/imports/qml/pages/DCMainPage.qml"
 
         delegate: ItemDelegate {
             id: itemDelegate
             width: listView.width
-
-            text: talk
             icon.name: model.icon
-            icon.color: Material.accentColor
+            icon.color: itemDelegate.highlighted ? Material.primary : "white";
 
-            Text{id:talk;
-                text:model.title;
-                color: itemDelegate.highlighted ? "white": "black";
+            Text{
+                id:buttonText
+                text:model.title
+                font.pointSize: 12
+                color: itemDelegate.highlighted ? Material.primary : "white";
                 anchors.left:parent.left
                 anchors.leftMargin: parent.icon.width + 30
                 anchors.verticalCenter: parent.verticalCenter
             }
             background:Rectangle{
                 anchors.fill: itemDelegate
-                color: itemDelegate.highlighted ? Material.primary : "transparent"
-                radius: 15
-                opacity: 0.8
+                anchors.leftMargin: 10
+                color: itemDelegate.highlighted ? "white" : "transparent"
+                radius: DCStyle.radius
             }
 
             highlighted: hovered || listView.currentIndex === index
             onClicked: {
-                DCStyle.primary = "blue"
                 listView.currentIndex = index
-                myLoader.source = model.source
-                myLoader.item.open()
+                listView.activePage = model.source
             }
         }
         model:ListModel {
-            ListElement { title: "Profile"; source: "qrc:/DuneCat/imports/SettingsDialog.qml"; icon:"drawer" }
-            ListElement { title: "Settings"; source: "qrc:/DuneCat/imports/qml/pages/SettingsDialog.qml"; icon:"menu" }
+            ListElement { title: "Home"; source: "qrc:/DuneCat/imports/qml/pages/DCMainPage.qml"; icon:"drawer" }
+            ListElement { title: "Settings"; source: "qrc:/DuneCat/imports/qml/pages/DCSettingsPage.qml"; icon:"menu" }
             ListElement { title: "Devices"; source: "qrc:/DuneCat/imports/SettingsDialog.qml"; icon:"menu" }
             ListElement { title: "About"; source: "qrc:/DuneCat/imports/SettingsDialog.qml"; icon:"menu" }
 
-        }
-        Loader{
-            id: myLoader
         }
     }
 }

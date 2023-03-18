@@ -1,12 +1,13 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import ".."
-ScrollView {
+import DCBase
+import DCStyle 1.0
 
-    width:200
-    height:200
-    ListView{
+ScrollView {
+    property double scrollerWidth:ScrollBar.vertical.width
+    //color:"blue"
+    ListView {
         id:listView
         anchors.fill:parent
         clip: true
@@ -16,10 +17,10 @@ ScrollView {
 
 
         model: ListModel {
-            ListElement{deviceIcon:"drawer"; name:"test123"; menuIcon:"menu"}
-            ListElement{deviceIcon:"drawer"; name:"test123"; menuIcon:"menu"}
-            ListElement{deviceIcon:"drawer"; name:"test123"; menuIcon:"menu"}
-            ListElement{deviceIcon:"drawer"; name:"test123"; menuIcon:"menu"}
+            ListElement{indicatorIcon: "circle_indicator"; deviceIcon:"desktop"; name:"test1"; menuIcon:"menu"}
+            ListElement{indicatorIcon: "circle_indicator"; deviceIcon:"desktop"; name:"test2"; menuIcon:"menu"}
+            ListElement{indicatorIcon: "circle_indicator"; deviceIcon:"desktop"; name:"test3"; menuIcon:"menu"}
+            ListElement{indicatorIcon: "circle_indicator"; deviceIcon:"desktop"; name:"test4явлгбтмлявбтм"; menuIcon:"menu"}
         }
         delegate:viewDelegate
 
@@ -28,23 +29,40 @@ ScrollView {
         id: viewDelegate
         Rectangle {
             id:wrapper
-            width: 180
+            width: listView.width - scrollerWidth
             height: 40
             color:"transparent"
-            Row{
+            RowLayout {
+                id:rowLayout
+                anchors.fill: parent
                 spacing:5
-                IconImage
-                {
+                IconImage {
+                    id:devIcon
+                    name: model.deviceIcon
+                    color:wrapper.ListView.isCurrentItem ? "white" : "black"
+                    Layout.maximumWidth: 20
+                    Layout.preferredWidth: 20
+                    Layout.leftMargin: 7
                 }
-                IconImage{ name: model.deviceIcon; color:wrapper.ListView.isCurrentItem ? "white" : "black"}
 
                 Text {
                     text: model.name
+                    font.pointSize: 12
                     color: wrapper.ListView.isCurrentItem ? "white" : "black"
+                    elide: Text.ElideRight
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 10
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                 }
-                ToolButton{ icon.name:model.menuIcon }
+
+                ToolButton {
+                    id:menuButton
+                    icon.name:model.menuIcon
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    Layout.rightMargin: 8
+                }
             }
-            MouseArea{
+            MouseArea {
                 anchors.fill:parent
                 onClicked:{listView.currentIndex = model.index}
             }

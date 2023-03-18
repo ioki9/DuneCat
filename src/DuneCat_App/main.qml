@@ -1,15 +1,13 @@
 import QtQuick
 import QtQuick.Controls
 import DCBase
-
+import DCStyle
 DCMainWindow
 {
-    palette.highlightedText: "white"
     width:1024
-
     height:480
     id: root
-    onDrawerButtonClicked: drawer.open()
+
     DCAdminPanel{
         id:adminPanel
         width: 180
@@ -17,16 +15,20 @@ DCMainWindow
         height: parent.height
         anchors.left: parent.left
         anchors.top: parent.top
-        anchors.topMargin: 30
-        anchors.leftMargin: 15
     }
-    DCMainPage
-    {
-        width:200
-        height: 300
-        anchors.right:parent.right
-        anchors.left:adminPanel.right
-        anchors.leftMargin: 30
+    Rectangle{
+        id:page
+        anchors.left: adminPanel.right
+        anchors.bottom: parent.bottom
+        anchors.top: parent.top
+        anchors.right: parent.right
+
+        Loader{
+            id:pageLoader
+            source: adminPanel.activePageUrl
+            anchors.fill: parent
+        }
     }
+
 }
 

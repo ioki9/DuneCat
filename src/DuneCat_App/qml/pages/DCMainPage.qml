@@ -1,9 +1,12 @@
 import QtQuick
 import QtQuick.Controls
-import "../controls"
+import DCBase
+import DCStyle
+import "qrc:/DuneCat/imports/qml/controls"
 Rectangle {
-    DCDeviceTable
-    {
-       anchors.fill: parent
+    radius:DCStyle.radius
+    DCDeviceTable{
+        anchors.fill:parent
     }
+
 }

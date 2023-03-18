@@ -29,9 +29,12 @@ qt_add_qml_module(${PROJECT_NAME}
     SOURCES
         "dcsettings.h" "dcsettings.cpp"
     RESOURCES
+        "icons/20x20/desktop.png"
+        "icons/20x20/circle_indicator.png"
         "icons/20x20/back.png"
         "icons/20x20/drawer.png"
         "icons/20x20/menu.png"
+        "icons/20x20@2/desktop.png"
         "icons/20x20@2/back.png"
         "icons/20x20@2/drawer.png"
         "icons/20x20@2/menu.png"
