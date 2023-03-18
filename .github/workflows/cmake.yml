@@ -36,6 +36,7 @@ jobs:
           arch: ${{matrix.qtArch}}
           dir: '${{ github.workspace }}/Qt6Lib/'
           install-deps: 'true'
+          modules: 'qttest'
           cache: 'true'
           cache-key-prefix: 'install-qt-action-${{matrix.os}}'
           set-env: 'true'
