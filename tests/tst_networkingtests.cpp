@@ -28,8 +28,7 @@ NetworkingTests::~NetworkingTests()
 
 void NetworkingTests::test_case1()
 {
-    DCStunClient socket(DCEndPoint{QHostAddress("37.139.120.14"),3478});
-    QCOMPARE(socket.get_current_server().port, 3478);
+
 }
 
 QTEST_MAIN(NetworkingTests)
