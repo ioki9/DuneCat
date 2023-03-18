@@ -9,20 +9,19 @@ enable_testing()
 
 
 message("Looking for Qt...")
-find_package(Qt6 COMPONENTS Quick Qml Network Test REQUIRED)
+find_package(Qt6 COMPONENTS Core Quick Qml Network Test QuickControls2 REQUIRED)
 if (${Qt6_FOUND})
     message("Found Qt " ${Qt6_VERSION})
 else()
     message("Couldn't find Qt")
 endif()
 qt6_standard_project_setup()
-
 set (QT_QML_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/qml)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_library(qt_libs)
 target_link_libraries(qt_libs PUBLIC Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui)
-add_dependencies(qt_libs Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui)
+add_dependencies(qt_libs Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui )
 add_subdirectory(src/DuneCat_App)
 add_subdirectory(src/DuneCat_Network)
 add_subdirectory(tests)

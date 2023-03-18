@@ -12,11 +12,9 @@ public:
     explicit DCSettings(QObject *parent = nullptr);
     bool setAutoStart(bool isOn);
     bool isAutoStartOn() const;
-
 signals:
     void autoStartChanged();
 private:
     bool m_autoStart;
-
 };
 

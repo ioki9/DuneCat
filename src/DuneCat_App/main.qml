@@ -1,22 +1,34 @@
 import QtQuick
-import QtQuick.Controls 2.5
+import QtQuick.Controls
 import DCBase
-
-Window {
-    color: "white"
+import DCStyle
+DCMainWindow
+{
+    width:1024
+    height:480
     id: root
-    width: 640
-    height: 480
-    visible: true
-    title: qsTr("DuneCat")
 
-    DCLaunchButton
-    {
-        id: launchButton
-        width:300
-        height:300
-        anchors.centerIn: parent
-        onClicked:{
-            DCSettings.autoStart = !DCSettings.autoStart}
+    DCAdminPanel{
+        id:adminPanel
+        width: 180
+        listSpacing: 5
+        height: parent.height
+        anchors.left: parent.left
+        anchors.top: parent.top
+    }
+    Rectangle{
+        id:page
+        anchors.left: adminPanel.right
+        anchors.bottom: parent.bottom
+        anchors.top: parent.top
+        anchors.right: parent.right
+
+        Loader{
+            id:pageLoader
+            source: adminPanel.activePageUrl
+            anchors.fill: parent
         }
+    }
+
 }
+

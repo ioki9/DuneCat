@@ -28,7 +28,6 @@ NetworkingTests::~NetworkingTests()
 
 void NetworkingTests::test_case1()
 {
-
 }
 
 QTEST_MAIN(NetworkingTests)

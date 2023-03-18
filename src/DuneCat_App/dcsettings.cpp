@@ -14,6 +14,7 @@ bool DCSettings::setAutoStart(bool isOn)
     m_autoStart = isOn;
     return tools::bootUpStart(isOn);
 }
+
 bool DCSettings::isAutoStartOn() const
 {
     return m_autoStart;
