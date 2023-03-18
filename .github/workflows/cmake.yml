@@ -18,10 +18,13 @@ jobs:
         include:
           - os: macos-latest
             qtArch: clang_64
+            qtHost: mac
           - os: windows-latest
             qtArch: win64_msvc2019_64
+            qtHost: windows
           - os: ubuntu-latest
             qtArch: gcc_64
+            qtHost: linux
     runs-on: ${{matrix.os}}
     permissions:
       contents: write
@@ -34,6 +37,7 @@ jobs:
           version: '6.4.2'
           target: 'desktop'
           arch: ${{matrix.qtArch}}
+          host: ${{matrix.qtHost}}
           dir: '${{ github.workspace }}/Qt6Lib/'
           install-deps: 'true'
           cache: 'true'
