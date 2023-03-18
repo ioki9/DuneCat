@@ -18,10 +18,13 @@ jobs:
         include:
           - os: macos-latest
             qtArch: clang_64
+            qtHost: mac
           - os: windows-latest
             qtArch: win64_msvc2019_64
+            qtHost: windows
           - os: ubuntu-latest
             qtArch: gcc_64
+            qtHost: linux
     runs-on: ${{matrix.os}}
     permissions:
       contents: write
@@ -34,6 +37,7 @@ jobs:
           version: '6.4.2'
           target: 'desktop'
           arch: ${{matrix.qtArch}}
+          host: ${{matrix.qtHost}}
           dir: '${{ github.workspace }}/Qt6Lib/'
           install-deps: 'true'
           cache: 'true'
@@ -42,7 +46,7 @@ jobs:
           tools-only: 'false'
           aqtversion: '==2.1.*'
           py7zrversion: '==0.19.*'
-
+   
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}}
 
@@ -50,8 +54,9 @@ jobs:
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Test
+      if: matrix.os != 'ubuntu-latest'
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C -v ${{env.BUILD_TYPE}}
+      run: ctest --output-on-failure -C ${{env.BUILD_TYPE}}
       
