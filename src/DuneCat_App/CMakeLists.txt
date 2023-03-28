@@ -50,5 +50,7 @@ qt_add_qml_module(${PROJECT_NAME}
 )
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC essentialheaders.h)
-target_link_libraries(${PROJECT_NAME} PUBLIC qt_libs Qt6::QuickControls2 DCNetwork)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/src/DuneCat_Network)
+target_link_libraries(${PROJECT_NAME} PUBLIC qt_libs Qt6::QuickControls2 DCCore DCNetwork )
+target_include_directories(${PROJECT_NAME} PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/DuneCat_Core
+    ${CMAKE_SOURCE_DIR}/src/DuneCat_Network)

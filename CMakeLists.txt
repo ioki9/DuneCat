@@ -24,6 +24,7 @@ target_link_libraries(qt_libs PUBLIC Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui)
 add_dependencies(qt_libs Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui )
 add_subdirectory(src/DuneCat_App)
 add_subdirectory(src/DuneCat_Network)
+add_subdirectory(src/DuneCat_Core)
 add_subdirectory(tests)
 
 install(TARGETS DuneCat

@@ -5,6 +5,7 @@
 #include "dcsettings.h"
 #include "dcstunclient.h"
 #include "dctrackermanager.h"
+#include "dcprocesstracker.h"
 #include <QQuickStyle>
 
 int main(int argc, char *argv[])
@@ -19,7 +20,9 @@ int main(int argc, char *argv[])
             break;
         }
     }
-
+    DCProcessTracker *proc = new DCProcessTracker();
+    proc->get_process_list();
+    delete proc;
     //quint16 port = static_cast<quint16>(QUrl("udp://tracker.openbittorrent.com:6969/announce").port());
     //QHostAddress host=QHostInfo::fromName(QUrl("udp://tracker.openbittorrent.com:6969/announce").host()).addresses()[0];
     //std::unique_ptr<DCTrackerManager> manager =
