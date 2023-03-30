@@ -26,7 +26,9 @@ qt_add_qml_module(${PROJECT_NAME}
         "qml/DCStyle.qml"
         "qml/DCMainWindow.qml"
         "qml/DCAdminPanel.qml"
+        "qml/controls/DCProcessTable.qml"
     SOURCES
+        "dcprocesstablemodel.h" "dcprocesstablemodel.cpp"
         "dcsettings.h" "dcsettings.cpp"
     RESOURCES
         "icons/20x20/desktop.png"
