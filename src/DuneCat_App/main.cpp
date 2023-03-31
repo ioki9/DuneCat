@@ -6,6 +6,7 @@
 #include "dcstunclient.h"
 #include "dctrackermanager.h"
 #include "dcprocesstracker.h"
+#include "dcprocesstablemodel.h"
 #include <QQuickStyle>
 
 int main(int argc, char *argv[])
@@ -20,16 +21,13 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    DCProcessTracker *proc = new DCProcessTracker();
-    proc->get_process_list();
-    delete proc;
     //quint16 port = static_cast<quint16>(QUrl("udp://tracker.openbittorrent.com:6969/announce").port());
     //QHostAddress host=QHostInfo::fromName(QUrl("udp://tracker.openbittorrent.com:6969/announce").host()).addresses()[0];
     //std::unique_ptr<DCTrackerManager> manager =
     //        std::make_unique<DCTrackerManager>(DCEndPoint{host,port});
     //manager->open_connection(DCEndPoint{QHostAddress("37.139.120.14"),3478});
     qputenv("QT_QUICK_CONTROLS_CONF",":/DuneCat/imports/qtquickcontrols2.conf");
-
+    qmlRegisterType<DCProcessTableModel>("ListModels",1,0,"ProcessListModel");
     qmlRegisterSingletonType(QUrl("qrc:/DuneCat/imports/qml/DCStyle.qml"), "DCStyle", 1, 0, "DCStyle");
     QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << QString(":/DuneCat/imports/icons"));
     QIcon::setThemeName("Default");

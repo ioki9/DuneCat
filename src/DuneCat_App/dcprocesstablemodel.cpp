@@ -3,6 +3,8 @@
 DCProcessTableModel::DCProcessTableModel(QObject *parent)
     : QAbstractListModel(parent)
 {
+    m_proc_tracker = new DCProcessTracker();
+    m_proc_tracker->get_process_list();
 }
 
 int DCProcessTableModel::rowCount(const QModelIndex &parent) const
@@ -11,32 +13,20 @@ int DCProcessTableModel::rowCount(const QModelIndex &parent) const
     // other (valid) parents, rowCount() should return 0 so that it does not become a tree model.
     if (parent.isValid())
         return 0;
-
-    // FIXME: Implement me!
-}
-
-bool DCProcessTableModel::hasChildren(const QModelIndex &parent) const
-{
-    // FIXME: Implement me!
-}
-
-bool DCProcessTableModel::canFetchMore(const QModelIndex &parent) const
-{
-    // FIXME: Implement me!
-    return false;
-}
-
-void DCProcessTableModel::fetchMore(const QModelIndex &parent)
-{
-    // FIXME: Implement me!
+    return m_proc_tracker->get_process_count();
 }
 
 QVariant DCProcessTableModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
-
-    // FIXME: Implement me!
+    switch(role)
+    {
+    case ProcessNameRole:
+        return QVariant(m_proc_tracker->get_active_processes()[index.row()].name);
+    case PIDRole:
+        return QVariant(m_proc_tracker->get_active_processes()[index.row()].process_id);
+    }
     return QVariant();
 }
 
@@ -46,4 +36,12 @@ bool DCProcessTableModel::insertRows(int row, int count, const QModelIndex &pare
     // FIXME: Implement me!
     endInsertRows();
     return true;
+}
+
+QHash<int, QByteArray> DCProcessTableModel::roleNames() const
+{
+    QHash<int, QByteArray> roles;
+    roles[ProcessNameRole] = "name";
+    roles[PIDRole] = "PID";
+    return roles;
 }

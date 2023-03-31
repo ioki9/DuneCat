@@ -1,17 +1,11 @@
 #include "dcprocesstracker.h"
-#include "essentialheaders.h"
 #include <iostream>
-#include <string>
-#ifdef Q_OS_WINDOWS
-#include <windows.h>
-#include <tlhelp32.h>
-#include <tchar.h>
-#endif
+
 
 DCProcessTracker::DCProcessTracker(QObject *parent)
     : QObject{parent}
 {
-
+    m_active_processes.push_back(ProcessInfo{});
 }
 
 void DCProcessTracker::get_process_list()
@@ -35,11 +29,12 @@ void DCProcessTracker::get_process_list()
         qDebug()<<"Process32First failure";
         CloseHandle( hProcessSnap );
     }
-    m_active_processes.clear();
+    if(!m_active_processes.isEmpty())
+        m_active_processes.clear();
 
     do
     {
-        ProcessInfoWin process{};
+        ProcessInfo process{};
 
         // Retrieve the priority class.
         dwPriorityClass = 0;
@@ -48,20 +43,20 @@ void DCProcessTracker::get_process_list()
             qDebug()<<"hprocess == null";
         else
         {
+
             dwPriorityClass = GetPriorityClass( hProcess );
             if( !dwPriorityClass )
                 qDebug()<<"GetPriorityClass";
             CloseHandle( hProcess );
         }
-        char DefChar = ' ';
-        WideCharToMultiByte(CP_ACP,0,pe32.szExeFile,-1, process.name,256,&DefChar, NULL);
+        process.name = QString::fromWCharArray(pe32.szExeFile);
         process.process_id = pe32.th32ProcessID;
         process.thread_count = pe32.cntThreads;
         process.parent_process_id = pe32.th32ParentProcessID;
         process.priority_base = pe32.pcPriClassBase;
-        if(dwPriorityClass)
-            process.prority_class = dwPriorityClass;
-        m_active_processes.push_back(process);
+        process.prority_class = dwPriorityClass;
+        m_active_processes.push_back(std::move(process));
+
     } while( Process32Next( hProcessSnap, &pe32 ) );
 
     CloseHandle( hProcessSnap );

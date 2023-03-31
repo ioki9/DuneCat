@@ -5,7 +5,7 @@ import DCStyle
 import "qrc:/DuneCat/imports/qml/controls"
 Rectangle {
     radius:DCStyle.radius
-    DCDeviceTable{
+    DCProcessTable{
         anchors.fill:parent
     }
 
