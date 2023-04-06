@@ -1,13 +1,14 @@
 #include "essentialheaders.h"
-#include <QLocale>
-#include <QIcon>
 #include <QTranslator>
 #include "dcsettings.h"
 #include "dcstunclient.h"
 #include "dctrackermanager.h"
 #include "dcprocesstracker.h"
 #include "dcprocesstablemodel.h"
+#include "wmieventsink.h"
 #include <QQuickStyle>
+#include <iostream>
+using namespace std;
 
 int main(int argc, char *argv[])
 {
@@ -42,6 +43,7 @@ int main(int argc, char *argv[])
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
 
-    engine.load(url);
-    return app.exec();
+    //engine.load(url);
+    return 1;//app.exec();
 }
+

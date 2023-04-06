@@ -4,7 +4,11 @@ DCProcessTableModel::DCProcessTableModel(QObject *parent)
     : QAbstractListModel(parent)
 {
     m_proc_tracker = new DCProcessTracker();
-    m_proc_tracker->get_process_list();
+    connect(m_proc_tracker,&DCProcessTracker::begin_process_list_update,
+            this,&DCProcessTableModel::beginResetModel);
+
+    connect(m_proc_tracker,&DCProcessTracker::end_process_list_update,
+            this,&DCProcessTableModel::endResetModel);
 }
 
 int DCProcessTableModel::rowCount(const QModelIndex &parent) const
@@ -33,7 +37,6 @@ QVariant DCProcessTableModel::data(const QModelIndex &index, int role) const
 bool DCProcessTableModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     beginInsertRows(parent, row, row + count - 1);
-    // FIXME: Implement me!
     endInsertRows();
     return true;
 }

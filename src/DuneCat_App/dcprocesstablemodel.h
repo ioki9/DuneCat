@@ -23,6 +23,8 @@ public:
 private:
 
     DCProcessTracker *m_proc_tracker = nullptr;
+private slots:
+
 };
 
 #endif // DCPROCESSTABLEMODEL_H

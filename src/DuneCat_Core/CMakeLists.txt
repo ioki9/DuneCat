@@ -4,7 +4,9 @@ qt_add_qml_module(DCCore
     VERSION 1.0
     RESOURCE_PREFIX /DuneCat/imports
     SOURCES
-    dcprocesstracker.cpp dcprocesstracker.h
+    wmieventsink.h wmieventsink.cpp
+    wmiclient.h wmiclient.cpp
+    dcprocesstracker.cpp dcprocesstracker.h dcprocessinfo.h
 )
 target_precompile_headers(DCCore
     PUBLIC ${CMAKE_SOURCE_DIR}/src/DuneCat_App/essentialheaders.h)
