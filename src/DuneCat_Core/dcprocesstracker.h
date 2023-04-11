@@ -2,6 +2,7 @@
 #define DCPROCESSTRAKCER_H
 
 #include "essentialheaders.h"
+#include "dcprocessinfo.h"
 #ifdef Q_OS_WINDOWS
 #define _WIN32_DCOM
 #include <windows.h>
@@ -30,20 +31,14 @@ class DCProcessTracker : public QObject
     Q_DISABLE_COPY_MOVE(DCProcessTracker)
 public:
     explicit DCProcessTracker(QObject *parent = nullptr);
-    int get_process_count() const {return m_active_processes.size();}
-    void set_update_interval(int msec){m_update_interval = msec; m_update_timer.setInterval(msec);}
-    QVector<ProcessInfo>& get_active_processes(){return m_active_processes;}
+    QVector<DCProcessInfo> get_active_processes();
+    int get_process_count();
 private:
-    QTimer m_update_timer{};
-    int m_update_interval{5000};
-    QVector<ProcessInfo> m_active_processes{};
+    int m_process_count{-1};
 signals:
-    void begin_process_list_update();
-    void end_process_list_update();
+    void new_process_created(const DCProcessInfo& process);
 private slots:
-    void update_process_list();
-
-
+    void process_created_recieved(const DCProcessInfo& process);
 };
 
 #endif // DCPROCESSTRAKCER_H

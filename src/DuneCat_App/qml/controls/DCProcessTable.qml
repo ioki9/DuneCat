@@ -5,7 +5,6 @@ import DCStyle
 import ListModels
 ScrollView {
     property double scrollerWidth:ScrollBar.vertical.width
-
     ListView {
         id:listView
         anchors.fill:parent
@@ -14,9 +13,10 @@ ScrollView {
         currentIndex: -1
         highlightFollowsCurrentItem: false
 
-
-        model: ProcessListModel {}
+        model: processModel
         delegate:viewDelegate
+        ProcessListModel{id:processModel}
+
 
     }
     Component {

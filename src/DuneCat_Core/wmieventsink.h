@@ -1,7 +1,7 @@
 #ifndef WMIEVENTSINK_H
 #define WMIEVENTSINK_H
 #include "essentialheaders.h"
-#include "wmiclient.h"
+class WMIClient;
 class WMIEventSink : public IWbemObjectSink
 {
     LONG m_lRef;

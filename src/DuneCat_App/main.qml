@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import DCBase
 import DCStyle
+
 DCMainWindow
 {
     width:1024

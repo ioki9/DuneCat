@@ -4,13 +4,15 @@
 #include <QtCore>
 
 #ifdef Q_OS_WIN
+struct DCProcessInfoWin;
 using DCProcessInfo = DCProcessInfoWin;
 #endif
 struct DCProcessInfoWin{
     QString name;
     QString decription;
     QString exe_path;
-    QDateTime creation_date;
     quint32 pid;
+    QDateTime creation_date;
+
 };
 #endif // DCPROCESSSTRUCTS_H

@@ -14,7 +14,6 @@ Rectangle {
         interactive: false
         anchors.topMargin: 70
         anchors.fill: parent
-
         property string activePage:"qrc:/DuneCat/imports/qml/pages/DCMainPage.qml"
 
         delegate: ItemDelegate {

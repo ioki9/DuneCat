@@ -40,16 +40,19 @@ HRESULT WMIEventSink::Indicate(long lObjectCount,
 {
 
     HRESULT hr;
+    IUnknown* inst = nullptr;
+    qDebug()<<"event catched";
     for (int i = 0; i < lObjectCount; i++)
     {
+        DCProcessInfo proc_info;
         VARIANT vtProp;
-        BSTR strInstanceProp = SysAllocString(L"TargetInstance");
+        BSTR strInstanceProp = SysAllocString(L"TargetInstance");//__CLASS
         hr = apObjArray[i]->Get(strInstanceProp,0,&vtProp,NULL,NULL);
         SysFreeString(strInstanceProp);
         if(SUCCEEDED(hr))
         {
-            IUnknown* inst = vtProp.punkVal;
-            DCProcessInfo proc_info;
+            inst = vtProp.punkVal;
+
             hr = inst->QueryInterface(IID_IWbemClassObject,reinterpret_cast<void**>(&apObjArray[i]));
             if(SUCCEEDED(hr))
             {
@@ -74,9 +77,7 @@ HRESULT WMIEventSink::Indicate(long lObjectCount,
             inst->Release();
         }
         VariantClear(&vtProp);
-
     }
-
     return WBEM_S_NO_ERROR;
 }
 

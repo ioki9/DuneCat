@@ -1,8 +1,10 @@
 #include "essentialheaders.h"
 #include <QTranslator>
 #include "dcsettings.h"
+#include "wmiclient.h"
 #include "dcstunclient.h"
 #include "dctrackermanager.h"
+#include "dcprocessinfo.h"
 #include "dcprocesstracker.h"
 #include "dcprocesstablemodel.h"
 #include "wmieventsink.h"
@@ -12,7 +14,9 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
+
     QGuiApplication app(argc, argv);
+
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
     for (const QString &locale : uiLanguages) {
@@ -22,11 +26,13 @@ int main(int argc, char *argv[])
             break;
         }
     }
+    qRegisterMetaType<DCProcessInfo>("DCProcessInfo");
     //quint16 port = static_cast<quint16>(QUrl("udp://tracker.openbittorrent.com:6969/announce").port());
     //QHostAddress host=QHostInfo::fromName(QUrl("udp://tracker.openbittorrent.com:6969/announce").host()).addresses()[0];
     //std::unique_ptr<DCTrackerManager> manager =
     //        std::make_unique<DCTrackerManager>(DCEndPoint{host,port});
     //manager->open_connection(DCEndPoint{QHostAddress("37.139.120.14"),3478});
+
     qputenv("QT_QUICK_CONTROLS_CONF",":/DuneCat/imports/qtquickcontrols2.conf");
     qmlRegisterType<DCProcessTableModel>("ListModels",1,0,"ProcessListModel");
     qmlRegisterSingletonType(QUrl("qrc:/DuneCat/imports/qml/DCStyle.qml"), "DCStyle", 1, 0, "DCStyle");
@@ -42,8 +48,8 @@ int main(int argc, char *argv[])
         if (!obj && url == objUrl)
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
+    engine.load(url);
 
-    //engine.load(url);
-    return 1;//app.exec();
+    return app.exec();
 }
 

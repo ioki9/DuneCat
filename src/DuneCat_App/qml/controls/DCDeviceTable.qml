@@ -5,9 +5,12 @@ import DCBase
 import DCStyle 1.0
 
 ScrollView {
+    id:root
+    signal tableCompleted
     property double scrollerWidth:ScrollBar.vertical.width
-    //color:"blue"
+
     ListView {
+
         id:listView
         anchors.fill:parent
         clip: true
@@ -26,6 +29,7 @@ ScrollView {
 
     }
     Component {
+
         id: viewDelegate
         Rectangle {
             id:wrapper
