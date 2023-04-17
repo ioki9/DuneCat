@@ -12,19 +12,27 @@ ScrollView {
         highlight: listHighlight
         currentIndex: -1
         highlightFollowsCurrentItem: false
-
         model: processModel
         delegate:viewDelegate
         ProcessListModel{id:processModel}
-
+        header: myheader
 
     }
+
+    Component{
+        id: listHeader
+        Text{
+            text:model.header
+        }
+    }
+
     Component {
         id: viewDelegate
         Rectangle {
             id:wrapper
             width: listView.width - scrollerWidth
             height: 40
+
             color:"transparent"
             RowLayout {
                 id:rowLayout

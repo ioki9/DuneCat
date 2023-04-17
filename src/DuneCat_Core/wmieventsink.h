@@ -4,9 +4,7 @@
 class WMIClient;
 class WMIEventSink : public IWbemObjectSink
 {
-    LONG m_lRef;
-    bool bDone;
-    WMIClient* m_wmiClient;
+
 public:
     WMIEventSink(WMIClient* client);
    ~WMIEventSink() { bDone = true; }
@@ -27,6 +25,12 @@ public:
             /* [in] */ BSTR strParam,
             /* [in] */ IWbemClassObject __RPC_FAR *pObjParam
             );
+private:
+    LONG m_lRef;
+    bool bDone;
+    WMIClient* m_wmiClient;
+
+
 };
 
 #endif // WMIEVENTSINK_H

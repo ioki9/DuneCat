@@ -10,8 +10,12 @@ using DCProcessInfo = DCProcessInfoWin;
 struct DCProcessInfoWin{
     QString name;
     QString decription;
-    QString exe_path;
+    QString file_path;
+    QString command_line;
+    QString owner_user;
+    QString owner_domain;
     quint32 pid;
+    QDateTime termination_date;
     QDateTime creation_date;
 
 };

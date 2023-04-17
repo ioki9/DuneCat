@@ -7,7 +7,6 @@
 WMIEventSink::WMIEventSink(WMIClient *client) : m_wmiClient {client}
 {
     m_lRef = 0;
-
 }
 
 ULONG WMIEventSink::AddRef()
@@ -38,45 +37,10 @@ HRESULT WMIEventSink::QueryInterface(REFIID riid, void** ppv)
 HRESULT WMIEventSink::Indicate(long lObjectCount,
     IWbemClassObject **apObjArray)
 {
-
-    HRESULT hr;
-    IUnknown* inst = nullptr;
-    qDebug()<<"event catched";
+    qDebug()<<"\nevent occurred";
     for (int i = 0; i < lObjectCount; i++)
     {
-        DCProcessInfo proc_info;
-        VARIANT vtProp;
-        BSTR strInstanceProp = SysAllocString(L"TargetInstance");//__CLASS
-        hr = apObjArray[i]->Get(strInstanceProp,0,&vtProp,NULL,NULL);
-        SysFreeString(strInstanceProp);
-        if(SUCCEEDED(hr))
-        {
-            inst = vtProp.punkVal;
-
-            hr = inst->QueryInterface(IID_IWbemClassObject,reinterpret_cast<void**>(&apObjArray[i]));
-            if(SUCCEEDED(hr))
-            {
-                VARIANT vtVal;
-                hr = apObjArray[i]->Get(L"Name",0,&vtVal,NULL,NULL);
-                if(SUCCEEDED(hr))
-                    proc_info.name = QString::fromWCharArray(vtVal.bstrVal);
-                VariantClear(&vtVal);
-                hr = apObjArray[i]->Get(L"ProcessId",0,&vtVal,NULL,NULL);
-                if(SUCCEEDED(hr))
-                    proc_info.pid = vtVal.uintVal;
-                hr = apObjArray[i]->Get(L"CreationDate",0,&vtVal,NULL,NULL);
-                if(SUCCEEDED(hr))
-                    proc_info.creation_date = tools::fromBSTRToDateTime(vtVal.bstrVal);
-                VariantClear(&vtVal);
-                hr = apObjArray[i]->Get(L"ExecutablePath",0,&vtVal,NULL,NULL);
-                if(SUCCEEDED(hr))
-                    proc_info.exe_path = QString::fromWCharArray(vtVal.bstrVal);
-                VariantClear(&vtVal);
-            }
-            m_wmiClient->process_created(proc_info);
-            inst->Release();
-        }
-        VariantClear(&vtProp);
+        m_wmiClient->handle_event(apObjArray[i]);
     }
     return WBEM_S_NO_ERROR;
 }

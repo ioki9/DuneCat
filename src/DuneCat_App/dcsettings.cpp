@@ -5,7 +5,6 @@
 DCSettings::DCSettings(QObject *parent)
     : QObject{parent}
 {
-
 }
 
 bool DCSettings::setAutoStart(bool isOn)
