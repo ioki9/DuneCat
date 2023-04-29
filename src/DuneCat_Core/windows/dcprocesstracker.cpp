@@ -2,6 +2,9 @@
 #include "wmiclient.h"
 #include <utility>
 #include <vector>
+#include <winver.h>
+#include <strsafe.h>
+#pragma comment(lib,"Version.lib")
 
 DCProcessTracker::DCProcessTracker(QObject *parent)
     : QObject{parent}
@@ -19,7 +22,14 @@ DCProcessTracker::~DCProcessTracker()
 // returns empty vector if failed
 std::vector<DCProcessInfo> DCProcessTracker::get_active_processes()
 {
-    return WMIClient::get_instance()->get_process_list();
+    //process count updates through signals if we already set it once before.
+    if(m_process_count != -1)
+        return WMIClient::get_instance()->get_process_list();
+
+    std::vector<DCProcessInfo> vec =  WMIClient::get_instance()->get_process_list();
+    if(vec.size()!=0)
+        m_process_count = vec.size();
+    return vec;
 }
 //returns -1 if failed
 int DCProcessTracker::get_process_count()
@@ -56,6 +66,48 @@ int DCProcessTracker::get_process_count()
 
     CloseHandle( hProcessSnap );
     return count;
+}
+
+QString DCProcessTracker::get_process_description(QString filepath)
+{
+    if(filepath.isEmpty())
+        return "";
+    std::unique_ptr<WCHAR[]>filename = std::make_unique<WCHAR[]>(filepath.size()+1);
+    filepath.toWCharArray(filename.get());
+    int dwLen = GetFileVersionInfoSize(filename.get(), NULL);
+    if(!dwLen)
+        return "";
+
+    std::unique_ptr<BYTE[]> sKey = std::make_unique<BYTE[]>(dwLen);
+    if(!GetFileVersionInfo(filename.get(), NULL, dwLen, sKey.get()))
+        return "";
+
+    struct LANGANDCODEPAGE {
+        WORD wLanguage;
+        WORD wCodePage;
+    } *lpTranslate;
+
+    UINT cbTranslate = 0;
+    if(!VerQueryValue(sKey.get(), L"\\VarFileInfo\\Translation",
+                       (LPVOID*)&lpTranslate, &cbTranslate))
+        return "";
+
+    QString description{""};
+    for(unsigned int i = 0; i < (cbTranslate / sizeof(LANGANDCODEPAGE)); i++)
+    {
+        if(lpTranslate[i].wLanguage != 1033)
+            continue;
+        WCHAR subblock[50];
+        StringCchPrintf(subblock,50,L"\\StringFileInfo\\%04x%04x\\FileDescription",
+                                 lpTranslate[i].wLanguage,lpTranslate[i].wCodePage);
+        //use sprintf if sprintf_s is not available
+        WCHAR *wdescription = NULL;
+        UINT dwBytes;
+        if(VerQueryValue(sKey.get(), subblock, (LPVOID*)&wdescription, &dwBytes))
+            description = QString::fromWCharArray(wdescription);;
+        break;
+    }
+    return description;
 }
 
 void DCProcessTracker::process_deleted_recieved(const DCProcessInfo &process)

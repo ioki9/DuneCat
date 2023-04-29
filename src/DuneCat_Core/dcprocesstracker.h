@@ -4,8 +4,6 @@
 #include "essentialheaders.h"
 #include "dcprocessinfo.h"
 
-
-
 class DCProcessTracker : public QObject
 {
     Q_OBJECT
@@ -15,6 +13,7 @@ public:
     ~DCProcessTracker();
     std::vector<DCProcessInfo> get_active_processes();
     int get_process_count();
+    QString get_process_description(QString filepath);
 private:
     int m_process_count{-1};
 signals:

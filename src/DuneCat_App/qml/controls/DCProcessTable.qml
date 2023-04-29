@@ -3,66 +3,46 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import DCStyle
 import ListModels
+
+
 ScrollView {
     property double scrollerWidth:ScrollBar.vertical.width
-    ListView {
-        id:listView
+    TableView {
+        id:tableView
         anchors.fill:parent
-        clip: true
-        highlight: listHighlight
-        currentIndex: -1
-        highlightFollowsCurrentItem: false
-        model: processModel
+        model: ProcessListModel{ }
         delegate:viewDelegate
-        ProcessListModel{id:processModel}
-        header: myheader
-
+        boundsBehavior: Flickable.StopAtBounds
+        selectionBehavior: TableView.SelectRows
+        selectionModel: ItemSelectionModel{}
+        columnWidthProvider: function(column) {return Math.min(200,model.columnWidth(column))}
     }
 
-    Component{
-        id: listHeader
-        Text{
-            text:model.header
-        }
+    HorizontalHeaderView{
+        id: horizontalHeader
+        syncView: tableView
+        z:2
+        x:-tableView.contentX
+        boundsBehavior: Flickable.StopAtBounds
+        model: tableView.model
     }
+
 
     Component {
         id: viewDelegate
         Rectangle {
             id:wrapper
-            width: listView.width - scrollerWidth
-            height: 40
+            implicitHeight: textDel.implicitHeight
+            color: selected ? "blue" : "lightgray"
 
-            color:"transparent"
-            RowLayout {
-                id:rowLayout
-                anchors.fill: parent
-                spacing:5
-
-                Text {
-                    text: model.name
-                    font.pointSize: 12
-                    color: wrapper.ListView.isCurrentItem ? "white" : "black"
-                    elide: Text.ElideRight
-                    Layout.fillWidth: true
-                    Layout.leftMargin: 10
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-                }
-
-                Text {
-                    text: model.PID
-                    font.pointSize: 12
-                    color: wrapper.ListView.isCurrentItem ? "white" : "black"
-                    elide: Text.ElideRight
-                    Layout.fillWidth: true
-                    Layout.leftMargin: 10
-                    Layout.alignment: Qt.AlignRigh | Qt.AlignVCenter
-                }
-
-            }
-            MouseArea {
-                anchors.fill:parent
-                onClicked:{listView.currentIndex = model.index}
+            required property bool selected
+            Text{
+                id: textDel
+                width:parent.width
+                text:model.display
+                anchors.left: parent.left
+                anchors.horizontalCenter: parent.horizontalCenter
+                elide: Text.ElideRight | Text.ElideLeft
             }
         }
     }
@@ -70,9 +50,9 @@ ScrollView {
        id: listHighlight
        Rectangle{
 
-           width: listView.width - scrollerWidth; height: 40
+           width: tableView.width - scrollerWidth; height: 40
            color: Material.primaryColor; radius: 15; opacity:0.7
-           y: listView.currentItem.y
+           y: tableView.currentItem.y
            Behavior on y {
                SpringAnimation {
                    spring: 3

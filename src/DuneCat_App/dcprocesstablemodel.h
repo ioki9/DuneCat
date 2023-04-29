@@ -4,28 +4,21 @@
 #include "dcprocesstracker.h"
 #include <vector>
 
-class DCProcessTableModel : public QAbstractListModel
+class DCProcessTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
     explicit DCProcessTableModel(QObject *parent = nullptr);
-    enum{
-        ProcessNameRole = Qt::UserRole,
-        PIDRole,
-        TerminationDateRole,
-        CreationDateRole,
-        FilePathRole,
-        CommandLineRole,
-        OwnerUserRole,
-        OwnerDomainRole
-    };
     // Basic functionality:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    Q_INVOKABLE QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    Q_INVOKABLE int columnWidth(int c,const QFont *font = nullptr);
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     virtual QHash<int,QByteArray> roleNames() const override;
 private:
     QMutex mutex;
+    std::vector<int> m_column_widths;
     std::vector<DCProcessInfo> m_processes;
     DCProcessTracker *m_proc_tracker = nullptr;
 private slots:

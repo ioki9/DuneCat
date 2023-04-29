@@ -1,7 +1,9 @@
 #include "dcprocesstablemodel.h"
+#include <QFont>
+#include <QFontMetrics>
 
 DCProcessTableModel::DCProcessTableModel(QObject *parent)
-    : QAbstractListModel(parent)
+    : QAbstractTableModel(parent),m_column_widths(columnCount(QModelIndex()),0)
 {
     m_proc_tracker = new DCProcessTracker(this);
     m_processes = m_proc_tracker->get_active_processes();
@@ -18,61 +20,64 @@ int DCProcessTableModel::rowCount(const QModelIndex &parent) const
         return 0;
     return m_processes.size();
 }
+int DCProcessTableModel::columnCount(const QModelIndex &parent) const
+{
+    return 5;
+}
 
 QVariant DCProcessTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if(role == ProcessNameRole || section == 1)
-        return QVariant(QString("Name"));
-
-    if(role == FilePathRole || section == 0)
-        return QVariant(QString("Path"));
-
-    if(role == TerminationDateRole)
-        return QVariant(QString("Termination date"));
-
-    if(role == CreationDateRole)
-        return QVariant(QString("Creation date"));
-
-    if(role == OwnerUserRole)
-        return QVariant(QString("User name"));
-
-    if(role == OwnerDomainRole)
-        return QVariant(QString("Domain name"));
-
-    if(role == PIDRole)
+    if(role != Qt::DisplayRole)
+        return QVariant();
+    switch(section)
+    {
+    case 0:
+        return QString("Process name");
+    case 1:
+        return QString("Name");
+    case 2:
         return QVariant(QString("PID"));
+    case 3:
+        return QVariant(QString("User name"));
+    case 4:
+        return QVariant(QString("Domain name"));
+    }
+    return QVariant();
+}
 
-    if(role == CommandLineRole)
-        return QVariant(QString("Command line args"));
-
-    return QVariant(QString("LULW"));
+int DCProcessTableModel::columnWidth(int c, const QFont *font)
+{
+    if(!m_column_widths[c])
+    {
+        QFontMetrics default_metrics = QFontMetrics(QGuiApplication::font());
+        QFontMetrics fm = (font ? QFontMetrics(*font) : default_metrics);
+        int ret = fm.horizontalAdvance(headerData(c,Qt::Horizontal,Qt::DisplayRole).toString()
+                                       + QLatin1String(" ^")) + 8;
+        for (int r{0};r<m_processes.size();++r)
+            ret = qMax(ret,fm.horizontalAdvance(data(QAbstractItemModel::createIndex(r,c), Qt::DisplayRole).toString()));
+        m_column_widths[c] = ret;
+    }
+    return m_column_widths[c];
 }
 
 
 QVariant DCProcessTableModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid())
+    if (!index.isValid() || !rowCount() || role != Qt::DisplayRole)
         return QVariant();
-    if(!rowCount())
-        return QVariant();
-    switch(role)
+
+    switch(index.column())
     {
-    case ProcessNameRole:
-        return QVariant(m_processes[index.row()].name);
-    case PIDRole:
-        return QVariant(m_processes[index.row()].pid);
-    case TerminationDateRole:
-        return QVariant(m_processes[index.row()].termination_date);
-    case CreationDateRole:
-        return QVariant(m_processes[index.row()].creation_date);
-    case FilePathRole:
-        return QVariant(m_processes[index.row()].file_path);
-    case OwnerUserRole:
-        return QVariant(m_processes[index.row()].owner_user);
-    case OwnerDomainRole:
-        return QVariant(m_processes[index.row()].owner_domain);
-    case CommandLineRole:
-        return QVariant(m_processes[index.row()].command_line);
+        case 0:
+            return QVariant(m_processes[index.row()].name);
+        case 1:
+            return QVariant(m_processes[index.row()].description);
+        case 2:
+            return QVariant(m_processes[index.row()].pid);
+        case 3:
+            return QVariant(m_processes[index.row()].owner_user);
+        case 4:
+            return QVariant(m_processes[index.row()].owner_domain);
     }
     return QVariant();
 }
@@ -80,16 +85,10 @@ QVariant DCProcessTableModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> DCProcessTableModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
-    roles[ProcessNameRole] = "name";
-    roles[PIDRole] = "PID";
-    roles[TerminationDateRole] = "TerminationDate";
-    roles[CreationDateRole] = "CreationDate";
-    roles[FilePathRole] = "ExePath";
-    roles[OwnerUserRole] = "OwnerUser";
-    roles[OwnerDomainRole] = "OwnerDomain";
-    roles[CommandLineRole] = "CommandLine";
+    roles[Qt::DisplayRole] = "display";
     return roles;
 }
+
 
 void DCProcessTableModel::add_new_process(const DCProcessInfo& proc)
 {

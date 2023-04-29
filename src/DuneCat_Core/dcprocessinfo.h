@@ -9,7 +9,7 @@ using DCProcessInfo = DCProcessInfoWin;
 #endif
 struct DCProcessInfoWin{
     QString name;
-    QString decription;
+    QString description;
     QString file_path;
     QString command_line;
     QString owner_user;

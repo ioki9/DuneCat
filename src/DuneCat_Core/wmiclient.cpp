@@ -1,7 +1,14 @@
 #include "wmiclient.h"
 #include "wmieventsink.h"
 #include "dctools.h"
+#include "dcprocesstracker.h"
 #include <vector>
+#include <chrono>
+#include <iostream>
+#include <psapi.h>
+#include <strsafe.h>
+#define MAX_NAME 256
+
 QObject* WMIClient::client = nullptr;
 WMIClient::WMIClient(QObject* parent) : QObject(parent)
 {
@@ -47,7 +54,7 @@ void WMIClient::handle_event(IWbemClassObject *obj)
     if(SUCCEEDED(hr))
     {
         inst = vtProp.punkVal;
-
+        DCProcessTracker tracker;
         hr = inst->QueryInterface(IID_IWbemClassObject,reinterpret_cast<void**>(&obj));
         if(SUCCEEDED(hr))
         {
@@ -76,12 +83,17 @@ void WMIClient::handle_event(IWbemClassObject *obj)
             if(SUCCEEDED(hr))
                 proc_info.command_line = QString::fromWCharArray(vtVal.bstrVal);
             VariantClear(&vtVal);
+            proc_info.description = tracker.get_process_description(proc_info.file_path);
 
             if(QString::fromWCharArray(vtClassProp.bstrVal) == QString("__InstanceCreationEvent"))
             {
-                std::pair<QString,QString> user_domain = get_process_user_domain(obj);
-                proc_info.owner_user = user_domain.first;
-                proc_info.owner_domain = user_domain.second;
+                _bstr_t str_user;
+                _bstr_t str_domain;
+                if(SUCCEEDED(get_user_from_process(proc_info.pid,str_user,str_domain)));
+                {
+                    proc_info.owner_user = QString::fromWCharArray(str_user);
+                    proc_info.owner_domain = QString::fromWCharArray(str_domain);
+                }
                 emit new_process_created(proc_info);
             }
             else if(QString::fromWCharArray(vtClassProp.bstrVal) == QString("__InstanceDeletionEvent"))
@@ -99,91 +111,6 @@ void WMIClient::handle_event(IWbemClassObject *obj)
     VariantClear(&vtClassProp);
 }
 
-std::pair<QString,QString> WMIClient::get_process_user_domain(IWbemClassObject *obj)
-{
-    HRESULT hr;
-    VARIANT vtVal;
-    BSTR class_name = SysAllocString(L"Win32_Process");
-    BSTR method_name = SysAllocString(L"GetOwner");
-    std::pair<QString,QString> user_dom{};
-    IWbemClassObject* pClass = NULL;
-    hr = m_pSvc->GetObject(class_name, 0, NULL, &pClass, NULL);
-    if (FAILED(hr))
-    {
-        qDebug()<<"get_process_user_domain() failed getObject";
-        return user_dom;
-    }
-
-    IWbemClassObject* pMethod_GetOwner = NULL;
-    hr = pClass->GetMethod(method_name, 0, NULL, &pMethod_GetOwner);
-    if (FAILED(hr))
-    {
-        qDebug()<<"get_process_user_domain() failed GetMethod";
-        pClass->Release();
-        pMethod_GetOwner->Release();
-        return user_dom;
-    }
-
-    IWbemClassObject* pInInst = NULL;
-    hr = pMethod_GetOwner->SpawnInstance(0, &pInInst);
-    if (FAILED(hr))
-    {
-        qDebug()<<"get_process_user_domain() failed to SpawnInstance";
-        pClass->Release();
-        pMethod_GetOwner->Release();
-        pInInst->Release();
-        return user_dom;
-    }
-
-    hr =obj->Get(L"__PATH",0,&vtVal,0,0);
-    if (FAILED(hr))
-    {
-        qDebug()<<"get_process_user_domain() failed Get(__PATH)";
-        pClass->Release();
-        pMethod_GetOwner->Release();
-        pInInst->Release();
-        return user_dom;
-    }
-
-    hr = m_pSvc->ExecMethod(vtVal.bstrVal, method_name, 0, NULL, NULL, &pMethod_GetOwner, NULL);
-    if (FAILED(hr))
-    {
-        qDebug()<<"get_process_user_domain() failed ExecMethod against" << QString::fromWCharArray(V_BSTR(&vtVal));;
-        pClass->Release();
-        pMethod_GetOwner->Release();
-        pInInst->Release();
-        return user_dom;
-    }
-    VariantClear(&vtVal);
-
-    hr = pMethod_GetOwner->Get(L"User", 0, &vtVal, NULL, 0);
-    if (FAILED(hr))
-    {
-        qDebug()<<"get_process_user_domain() failed Get(User)";
-        pClass->Release();
-        pMethod_GetOwner->Release();
-        pInInst->Release();
-        return user_dom;
-    }
-    else
-        user_dom.first = QString::fromWCharArray(vtVal.bstrVal);
-
-    VariantClear(&vtVal);
-    hr = pMethod_GetOwner->Get(L"Domain", 0, &vtVal, NULL, 0);
-    if (FAILED(hr))
-    {
-        qDebug()<<"get_process_user_domain() failed Get(Domain)";
-        return user_dom;
-    }
-    else
-        user_dom.second = QString::fromWCharArray(vtVal.bstrVal);
-
-    VariantClear(&vtVal);
-    pClass->Release();
-    pMethod_GetOwner->Release();
-    pInInst->Release();
-    return user_dom;
-}
 
 void WMIClient::handle_process_deletion(IWbemClassObject *obj)
 {
@@ -375,6 +302,7 @@ std::vector<DCProcessInfo> WMIClient::get_process_list()
     IWbemClassObject *pclsObj = NULL;
     ULONG uReturn = 0;
     std::vector<DCProcessInfo> process_list{};
+    DCProcessTracker tracker;
     while (pEnumerator)
     {
         DCProcessInfo proc_info;
@@ -388,13 +316,125 @@ std::vector<DCProcessInfo> WMIClient::get_process_list()
         if(SUCCEEDED(hr))
             proc_info.name = QString::fromWCharArray(vtProp.bstrVal);
         VariantClear(&vtProp);
+
         hr = pclsObj->Get(L"ProcessId",0,&vtProp,NULL,NULL);
         if(SUCCEEDED(hr))
             proc_info.pid = vtProp.uintVal;
         VariantClear(&vtProp);
+
+        hr = pclsObj->Get(L"CreationDate",0,&vtProp,NULL,NULL);
+        if(SUCCEEDED(hr))
+            proc_info.creation_date = tools::fromBSTRToDateTime(vtProp.bstrVal);
+        VariantClear(&vtProp);
+
+        hr = pclsObj->Get(L"ExecutablePath",0,&vtProp,NULL,NULL);
+        if(SUCCEEDED(hr))
+            proc_info.file_path = QString::fromWCharArray(vtProp.bstrVal);
+        VariantClear(&vtProp);
+
+        hr = pclsObj->Get(L"CommandLine",0,&vtProp,NULL,NULL);
+        if(SUCCEEDED(hr))
+            proc_info.command_line = QString::fromWCharArray(vtProp.bstrVal);
+        VariantClear(&vtProp);
+        _bstr_t str_user;
+        _bstr_t str_domain;
+        if(SUCCEEDED(get_user_from_process(proc_info.pid,str_user,str_domain)));
+        {
+            proc_info.owner_user = QString::fromWCharArray(str_user);
+            proc_info.owner_domain = QString::fromWCharArray(str_domain);
+        }
+        proc_info.description = tracker.get_process_description(proc_info.file_path);
         process_list.push_back(proc_info);
-        pclsObj->Release();
-        pclsObj=NULL;
     }
+
     return process_list;
+}
+
+BOOL WMIClient::get_logon_from_token(HANDLE hToken, _bstr_t& strUser, _bstr_t& strdomain)
+{
+    DWORD dwSize = MAX_NAME;
+    BOOL bSuccess = FALSE;
+    DWORD dwLength = 0;
+    strUser = "";
+    strdomain = "";
+    PTOKEN_USER ptu = NULL;
+    //Verify the parameter passed in is not NULL.
+    if (NULL == hToken)
+        return 0;
+
+    if (!GetTokenInformation(
+            hToken,         // handle to the access token
+            TokenUser,    // get information about the token's groups
+            (LPVOID) ptu,   // pointer to PTOKEN_USER buffer
+            0,              // size of buffer
+            &dwLength       // receives required buffer size
+            ))
+    {
+        if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+            return 0;
+
+        ptu = (PTOKEN_USER)HeapAlloc(GetProcessHeap(),
+                                      HEAP_ZERO_MEMORY, dwLength);
+
+        if (ptu == NULL)
+            return 0;
+    }
+
+    if (!GetTokenInformation(
+            hToken,         // handle to the access token
+            TokenUser,    // get information about the token's groups
+            (LPVOID) ptu,   // pointer to PTOKEN_USER buffer
+            dwLength,       // size of buffer
+            &dwLength       // receives required buffer size
+            ))
+    {
+        return 0;
+    }
+    SID_NAME_USE SidType;
+    WCHAR lpName [MAX_NAME];
+    WCHAR lpDomain [MAX_NAME];
+
+    if( !LookupAccountSidW(NULL, ptu->User.Sid, lpName, &dwSize, lpDomain, &dwSize, &SidType))
+    {
+        DWORD dwResult = GetLastError();
+        if( dwResult == ERROR_NONE_MAPPED )
+            qDebug()<<"NONE_MAPPED";
+        else
+        {
+            printf("LookupAccountSid Error %u\n", GetLastError());
+        }
+    }
+    else
+    {
+        strUser = lpName;
+        strdomain = lpDomain;
+        bSuccess = TRUE;
+    }
+    //cleanup
+    if (ptu != NULL)
+        HeapFree(GetProcessHeap(), 0, (LPVOID)ptu);
+    return bSuccess;
+}
+
+HRESULT WMIClient::get_user_from_process(const DWORD procId,  _bstr_t& strUser, _bstr_t& strdomain)
+{
+    DWORD nameSize = 256;
+    WCHAR filename[256];
+    HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ ,FALSE,procId);
+    if(hProcess == NULL)
+    {
+        return E_FAIL;
+    }
+    HANDLE hToken = NULL;
+
+    if( !OpenProcessToken( hProcess, TOKEN_QUERY, &hToken ) )
+    {
+        CloseHandle( hProcess );
+        return E_FAIL;
+    }
+    BOOL bres = get_logon_from_token (hToken, strUser,  strdomain);
+
+    CloseHandle( hToken );
+    CloseHandle( hProcess );
+    return bres?S_OK:E_FAIL;
 }

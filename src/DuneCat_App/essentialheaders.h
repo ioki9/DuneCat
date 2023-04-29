@@ -15,5 +15,6 @@
 #include <tchar.h>
 #include <comdef.h>
 #include <Wbemidl.h>
+#pragma comment(lib, "advapi32.lib")
 #pragma comment(lib, "wbemuuid.lib")
 #endif //Q_OS_WINDOWS

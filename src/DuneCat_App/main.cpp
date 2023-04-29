@@ -1,5 +1,4 @@
 #include "essentialheaders.h"
-#include <QTranslator>
 #include "dcsettings.h"
 #include "wmiclient.h"
 #include "dcstunclient.h"
@@ -10,7 +9,6 @@
 #include "wmieventsink.h"
 #include <QQuickStyle>
 #include <iostream>
-using namespace std;
 
 int main(int argc, char *argv[])
 {

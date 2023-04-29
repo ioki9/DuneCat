@@ -36,6 +36,9 @@ private:
     std::pair<QString,QString> get_process_user_domain(IWbemClassObject* obj);
     void handle_process_deletion(IWbemClassObject* obj);
     bool initialize();
+    HRESULT get_user_from_process(const DWORD procId,  _bstr_t& strUser, _bstr_t& strdomain);
+    BOOL get_logon_from_token(HANDLE hToken, _bstr_t& strUser, _bstr_t& strdomain);
+
 signals:
     void process_deleted(const DCProcessInfo& process);
     void new_process_created(const DCProcessInfo& new_process);

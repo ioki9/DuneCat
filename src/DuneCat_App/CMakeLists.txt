@@ -19,6 +19,8 @@ qt_add_qml_module(${PROJECT_NAME}
     RESOURCE_PREFIX /DuneCat/imports
     QML_FILES
         "main.qml"
+
+        "qml/controls/DCTableHeader.qml"
         "qml/controls/DCDeviceTable.qml"
         "qml/controls/DCLaunchButton.qml"
         "qml/pages/DCSettingsPage.qml"
@@ -28,6 +30,7 @@ qt_add_qml_module(${PROJECT_NAME}
         "qml/DCAdminPanel.qml"
         "qml/controls/DCProcessTable.qml"
     SOURCES
+        "sortfilterprocessmodel.h" "sortfilterprocessmodel.cpp"
         "dcprocesstablemodel.h" "dcprocesstablemodel.cpp"
         "dcsettings.h" "dcsettings.cpp"
     RESOURCES

@@ -13,6 +13,7 @@ DCMainWindow
         id:adminPanel
         width: 180
         listSpacing: 5
+        z:5
         height: parent.height
         anchors.left: parent.left
         anchors.top: parent.top
