@@ -2,47 +2,85 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import DCStyle
-import ListModels
+import TableModels
 
 
 ScrollView {
+    id:scrollView
     property double scrollerWidth:ScrollBar.vertical.width
+
     TableView {
         id:tableView
         anchors.fill:parent
-        model: ProcessListModel{ }
+        topMargin: header.height
+        model: SortFilterProcessModel{ }
         delegate:viewDelegate
         boundsBehavior: Flickable.StopAtBounds
         selectionBehavior: TableView.SelectRows
         selectionModel: ItemSelectionModel{}
-        columnWidthProvider: function(column) {return Math.min(200,model.columnWidth(column))}
+        columnWidthProvider:function(column) {
+            return Math.min(200,model.columnWidth(column,Qt.font({pointSize: 10})))
+        }
+
+        property bool headerBinded: false
+        Connections{
+            target: header
+            function onPositioningComplete() {
+                if(!tableView.headerBinded)
+                {
+                    tableView.columnWidthProvider = function(column){return header.repeater.itemAt(column).width}
+                    tableView.forceLayout()
+                    tableView.headerBinded = true
+                }
+                else
+                    tableView.forceLayout()
+            }
+        }
     }
 
-    HorizontalHeaderView{
-        id: horizontalHeader
-        syncView: tableView
-        z:2
-        x:-tableView.contentX
-        boundsBehavior: Flickable.StopAtBounds
-        model: tableView.model
-    }
+    Row{
+        id:header
+        parent:scrollView
+        height: 30
+        property alias repeater: colRepeater
+        Repeater
+        {
+            id: colRepeater
+            model:tableView.model.columnCount()
+            DCTableHeaderColumn{
+                id:col
+                height:parent.height
+                width:Math.min(200,tableView.model.columnWidth(index))
+                label:tableView.model.headerData(index,Qt.Horizontal,Qt.DisplayRole)
+                onSorting: {
+                    for(var i = 0; i < colRepeater.model; i++)
+                        if(i !== index)
+                            colRepeater.itemAt(i).stopSorting()
 
+                    tableView.model.sort(index, state === "up" ? Qt.AscendingOrder : Qt.DescendingOrder)
+                }
+            }
+        }
+    }
 
     Component {
         id: viewDelegate
         Rectangle {
             id:wrapper
             implicitHeight: textDel.implicitHeight
-            color: selected ? "blue" : "lightgray"
-
+            color: selected ? "blue" : "white"
+            implicitWidth: Math.min(200,tableView.model.columnWidth(column))
             required property bool selected
+            required property bool current
             Text{
                 id: textDel
                 width:parent.width
                 text:model.display
+                font.pointSize: 10
                 anchors.left: parent.left
+                anchors.leftMargin: 5
                 anchors.horizontalCenter: parent.horizontalCenter
-                elide: Text.ElideRight | Text.ElideLeft
+                elide: Text.ElideRight
             }
         }
     }

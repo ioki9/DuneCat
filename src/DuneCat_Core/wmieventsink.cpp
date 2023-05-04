@@ -37,7 +37,6 @@ HRESULT WMIEventSink::QueryInterface(REFIID riid, void** ppv)
 HRESULT WMIEventSink::Indicate(long lObjectCount,
     IWbemClassObject **apObjArray)
 {
-    qDebug()<<"\nevent occurred";
     for (int i = 0; i < lObjectCount; i++)
     {
         m_wmiClient->handle_event(apObjArray[i]);

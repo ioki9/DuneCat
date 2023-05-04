@@ -6,6 +6,7 @@
 #include "dcprocessinfo.h"
 #include "dcprocesstracker.h"
 #include "dcprocesstablemodel.h"
+#include "dcsortfilterprocessmodel.h"
 #include "wmieventsink.h"
 #include <QQuickStyle>
 #include <iostream>
@@ -32,7 +33,8 @@ int main(int argc, char *argv[])
     //manager->open_connection(DCEndPoint{QHostAddress("37.139.120.14"),3478});
 
     qputenv("QT_QUICK_CONTROLS_CONF",":/DuneCat/imports/qtquickcontrols2.conf");
-    qmlRegisterType<DCProcessTableModel>("ListModels",1,0,"ProcessListModel");
+    qmlRegisterType<DCProcessTableModel>("TableModels",1,0,"ProcessTableModel");
+    qmlRegisterType<DCSortFilterProcessModel>("TableModels",1,0,"SortFilterProcessModel");
     qmlRegisterSingletonType(QUrl("qrc:/DuneCat/imports/qml/DCStyle.qml"), "DCStyle", 1, 0, "DCStyle");
     QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << QString(":/DuneCat/imports/icons"));
     QIcon::setThemeName("Default");

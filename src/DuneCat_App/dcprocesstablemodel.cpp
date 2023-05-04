@@ -3,8 +3,9 @@
 #include <QFontMetrics>
 
 DCProcessTableModel::DCProcessTableModel(QObject *parent)
-    : QAbstractTableModel(parent),m_column_widths(columnCount(QModelIndex()),0)
+    : QAbstractTableModel(parent)
 {
+    m_column_widths = std::vector<int>(m_column_count,0);
     m_proc_tracker = new DCProcessTracker(this);
     m_processes = m_proc_tracker->get_active_processes();
     connect(m_proc_tracker,&DCProcessTracker::process_created,this,&DCProcessTableModel::add_new_process);
@@ -22,7 +23,7 @@ int DCProcessTableModel::rowCount(const QModelIndex &parent) const
 }
 int DCProcessTableModel::columnCount(const QModelIndex &parent) const
 {
-    return 5;
+    return m_column_count;
 }
 
 QVariant DCProcessTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -31,15 +32,15 @@ QVariant DCProcessTableModel::headerData(int section, Qt::Orientation orientatio
         return QVariant();
     switch(section)
     {
-    case 0:
+    case static_cast<int>(EColumns::process_name):
         return QString("Process name");
-    case 1:
+    case static_cast<int>(EColumns::description):
         return QString("Name");
-    case 2:
+    case static_cast<int>(EColumns::pid):
         return QVariant(QString("PID"));
-    case 3:
+    case static_cast<int>(EColumns::user_name):
         return QVariant(QString("User name"));
-    case 4:
+    case static_cast<int>(EColumns::domain_name):
         return QVariant(QString("Domain name"));
     }
     return QVariant();
@@ -49,12 +50,16 @@ int DCProcessTableModel::columnWidth(int c, const QFont *font)
 {
     if(!m_column_widths[c])
     {
-        QFontMetrics default_metrics = QFontMetrics(QGuiApplication::font());
+        QFont fon = QGuiApplication::font();
+        fon.setPointSize(10);
+        QFontMetrics default_metrics = QFontMetrics(fon);
         QFontMetrics fm = (font ? QFontMetrics(*font) : default_metrics);
         int ret = fm.horizontalAdvance(headerData(c,Qt::Horizontal,Qt::DisplayRole).toString()
-                                       + QLatin1String(" ^")) + 8;
+                                       + QLatin1String(" ^")) + 10;
+
         for (int r{0};r<m_processes.size();++r)
             ret = qMax(ret,fm.horizontalAdvance(data(QAbstractItemModel::createIndex(r,c), Qt::DisplayRole).toString()));
+
         m_column_widths[c] = ret;
     }
     return m_column_widths[c];
@@ -68,15 +73,15 @@ QVariant DCProcessTableModel::data(const QModelIndex &index, int role) const
 
     switch(index.column())
     {
-        case 0:
+        case static_cast<int>(EColumns::process_name):
             return QVariant(m_processes[index.row()].name);
-        case 1:
+        case static_cast<int>(EColumns::description):
             return QVariant(m_processes[index.row()].description);
-        case 2:
+        case static_cast<int>(EColumns::pid):
             return QVariant(m_processes[index.row()].pid);
-        case 3:
+        case static_cast<int>(EColumns::user_name):
             return QVariant(m_processes[index.row()].owner_user);
-        case 4:
+        case static_cast<int>(EColumns::domain_name):
             return QVariant(m_processes[index.row()].owner_domain);
     }
     return QVariant();

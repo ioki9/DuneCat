@@ -8,6 +8,14 @@ class DCProcessTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
+    enum class EColumns
+    {
+        process_name,
+        description,
+        pid,
+        user_name,
+        domain_name
+    };
     explicit DCProcessTableModel(QObject *parent = nullptr);
     // Basic functionality:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -21,6 +29,7 @@ private:
     std::vector<int> m_column_widths;
     std::vector<DCProcessInfo> m_processes;
     DCProcessTracker *m_proc_tracker = nullptr;
+    int m_column_count{5};
 private slots:
     void add_new_process(const DCProcessInfo& proc);
     void remove_process(const DCProcessInfo& proc);
