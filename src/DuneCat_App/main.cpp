@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
+
     qRegisterMetaType<DCProcessInfo>("DCProcessInfo");
     //quint16 port = static_cast<quint16>(QUrl("udp://tracker.openbittorrent.com:6969/announce").port());
     //QHostAddress host=QHostInfo::fromName(QUrl("udp://tracker.openbittorrent.com:6969/announce").host()).addresses()[0];

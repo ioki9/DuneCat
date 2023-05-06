@@ -50,17 +50,28 @@ int DCProcessTableModel::columnWidth(int c, const QFont *font)
 {
     if(!m_column_widths[c])
     {
-        QFont fon = QGuiApplication::font();
-        fon.setPointSize(10);
-        QFontMetrics default_metrics = QFontMetrics(fon);
+        if(font == nullptr)
+            qDebug()<<"nullptr";
+        QFontMetrics default_metrics = QFontMetrics(QGuiApplication::font());
         QFontMetrics fm = (font ? QFontMetrics(*font) : default_metrics);
         int ret = fm.horizontalAdvance(headerData(c,Qt::Horizontal,Qt::DisplayRole).toString()
                                        + QLatin1String(" ^")) + 10;
 
         for (int r{0};r<m_processes.size();++r)
-            ret = qMax(ret,fm.horizontalAdvance(data(QAbstractItemModel::createIndex(r,c), Qt::DisplayRole).toString()));
+            ret = qMax(ret,(fm.horizontalAdvance(data(QAbstractItemModel::createIndex(r,c), Qt::DisplayRole).toString())+6));
 
         m_column_widths[c] = ret;
+    }
+    return m_column_widths[c];
+}
+
+int DCProcessTableModel::columnWidth(int c, int pointSize)
+{
+    if(!m_column_widths[c])
+    {
+        QFont* font = new QFont(QGuiApplication::font());
+        font->setPointSize(pointSize);
+        columnWidth(c,font);
     }
     return m_column_widths[c];
 }

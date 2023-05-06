@@ -22,6 +22,7 @@ public:
     int columnCount(const QModelIndex &parent) const override;
     Q_INVOKABLE QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     Q_INVOKABLE int columnWidth(int c,const QFont *font = nullptr);
+    Q_INVOKABLE int columnWidth(int c, int pointSize);
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     virtual QHash<int,QByteArray> roleNames() const override;
 private:

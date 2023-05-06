@@ -19,7 +19,7 @@ ScrollView {
         selectionBehavior: TableView.SelectRows
         selectionModel: ItemSelectionModel{}
         columnWidthProvider:function(column) {
-            return Math.min(200,model.columnWidth(column,Qt.font({pointSize: 10})))
+            return Math.min(200,model.columnWidth(column,10))
         }
 
         property bool headerBinded: false
@@ -50,7 +50,8 @@ ScrollView {
             DCTableHeaderColumn{
                 id:col
                 height:parent.height
-                width:Math.min(200,tableView.model.columnWidth(index))
+                fontPointSize: 10
+                width:Math.min(200,tableView.model.columnWidth(index,10))
                 label:tableView.model.headerData(index,Qt.Horizontal,Qt.DisplayRole)
                 onSorting: {
                     for(var i = 0; i < colRepeater.model; i++)
@@ -69,7 +70,6 @@ ScrollView {
             id:wrapper
             implicitHeight: textDel.implicitHeight
             color: selected ? "blue" : "white"
-            implicitWidth: Math.min(200,tableView.model.columnWidth(column))
             required property bool selected
             required property bool current
             Text{
@@ -79,7 +79,7 @@ ScrollView {
                 font.pointSize: 10
                 anchors.left: parent.left
                 anchors.leftMargin: 5
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
                 elide: Text.ElideRight
             }
         }

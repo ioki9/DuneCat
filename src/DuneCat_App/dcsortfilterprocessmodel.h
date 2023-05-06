@@ -16,6 +16,7 @@ public:
     Q_INVOKABLE virtual void sort(int column,Qt::SortOrder order = Qt::AscendingOrder) override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     Q_INVOKABLE int columnWidth(int c,const QFont *font = nullptr);
+    Q_INVOKABLE int columnWidth(int c, int pointSize);
     Q_INVOKABLE QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 private:
     DCProcessTableModel m_model;

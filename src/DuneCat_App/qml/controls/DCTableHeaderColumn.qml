@@ -7,6 +7,7 @@ Rectangle {
     anchors.top: parent.top
     signal sorting()
     property alias label: columnText.text
+    property alias fontPointSize: columnText.font.pointSize
     property int minColWidth: 30
 
     Text{
