@@ -1,9 +1,10 @@
 qt_add_library(DCCore STATIC)
-set(SOURCE_LIST wmieventsink.h wmieventsink.cpp wmiclient.h wmiclient.cpp
+set(SOURCE_LIST
     dcprocesstracker.h dcprocessinfo.h
 )
 if(WIN32)
-    list(APPEND SOURCE_LIST windows/dcprocesstracker.cpp)
+    list(APPEND SOURCE_LIST windows/dcprocesstracker.cpp
+    windows/wmieventsink.h windows/wmieventsink.cpp windows/wmiclient.h windows/wmiclient.cpp)
 endif()
 qt_add_qml_module(DCCore
     URI DCCore

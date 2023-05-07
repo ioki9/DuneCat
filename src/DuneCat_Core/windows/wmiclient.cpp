@@ -401,13 +401,15 @@ BOOL WMIClient::get_logon_from_token(HANDLE hToken, _bstr_t& strUser, _bstr_t& s
             qDebug()<<"NONE_MAPPED";
         else
         {
-            printf("LookupAccountSid Error %u\n", GetLastError());
+            qDebug()<<"LookupAccountSid Error \n"<<GetLastError();
         }
     }
     else
     {
         strUser = lpName;
         strdomain = lpDomain;
+
+        qDebug()<<QString::fromWCharArray(strUser);
         bSuccess = TRUE;
     }
     //cleanup
@@ -420,7 +422,7 @@ HRESULT WMIClient::get_user_from_process(const DWORD procId,  _bstr_t& strUser, 
 {
     DWORD nameSize = 256;
     WCHAR filename[256];
-    HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ ,FALSE,procId);
+    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ ,FALSE,procId);
     if(hProcess == NULL)
     {
         return E_FAIL;
