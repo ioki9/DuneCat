@@ -19,7 +19,7 @@ qt_add_qml_module(${PROJECT_NAME}
     RESOURCE_PREFIX /DuneCat/imports
     QML_FILES
         "main.qml"
-
+        "qml/components/DCSideRoundedRect.qml"
         "qml/controls/DCTableHeaderColumn.qml"
         "qml/controls/DCDeviceTable.qml"
         "qml/controls/DCLaunchButton.qml"

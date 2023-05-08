@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQml.Models
+import "../components"
 import DCStyle
 import TableModels
 
@@ -22,8 +23,8 @@ ScrollView {
         columnWidthProvider:function(column) {
             return Math.min(200,model.columnWidth(column,10))
         }
-
         property bool headerBinded: false
+
         Connections{
             target: header
             function onPositioningComplete() {
@@ -70,11 +71,11 @@ ScrollView {
         Rectangle {
             id:wrapper
             implicitHeight: textDel.implicitHeight+5
-            color: selected ? "lightblue" : "white"
-            //onSelectedChanged: {tableView.currentRow;wrapper.color =selected ? "blue" : "white"}
+            color: "white"//selected ? "lightblue" : "white"
             required property bool selected
             required property bool current
             Text{
+                z:3
                 id: textDel
                 width:parent.width
                 text:model.display
@@ -93,6 +94,24 @@ ScrollView {
                         ism.select(tableView.model.index(row,column),
                                    ItemSelectionModel.SelectCurrent | ItemSelectionModel.Rows | ItemSelectionModel.Clear)
                     }
+                }
+            }
+
+            DCSideRoundedRect
+            {
+                height:parent.height
+                width: parent.width
+                z:2
+                recColor: selected ? "lightblue" : "white"
+                opacity: selected ? 0.8 : 0
+                recRadius: DCStyle.radius
+                recRadiusSide:{
+                    if(column === 0)
+                        return DCSideRoundedRect.RectangleSide.Left
+                    else if(column === (tableView.model.columnCount() - 1))
+                        return DCSideRoundedRect.RectangleSide.Right
+                    else
+                        return DCSideRoundedRect.RectangleSide.None
                 }
             }
         }

@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
     engine.addImportPath(":/DuneCat/imports/qml");
     engine.addImportPath(":/DuneCat/imports/qml/controls");
     engine.addImportPath(":/DuneCat/imports/qml/pages");
+    engine.addImportPath(":/DuneCat/imports/qml/components");
     const QUrl url(u"qrc:/DuneCat/imports/main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
