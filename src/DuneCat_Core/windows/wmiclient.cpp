@@ -408,8 +408,6 @@ BOOL WMIClient::get_logon_from_token(HANDLE hToken, _bstr_t& strUser, _bstr_t& s
     {
         strUser = lpName;
         strdomain = lpDomain;
-
-        qDebug()<<QString::fromWCharArray(strUser);
         bSuccess = TRUE;
     }
     //cleanup

@@ -1,15 +1,8 @@
 #include "essentialheaders.h"
 #include "dcsettings.h"
-#include "wmiclient.h"
-#include "dcstunclient.h"
-#include "dctrackermanager.h"
-#include "dcprocessinfo.h"
-#include "dcprocesstracker.h"
 #include "dcprocesstablemodel.h"
 #include "dcsortfilterprocessmodel.h"
-#include "wmieventsink.h"
 #include <QQuickStyle>
-#include <iostream>
 
 int main(int argc, char *argv[])
 {

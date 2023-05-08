@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQml.Models
 import DCStyle
 import TableModels
 
@@ -17,7 +18,7 @@ ScrollView {
         delegate:viewDelegate
         boundsBehavior: Flickable.StopAtBounds
         selectionBehavior: TableView.SelectRows
-        selectionModel: ItemSelectionModel{}
+        selectionModel: ism
         columnWidthProvider:function(column) {
             return Math.min(200,model.columnWidth(column,10))
         }
@@ -68,8 +69,9 @@ ScrollView {
         id: viewDelegate
         Rectangle {
             id:wrapper
-            implicitHeight: textDel.implicitHeight
-            color: selected ? "blue" : "white"
+            implicitHeight: textDel.implicitHeight+5
+            color: selected ? "lightblue" : "white"
+            //onSelectedChanged: {tableView.currentRow;wrapper.color =selected ? "blue" : "white"}
             required property bool selected
             required property bool current
             Text{
@@ -82,8 +84,24 @@ ScrollView {
                 anchors.verticalCenter: parent.verticalCenter
                 elide: Text.ElideRight
             }
+            MouseArea
+            {
+                anchors.fill: parent
+                onClicked: {
+                    if(!ism.isRowSelected(index))
+                    {
+                        ism.select(tableView.model.index(row,column),
+                                   ItemSelectionModel.SelectCurrent | ItemSelectionModel.Rows | ItemSelectionModel.Clear)
+                    }
+                }
+            }
         }
     }
+    ItemSelectionModel{
+        id:ism
+        model:tableView.model
+    }
+
     Component{
        id: listHighlight
        Rectangle{

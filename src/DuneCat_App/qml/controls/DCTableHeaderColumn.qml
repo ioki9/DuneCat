@@ -12,6 +12,7 @@ Rectangle {
 
     Text{
         id: columnText
+        font.weight: font.Medium
         anchors.left: parent.left
         anchors.leftMargin: 5
         anchors.verticalCenter: parent.verticalCenter
