@@ -140,7 +140,7 @@ bool WMIClient::initialize()
         EOAC_NONE,                   // Additional capabilities
         NULL                         // Reserved
         );
-    if (FAILED(hres))
+    if (FAILED(hres) && (hres != RPC_E_TOO_LATE))
     {
         qDebug() << "Failed to initialize security. Error code = 0x"
                  << std::hex << hres << '\n';
