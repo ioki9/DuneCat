@@ -4,7 +4,10 @@ set(SOURCE_LIST
 )
 if(WIN32)
     list(APPEND SOURCE_LIST windows/dcprocesstracker.cpp
-    windows/wmieventsink.h windows/wmieventsink.cpp windows/wmiclient.h windows/wmiclient.cpp)
+        windows/wmieventsink.h windows/wmieventsink.cpp
+        windows/wmiclient.h windows/wmiclient.cpp)
+elseif(APPLE)
+    list(APPEND SOURCE_LIST macos/dcprocesstracker.cpp)
 endif()
 qt_add_qml_module(DCCore
     URI DCCore

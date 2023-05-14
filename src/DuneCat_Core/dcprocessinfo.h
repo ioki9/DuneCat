@@ -3,11 +3,7 @@
 #include <QtGlobal>
 #include <QtCore>
 
-#ifdef Q_OS_WIN
-struct DCProcessInfoWin;
-using DCProcessInfo = DCProcessInfoWin;
-#endif
-struct DCProcessInfoWin{
+struct DCProcessInfo{
     QString name;
     QString description;
     QString file_path;

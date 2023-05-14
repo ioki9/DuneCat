@@ -122,7 +122,7 @@ QString tools::macOSXAppBundlePath()
 }
 
 
-
+#ifdef Q_OS_WIN
 QDateTime tools::fromBSTRToDateTime(BSTR bstr)
 {
 
@@ -149,3 +149,4 @@ QDateTime tools::fromBSTRToDateTime(BSTR bstr)
 
     return QDateTime(QDate(year,month,day),QTime(hour,min,sec,msec));
 }
+#endif
