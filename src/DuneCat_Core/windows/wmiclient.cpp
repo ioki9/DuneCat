@@ -418,8 +418,8 @@ BOOL WMIClient::get_logon_from_token(HANDLE hToken, _bstr_t& strUser, _bstr_t& s
 
 HRESULT WMIClient::get_user_from_process(const DWORD procId,  _bstr_t& strUser, _bstr_t& strdomain)
 {
-    DWORD nameSize = 256;
-    WCHAR filename[256];
+    DWORD nameSize = MAX_NAME;
+    WCHAR filename[MAX_NAME];
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ ,FALSE,procId);
     if(hProcess == NULL)
     {
