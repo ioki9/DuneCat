@@ -1,17 +1,11 @@
-#include "dcprocesstracker.h"
-#include <libproc.h>
+#import "../dcprocesstracker.h"
 #include <pwd.h>
-DCProcessTracker::DCProcessTracker(QObject* parent)
-{
+#include <libproc.h>
+#include <sys/kauth.h>
+#import "OSXProcessObserver.h"
+#import <Cocoa/Cocoa.h>
 
-}
-
-DCProcessTracker::~DCProcessTracker()
-{
-
-}
-
-std::vector<DCProcessInfo> DCProcessTracker::get_active_processes()
+std::vector<DCProcessInfo> get_bsd_process_list()
 {
     pid_t pids[2048];
     std::vector<DCProcessInfo> result{};
@@ -38,6 +32,40 @@ std::vector<DCProcessInfo> DCProcessTracker::get_active_processes()
     return result;
 }
 
+std::vector<DCProcessInfo> get_gui_process_list()
+{
+    std::vector<DCProcessInfo> result;
+    for (NSRunningApplication *app in
+           [[NSWorkspace sharedWorkspace] runningApplications])
+      {
+        DCProcessInfo proc;
+        proc.name = QString::fromNSString([app localizedName]);
+        proc.pid = [app processIdentifier];
+        proc.file_path =  QString::fromNSString([[app executableURL] absoluteString]);
+        result.push_back(proc);
+      }
+    return result;
+}
+
+OSXProcessObserver* observer;
+DCProcessTracker::DCProcessTracker(QObject* parent)
+{
+    observer = [[OSXProcessObserver alloc] init];
+    [observer setCallback:this];
+    [observer enableNotification];
+}
+
+DCProcessTracker::~DCProcessTracker()
+{
+    [observer release];
+    observer = nil;
+}
+
+std::vector<DCProcessInfo> DCProcessTracker::get_active_processes()
+{
+    return get_gui_process_list();
+}
+
 int DCProcessTracker::get_process_count()
 {
     return m_process_count;
@@ -57,3 +85,4 @@ void DCProcessTracker::process_created_recieved(const DCProcessInfo &process)
 {
 
 }
+

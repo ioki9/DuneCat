@@ -1,6 +1,5 @@
 #ifndef DCPROCESSTRAKCER_H
 #define DCPROCESSTRAKCER_H
-
 #include "essentialheaders.h"
 #include "dcprocessinfo.h"
 

@@ -7,7 +7,8 @@ if(WIN32)
         windows/wmieventsink.h windows/wmieventsink.cpp
         windows/wmiclient.h windows/wmiclient.cpp)
 elseif(APPLE)
-    list(APPEND SOURCE_LIST macos/dcprocesstracker.cpp)
+    list(APPEND SOURCE_LIST macos/dcprocesstracker.mm
+    macos/OSXProcessObserver.mm macos/OSXProcessObserver.h)
 endif()
 qt_add_qml_module(DCCore
     URI DCCore
@@ -21,3 +22,7 @@ target_precompile_headers(DCCore
 target_include_directories(DCCore
     PUBLIC ${CMAKE_SOURCE_DIR}/src/DuneCat_App)
 target_link_libraries(DCCore PUBLIC qt_libs)
+if(APPLE)
+    set_target_properties(DCCore PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks" )
+    target_link_libraries(DCCore PUBLIC "-framework Foundation" "-framework Cocoa")
+endif()
