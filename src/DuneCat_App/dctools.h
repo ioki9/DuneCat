@@ -8,7 +8,7 @@ namespace tools
     QString macOSXAppBundlePath();
     QString macOSXAppBundleName();
     bool bootUpStart(bool isOn);
-#ifdef Q_OS_WN
+#ifdef Q_OS_WIN
     QDateTime fromBSTRToDateTime(BSTR bstr);
 #endif
     template<typename T, typename = std::enable_if<std::is_integral<T>::value>>
