@@ -100,7 +100,6 @@ QString DCProcessTracker::get_process_description(QString filepath)
         WCHAR subblock[50];
         StringCchPrintf(subblock,50,L"\\StringFileInfo\\%04x%04x\\FileDescription",
                                  lpTranslate[i].wLanguage,lpTranslate[i].wCodePage);
-        //use sprintf if sprintf_s is not available
         WCHAR *wdescription = NULL;
         UINT dwBytes;
         if(VerQueryValue(sKey.get(), subblock, (LPVOID*)&wdescription, &dwBytes))

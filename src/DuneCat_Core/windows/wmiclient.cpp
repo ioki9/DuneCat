@@ -19,18 +19,21 @@ WMIClient::WMIClient(QObject* parent) : QObject(parent)
 
 WMIClient::~WMIClient()
 {
-    m_pLoc->Release();
-    m_pUnsecApp->Release();
-    m_pSink->Release();
-    for(auto stubUnk : m_pStubUnkList)
-        stubUnk->Release();
-    for(auto stubSink : m_pStubSinkList)
+    if(is_initialized)
     {
-        m_pSvc->CancelAsyncCall(stubSink);
-        stubSink->Release();
+        m_pLoc->Release();
+        m_pUnsecApp->Release();
+        m_pSink->Release();
+        for(auto stubUnk : m_pStubUnkList)
+            stubUnk->Release();
+        for(auto stubSink : m_pStubSinkList)
+        {
+            m_pSvc->CancelAsyncCall(stubSink);
+            stubSink->Release();
+        }
+        m_pSvc->Release();
+        CoUninitialize();
     }
-    m_pSvc->Release();
-    CoUninitialize();
 }
 
 
@@ -179,7 +182,7 @@ bool WMIClient::initialize()
 
     if (FAILED(hres))
     {
-        qDebug() << "Could not connect. Error code = 0x"
+        qDebug() << "Could not connect to root\cimv2 namespace. Error code = 0x"
                  << std::hex << hres << '\n';
         m_pLoc->Release();
         CoUninitialize();
@@ -237,6 +240,7 @@ bool WMIClient::initialize()
         SysReleaseString(deletionQuery);
     }
     SysReleaseString(deletionQuery);
+    is_initialized = true;
     return true;
 }
 
@@ -265,8 +269,8 @@ bool WMIClient::subscribe_to_event(BSTR event_query)
     // Check for errors.
     if (FAILED(hres))
     {
-        qDebug()<<"ExecNotificationQueryAsync failed "
-                    "with error = 0x"<< hres <<'\n';
+        qDebug()<<"Couldn't subscribe to event. ExecNotificationQueryAsync failed "
+                    "with error = 0x"<< hres <<'\n'<<"Event query:"<<QString::fromUtf8(event_query);
         m_pSvc->Release();
         m_pLoc->Release();
         m_pUnsecApp->Release();
@@ -293,7 +297,8 @@ std::vector<DCProcessInfo> WMIClient::get_process_list()
     SysReleaseString(query);
     if (FAILED(hres))
     {
-        qDebug() << "ExecQuery failed" << " Error code = 0x"    << std::hex << hres << '\n';
+        qDebug() << "Couldn't get process list. ExecQuery failed" << " Error code = 0x"
+                 << std::hex << hres << '\n';
         qDebug()<< _com_error(hres).ErrorMessage() << '\n';
         return std::vector<DCProcessInfo>();            // Program has failed.
     }
@@ -423,12 +428,14 @@ HRESULT WMIClient::get_user_from_process(const DWORD procId,  _bstr_t& strUser, 
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ ,FALSE,procId);
     if(hProcess == NULL)
     {
+        qDebug()<<"Couldn't open process with id "<<procId<<'\n';
         return E_FAIL;
     }
     HANDLE hToken = NULL;
 
     if( !OpenProcessToken( hProcess, TOKEN_QUERY, &hToken ) )
     {
+        qDebug()<<"Couldn't open process token with process id "<<procId<<'\n';
         CloseHandle( hProcess );
         return E_FAIL;
     }

@@ -31,6 +31,7 @@ private:
     IUnsecuredApartment* m_pUnsecApp = nullptr;
     QVector<IUnknown*> m_pStubUnkList;
     QVector<IWbemObjectSink*> m_pStubSinkList;
+    bool is_initialized{false};
     bool subscribe_to_event(BSTR eventQuery);
     void handle_event(IWbemClassObject* obj);
     std::pair<QString,QString> get_process_user_domain(IWbemClassObject* obj);

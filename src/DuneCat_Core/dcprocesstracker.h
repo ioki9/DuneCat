@@ -12,7 +12,6 @@ public:
     ~DCProcessTracker();
     std::vector<DCProcessInfo> get_process_list();
     int get_process_count();
-    QString get_process_description(QString filepath);
 private:
     int m_process_count{-1};
 signals:
@@ -23,6 +22,8 @@ private slots:
     //slots for wmi events on windows platform
     void process_deleted_recieved(const DCProcessInfo& process);
     void process_created_recieved(const DCProcessInfo& process);
+    //get description for windows processes
+    QString get_process_description(QString filepath);
 #endif
 };
 
