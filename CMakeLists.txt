@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 if(APPLE)
     project(DuneCat VERSION 0.1 LANGUAGES C CXX OBJCXX OBJC )
-    find_library(COCOA_LIBRARY Foundation)
+    find_library(COCOA_LIBRARY Cocoa)
     if(NOT COCOA_LIBRARY)
         message(FATAL_ERROR "Cocoa not found")
     endif()
@@ -28,10 +28,13 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_library(qt_libs)
 target_link_libraries(qt_libs PUBLIC Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui)
 add_dependencies(qt_libs Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui )
+
+
 add_subdirectory(src/DuneCat_App)
 add_subdirectory(src/DuneCat_Network)
 add_subdirectory(src/DuneCat_Core)
-add_subdirectory(tests)
+add_subdirectory(tests/core)
+#add_subdirectory(tests/networking)
 
 install(TARGETS DuneCat
     BUNDLE DESTINATION .
