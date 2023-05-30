@@ -10,7 +10,7 @@ class DCProcessTracker : public QObject
 public:
     explicit DCProcessTracker(QObject *parent = nullptr);
     ~DCProcessTracker();
-    std::vector<DCProcessInfo> get_active_processes();
+    std::vector<DCProcessInfo> get_process_list();
     int get_process_count();
     QString get_process_description(QString filepath);
 private:
@@ -19,9 +19,11 @@ signals:
     void process_created(const DCProcessInfo& process);
     void process_deleted(const DCProcessInfo& process);
 private slots:
+#ifdef Q_OS_WIN
     //slots for wmi events on windows platform
     void process_deleted_recieved(const DCProcessInfo& process);
     void process_created_recieved(const DCProcessInfo& process);
+#endif
 };
 
 #endif // DCPROCESSTRAKCER_H

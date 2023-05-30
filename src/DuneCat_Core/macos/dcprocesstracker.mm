@@ -61,7 +61,7 @@ DCProcessTracker::~DCProcessTracker()
     observer = nil;
 }
 
-std::vector<DCProcessInfo> DCProcessTracker::get_active_processes()
+std::vector<DCProcessInfo> DCProcessTracker::get_process_list()
 {
     return get_gui_process_list();
 }

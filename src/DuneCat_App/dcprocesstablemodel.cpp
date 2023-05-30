@@ -7,7 +7,7 @@ DCProcessTableModel::DCProcessTableModel(QObject *parent)
 {
     m_column_widths = std::vector<int>(m_column_count,0);
     m_proc_tracker = new DCProcessTracker(this);
-    m_processes = m_proc_tracker->get_active_processes();
+    m_processes = m_proc_tracker->get_process_list();
     connect(m_proc_tracker,&DCProcessTracker::process_created,this,&DCProcessTableModel::add_new_process);
     connect(m_proc_tracker,&DCProcessTracker::process_deleted,this,&DCProcessTableModel::remove_process);
 }

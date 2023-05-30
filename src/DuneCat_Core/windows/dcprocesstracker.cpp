@@ -20,7 +20,7 @@ DCProcessTracker::~DCProcessTracker()
 }
 
 // returns empty vector if failed
-std::vector<DCProcessInfo> DCProcessTracker::get_active_processes()
+std::vector<DCProcessInfo> DCProcessTracker::get_process_list()
 {
     //process count updates through signals if we already set it once before.
     if(m_process_count != -1)
