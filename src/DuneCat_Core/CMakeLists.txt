@@ -9,6 +9,8 @@ if(WIN32)
 elseif(APPLE)
     list(APPEND SOURCE_LIST macos/dcprocesstracker.mm
     macos/OSXProcessObserver.mm macos/OSXProcessObserver.h)
+elseif(UNIX)
+    list(APPEND SOURCE_LIST linux/dcprocesstracker.cpp)
 endif()
 qt_add_qml_module(DCCore
     URI DCCore
