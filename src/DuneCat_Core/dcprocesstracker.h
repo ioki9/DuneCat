@@ -2,7 +2,6 @@
 #define DCPROCESSTRAKCER_H
 #include "essentialheaders.h"
 #include "dcprocessinfo.h"
-
 class DCProcessTracker : public QObject
 {
     Q_OBJECT
@@ -13,17 +12,18 @@ public:
     std::vector<DCProcessInfo> get_process_list();
     int get_process_count();
 private:
+    QThread workerThread;
     int m_process_count{-1};
 signals:
     void process_created(const DCProcessInfo& process);
     void process_deleted(const DCProcessInfo& process);
 private slots:
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     //slots for wmi events on windows platform
     void process_deleted_recieved(const DCProcessInfo& process);
     void process_created_recieved(const DCProcessInfo& process);
     //get description for windows processes
-    QString get_process_description(QString filepath);
+    //QString get_process_description(QString filepath);
 #endif
 };
 

@@ -117,6 +117,7 @@ void DCProcessTableModel::add_new_process(const DCProcessInfo& proc)
 
 void DCProcessTableModel::remove_process(const DCProcessInfo& proc)
 {
+    qDebug()<<"recieved pid:"<<proc.pid;
     auto it = std::find_if(m_processes.begin(),m_processes.end(),
                         [&proc](const DCProcessInfo& srch){return srch.pid == proc.pid;});
     if(it == std::end(m_processes))

@@ -2,7 +2,6 @@
 #define DCPROCESSSTRUCTS_H
 #include <QtGlobal>
 #include <QtCore>
-
 struct DCProcessInfo{
     QString name;
     QString description;

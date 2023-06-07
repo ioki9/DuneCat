@@ -7,6 +7,9 @@ if(WIN32)
     list(APPEND SOURCE_LIST ${DCCORE_DIR}/windows/dcprocesstracker.cpp
         ${DCCORE_DIR}/windows/wmieventsink.h ${DCCORE_DIR}/windows/wmieventsink.cpp
         ${DCCORE_DIR}/windows/wmiclient.h ${DCCORE_DIR}/windows/wmiclient.cpp)
+elseif(APPLE)
+     list(APPEND SOURCE_LIST ${DCCORE_DIR}/macos/dcprocesstracker.cpp {DCCORE_DIR}/macos/OSXProcessObserver.mm
+     {DCCORE_DIR}/macos/OSXProcessObserver.h)
 elseif(UNIX)
     list(APPEND SOURCE_LIST ${DCCORE_DIR}/linux/dcprocesstracker.cpp)
 endif()

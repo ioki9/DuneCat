@@ -4,9 +4,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <pwd.h>
+#include <stdlib.h>
 #include <sys/time.h>
-//for reference: https://man7.org/linux/man-pages/man5/proc.5.html
-//           or  https://kb.novaordis.com/index.php//proc/pid/stat#Field_2_-_Executable_File_Name
+#include "linuxprocessobserver.h"
+
+//see: https://man7.org/linux/man-pages/man5/proc.5.html
+// or  https://kb.novaordis.com/index.php//proc/pid/stat#Field_2_-_Executable_File_Name
 enum StatParams : uint8_t
 {
     SP_pid = 0,
@@ -109,7 +112,8 @@ std::vector<QString> get_stat_params(const QFileInfo& dir_info,const std::vector
         }
         name_pid_offset = k+2;
     }
-
+    if(line.size() == 0)
+        return std::vector<QString>{};
     QList<QByteArray> params = line.sliced(name_pid_offset).split(' ');
     params.push_front(name);
     params.push_front(pid);
@@ -131,7 +135,8 @@ QString get_user(uid_t uid)
     return user;
 }
 
-QDateTime get_start_time(const QFileInfo& proc_dir)
+
+QDateTime get_proc_start_time(const QFileInfo& proc_dir)
 {
     QDateTime result{};
     struct timeval tv;
@@ -143,19 +148,64 @@ QDateTime get_start_time(const QFileInfo& proc_dir)
     uptime = uptime_file.readLine().toULongLong();
     gettimeofday(&tv, 0);
     boot_time = tv.tv_sec - uptime;
-    unsigned long long start_stat = get_stat_params(proc_dir,{SP_starttime})[0].toULongLong() / sysconf(_SC_CLK_TCK);
+    if(!proc_dir.exists())
+        return QDateTime{};
+    std::vector<QString> stats = get_stat_params(proc_dir,{SP_starttime});
+    if(stats.empty())
+        return QDateTime{};
+    unsigned long long start_stat = stats[0].toULongLong() / sysconf(_SC_CLK_TCK);
     result.setSecsSinceEpoch(boot_time - start_stat);
     return result;
 }
 
-DCProcessTracker::DCProcessTracker(QObject *parent)
+bool get_info_by_pid(quint32 pid, DCProcessInfo& out)
 {
+    QFileInfo dir(QString("/proc/") + QString::number(pid));
+    if(!dir.exists())
+        return false;
 
+    //get info from /proc/[pid]/stat
+    std::vector<StatParams> params{SP_comm};
+    std::vector<QString> param_res = get_stat_params(dir,params);
+    //can't get the most relevant information so continue.
+    if(params.empty())
+    {
+        qDebug()<<"params empty";
+        return false;
+    }
+    out.name = param_res[0];
+    //getting user
+    struct stat sb;
+    ssize_t buff {PATH_MAX};
+    if(lstat(QByteArray(dir.absoluteFilePath().toUtf8()),&sb) != -1)
+         out.owner_user = get_user(sb.st_uid);
+
+    //get path
+    if (sb.st_size != 0)
+        buff = sb.st_size + 1;
+    char path[buff];
+    QByteArray path_to_proc = dir.absoluteFilePath().toLatin1() + "/exe";
+    ssize_t nbytes = readlink(path_to_proc.data(),path,buff);
+    if(nbytes != -1)
+        out.file_path = QByteArray(path,nbytes);
+    out.creation_date = get_proc_start_time(dir);
+    return true;
 }
+LinuxProcessObserver* observer;
+DCProcessTracker::DCProcessTracker(QObject *parent) : QObject(parent)
+{
+    observer = new LinuxProcessObserver(this);
+    connect(observer, &LinuxProcessObserver::finished, observer, &QObject::deleteLater);
+    connect(observer,&LinuxProcessObserver::process_created,this,&DCProcessTracker::process_created_recieved);
+    connect(observer,&LinuxProcessObserver::process_deleted,this,&DCProcessTracker::process_deleted_recieved);
 
+    observer->start();
+}
 DCProcessTracker::~DCProcessTracker()
 {
-
+    observer->need_exit.storeRelaxed(true);
+    observer->quit();
+    observer->wait();
 }
 
 std::vector<DCProcessInfo> DCProcessTracker::get_process_list()
@@ -170,42 +220,49 @@ std::vector<DCProcessInfo> DCProcessTracker::get_process_list()
     {
         if(!pat.match(info.baseName()).hasMatch())
           continue;
-        //get info from /proc/[pid]/stat
-        std::vector<StatParams> params{SP_pid,SP_comm,SP_starttime};
-        std::vector<QString> param_res = get_stat_params(info,params);
-        //can't get the most relevant information so continue.
-        if(params.empty())
-            continue;
 
         DCProcessInfo proc;
-        proc.pid = param_res[0].toInt();
-        proc.name = param_res[1];
-        //getting user
-        struct stat sb;
-        ssize_t buff {PATH_MAX};
-        if(lstat(QByteArray(info.absoluteFilePath().toUtf8()),&sb) != -1)
-             proc.owner_user = get_user(sb.st_uid);
-
-        //get path
-        if (sb.st_size != 0)
-            buff = sb.st_size + 1;
-        char path[buff];
-        QByteArray path_to_proc = info.absoluteFilePath().toLatin1() + "/exe";
-        ssize_t nbytes = readlink(path_to_proc.data(),path,buff);
-        if(nbytes != -1)
-            proc.file_path = QByteArray(path,nbytes);
-        proc.creation_date = get_start_time(info);
-
+        proc.pid = info.baseName().toInt();
+        if(!get_info_by_pid(proc.pid,proc))
+            continue;
         proc_list.push_back(proc);
     }
     return proc_list;
 }
 
-
-
 int DCProcessTracker::get_process_count()
 {
+    if(m_process_count != -1)
+        return m_process_count;
+    const QDir proc_dir(QString("/proc"));
+    if(!proc_dir.exists())
+        return -1;
+    static QRegularExpression pat("^\\d+$");
+    const QFileInfoList proc_ls{proc_dir.entryInfoList()};
+    m_process_count = 0;
+    for(const auto& info : proc_ls)
+    {
+        if(!pat.match(info.baseName()).hasMatch())
+          continue;
+        m_process_count++;
+    }
     return m_process_count;
 }
 
+void DCProcessTracker::process_deleted_recieved(const DCProcessInfo &process)
+{
+    if(m_process_count != -1)
+        m_process_count--;
+    emit process_deleted(process);
+}
 
+void DCProcessTracker::process_created_recieved(const DCProcessInfo& process)
+{
+    DCProcessInfo proc = process;
+    if(!get_info_by_pid(process.pid,proc))
+        return;
+    if(m_process_count != -1)
+        m_process_count++;
+
+    emit process_created(proc);
+}
