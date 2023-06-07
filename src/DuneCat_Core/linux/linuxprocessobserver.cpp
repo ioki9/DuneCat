@@ -5,7 +5,6 @@
 #include <linux/cn_proc.h>
 #include <signal.h>
 
-
 int LinuxProcessObserver::nl_connect()
 {
     int rc;
@@ -164,11 +163,10 @@ void LinuxProcessObserver::run()
     set_proc_ev_listen(nl_sock, false);
 }
 
-
 LinuxProcessObserver::LinuxProcessObserver(QObject* parent) : QThread(parent)
 {
-
 }
+
 LinuxProcessObserver::~LinuxProcessObserver()
 {
     close(nl_sock);

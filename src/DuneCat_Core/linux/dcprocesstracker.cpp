@@ -78,6 +78,8 @@ std::vector<QString> get_stat_params(const QFileInfo& dir_info,const std::vector
     QByteArray pid{dir_info.baseName().toUtf8()};
     QByteArray name{""};
     QByteArray line = stat.readLine();
+    if(line.size() == 0)
+        return std::vector<QString>{};
     size_t name_pid_offset{0};
 
     //it's easier to get first two parameters of /proc/[pid]/stat elsewhere and parse the rest of it with ' ' delimeter
@@ -112,8 +114,7 @@ std::vector<QString> get_stat_params(const QFileInfo& dir_info,const std::vector
         }
         name_pid_offset = k+2;
     }
-    if(line.size() == 0)
-        return std::vector<QString>{};
+
     QList<QByteArray> params = line.sliced(name_pid_offset).split(' ');
     params.push_front(name);
     params.push_front(pid);
@@ -134,7 +135,6 @@ QString get_user(uid_t uid)
         user = pwd->pw_name;
     return user;
 }
-
 
 QDateTime get_proc_start_time(const QFileInfo& proc_dir)
 {
@@ -191,6 +191,7 @@ bool get_info_by_pid(quint32 pid, DCProcessInfo& out)
     out.creation_date = get_proc_start_time(dir);
     return true;
 }
+
 LinuxProcessObserver* observer;
 DCProcessTracker::DCProcessTracker(QObject *parent) : QObject(parent)
 {
@@ -201,6 +202,7 @@ DCProcessTracker::DCProcessTracker(QObject *parent) : QObject(parent)
 
     observer->start();
 }
+
 DCProcessTracker::~DCProcessTracker()
 {
     observer->need_exit.storeRelaxed(true);
@@ -266,7 +268,8 @@ void DCProcessTracker::process_created_recieved(const DCProcessInfo& process)
 
     emit process_created(proc);
 }
-QString get_process_description(QString filepath)
+
+QString DCProcessTracker::get_process_description(QString filepath)
 {
     return "";
 }
