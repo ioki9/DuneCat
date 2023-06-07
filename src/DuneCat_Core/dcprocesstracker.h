@@ -18,7 +18,7 @@ signals:
     void process_created(const DCProcessInfo& process);
     void process_deleted(const DCProcessInfo& process);
 private slots:
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+#if !defined(Q_OS_MAC)
     //slots for wmi events on windows platform
     void process_deleted_recieved(const DCProcessInfo& process);
     void process_created_recieved(const DCProcessInfo& process);
