@@ -6,11 +6,6 @@
 #include <signal.h>
 
 
-//static volatile bool need_exit = false;
-//static void on_sigint(int unused)
-//{
-//    need_exit = true;
-//}
 int LinuxProcessObserver::nl_connect()
 {
     int rc;
@@ -176,7 +171,6 @@ LinuxProcessObserver::LinuxProcessObserver(QObject* parent) : QThread(parent)
 }
 LinuxProcessObserver::~LinuxProcessObserver()
 {
-    qDebug()<<"LinuxProcessObserver destrucotr called";
     close(nl_sock);
 }
 

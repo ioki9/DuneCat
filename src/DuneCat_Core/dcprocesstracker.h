@@ -23,7 +23,7 @@ private slots:
     void process_deleted_recieved(const DCProcessInfo& process);
     void process_created_recieved(const DCProcessInfo& process);
     //get description for windows processes
-    //QString get_process_description(QString filepath);
+    QString get_process_description(QString filepath);
 #endif
 };
 

@@ -63,11 +63,19 @@ DCProcessTracker::~DCProcessTracker()
 
 std::vector<DCProcessInfo> DCProcessTracker::get_process_list()
 {
-    return get_gui_process_list();
+    std::vector<DCProcessInfo> result = get_gui_process_list();
+    m_process_count = result.size();
+    return result;
 }
 
 int DCProcessTracker::get_process_count()
 {
+    if(m_process_count != -1)
+        return m_process_count;
+    pid_t pids[2048];
+    std::vector<DCProcessInfo> result{};
+    int bytes = proc_listpids(PROC_ALL_PIDS,0,pids,sizeof(pids));
+    m_process_count = bytes/sizeof(pids[0]);
     return m_process_count;
 }
 

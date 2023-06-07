@@ -266,3 +266,7 @@ void DCProcessTracker::process_created_recieved(const DCProcessInfo& process)
 
     emit process_created(proc);
 }
+QString get_process_description(QString filepath)
+{
+    return "";
+}
