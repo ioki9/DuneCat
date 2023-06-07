@@ -19,6 +19,8 @@ qt_add_qml_module(${PROJECT_NAME}
     RESOURCE_PREFIX /DuneCat/imports
     QML_FILES
         "main.qml"
+        "qml/components/DCSideRoundedRect.qml"
+        "qml/controls/DCTableHeaderColumn.qml"
         "qml/controls/DCDeviceTable.qml"
         "qml/controls/DCLaunchButton.qml"
         "qml/pages/DCSettingsPage.qml"
@@ -26,7 +28,10 @@ qt_add_qml_module(${PROJECT_NAME}
         "qml/DCStyle.qml"
         "qml/DCMainWindow.qml"
         "qml/DCAdminPanel.qml"
+        "qml/controls/DCProcessTable.qml"
     SOURCES
+        "dcsortfilterprocessmodel.h" "dcsortfilterprocessmodel.cpp"
+        "dcprocesstablemodel.h" "dcprocesstablemodel.cpp"
         "dcsettings.h" "dcsettings.cpp"
     RESOURCES
         "icons/20x20/desktop.png"
@@ -50,5 +55,10 @@ qt_add_qml_module(${PROJECT_NAME}
 )
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC essentialheaders.h)
-target_link_libraries(${PROJECT_NAME} PUBLIC qt_libs Qt6::QuickControls2 DCNetwork)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/src/DuneCat_Network)
+target_link_libraries(${PROJECT_NAME} PUBLIC qt_libs Qt6::QuickControls2 DCCore DCNetwork )
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME} PUBLIC wbemuuid)
+endif()
+target_include_directories(${PROJECT_NAME} PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/DuneCat_Core
+    ${CMAKE_SOURCE_DIR}/src/DuneCat_Network)

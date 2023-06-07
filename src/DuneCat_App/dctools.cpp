@@ -1,5 +1,8 @@
 #include <DuneCatConfig.h>
 #include "dctools.h"
+#include <string>
+#include <stdlib.h>
+#include <charconv>
 
 //TODO: for linux make a more generic way to autostart an app (with .sh script after deployment)
 bool tools::bootUpStart(bool isOn)
@@ -119,3 +122,31 @@ QString tools::macOSXAppBundlePath()
 }
 
 
+#ifdef Q_OS_WIN
+QDateTime tools::fromBSTRToDateTime(BSTR bstr)
+{
+
+    int wslen = SysStringLen(bstr);
+    const wchar_t* pstr = (wchar_t*)bstr;
+    int len = WideCharToMultiByte(CP_ACP, 0, pstr, wslen, NULL, 0, NULL, NULL);
+    std::string str(len, '\0');
+
+    len = WideCharToMultiByte(CP_ACP, 0 /* no flags */,
+                                pstr, wslen /* not necessary NULL-terminated */,
+                                &str[0], len,
+                                NULL, NULL /* no default char */);
+    std::string_view str_view{str};
+    int year{},month{},day{};
+    std::from_chars(str_view.data(),str_view.data()+4,year);
+    std::from_chars(str_view.data()+4,str_view.data()+6,month);
+    std::from_chars(str_view.data()+6,str_view.data()+8,day);
+
+    int hour{},min{},sec{},msec{};
+    std::from_chars(str_view.data()+8,str_view.data()+10,hour);
+    std::from_chars(str_view.data()+10,str_view.data()+12,min);
+    std::from_chars(str_view.data()+12,str_view.data()+14,sec);
+    std::from_chars(str_view.data()+15,str_view.data()+18,msec);
+
+    return QDateTime(QDate(year,month,day),QTime(hour,min,sec,msec));
+}
+#endif

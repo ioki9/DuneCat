@@ -11,5 +11,4 @@ ApplicationWindow {
     signal drawerButtonClicked()
     title: qsTr("DuneCat")
 
-
 }

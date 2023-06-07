@@ -1,8 +1,6 @@
 #pragma once
-
 #include "networkheaders.h"
 #include "dcnetworkmodels.h"
-
 
 class DCStunClient : public QUdpSocket
 {

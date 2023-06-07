@@ -5,16 +5,19 @@ import DCBase
 import DCStyle 1.0
 
 ScrollView {
+    id:root
+    signal tableCompleted
     property double scrollerWidth:ScrollBar.vertical.width
-    //color:"blue"
+
     ListView {
+
         id:listView
         anchors.fill:parent
         clip: true
+        focus: true
         highlight: listHighlight
         currentIndex: -1
         highlightFollowsCurrentItem: true
-
 
         model: ListModel {
             ListElement{indicatorIcon: "circle_indicator"; deviceIcon:"desktop"; name:"test1"; menuIcon:"menu"}
@@ -25,7 +28,9 @@ ScrollView {
         delegate:viewDelegate
 
     }
+
     Component {
+
         id: viewDelegate
         Rectangle {
             id:wrapper

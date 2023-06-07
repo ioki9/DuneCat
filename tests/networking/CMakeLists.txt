@@ -1,4 +1,4 @@
-
+set(DCCORE_DIR ${CMAKE_SOURCE_DIR}/src/DuneCat_Core)
 set(DCAPP_DIR ${CMAKE_SOURCE_DIR}/src/DuneCat_App)
 set(DCNET_DIR ${CMAKE_SOURCE_DIR}/src/DuneCat_Network)
 add_executable(networking_tests tst_networkingtests.cpp
