@@ -182,8 +182,7 @@ bool WMIClient::initialize()
 
     if (FAILED(hres))
     {
-        qDebug() << "Could not connect to root\cimv2 namespace. Error code = 0x"
-                 << std::hex << hres << '\n';
+        qDebug() << "Could not connect to root\\cimv2 namespace. Error code = "<< std::hex << hres << '\n';
         m_pLoc->Release();
         CoUninitialize();
         return false;
@@ -270,7 +269,7 @@ bool WMIClient::subscribe_to_event(BSTR event_query)
     if (FAILED(hres))
     {
         qDebug()<<"Couldn't subscribe to event. ExecNotificationQueryAsync failed "
-                    "with error = 0x"<< hres <<'\n'<<"Event query:"<<QString::fromUtf8(event_query);
+                    "with error = 0x"<< hres <<'\n'<<"Event query:"<<QString::fromWCharArray(event_query);
         m_pSvc->Release();
         m_pLoc->Release();
         m_pUnsecApp->Release();

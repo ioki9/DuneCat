@@ -22,6 +22,7 @@ private slots:
     //slots for wmi events on windows platform
     void process_deleted_recieved(const DCProcessInfo& process);
     void process_created_recieved(const DCProcessInfo& process);
+    friend class WMIClient;
     //get description for windows processes
     QString get_process_description(QString filepath);
 #endif
