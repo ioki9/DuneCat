@@ -79,18 +79,3 @@ int DCProcessTracker::get_process_count()
     return m_process_count;
 }
 
-QString DCProcessTracker::get_process_description(QString filepath)
-{
-    return "";
-}
-
-void DCProcessTracker::process_deleted_recieved(const DCProcessInfo &process)
-{
-
-}
-
-void DCProcessTracker::process_created_recieved(const DCProcessInfo &process)
-{
-
-}
-
