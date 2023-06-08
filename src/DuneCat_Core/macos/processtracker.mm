@@ -5,7 +5,8 @@
 #import "OSXProcessObserver.h"
 #import <Cocoa/Cocoa.h>
 
-
+namespace DuneCat
+{
 std::vector<ProcessInfo> get_bsd_process_list()
 {
     pid_t pids[2048];
@@ -80,3 +81,4 @@ int ProcessTracker::get_process_count()
     return m_process_count;
 }
 
+}
