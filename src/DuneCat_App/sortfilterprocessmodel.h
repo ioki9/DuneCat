@@ -1,6 +1,6 @@
 #pragma once
 #include <QSortFilterProxyModel>
-#include "ProcessTableModel.h"
+#include "processtablemodel.h"
 #include <QObject>
 #include <QFont>
 

@@ -1,7 +1,7 @@
 #include "essentialheaders.h"
-#include "Settings.h"
-#include "ProcessTableModel.h"
-#include "SortFilterProcessModel.h"
+#include "settings.h"
+#include "processtablemodel.h"
+#include "sortfilterprocessmodel.h"
 #include <QQuickStyle>
 
 using namespace DuneCat;

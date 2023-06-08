@@ -1,5 +1,5 @@
 
-#include "SortFilterProcessModel.h"
+#include "sortfilterprocessmodel.h"
 #include <chrono>
 
 namespace DuneCat

@@ -1,4 +1,4 @@
-#include "Settings.h"
+#include "settings.h"
 #include "tools.h"
 #include <DuneCatConfig.h>
 namespace DuneCat

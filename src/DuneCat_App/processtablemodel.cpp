@@ -1,4 +1,4 @@
-#include "ProcessTableModel.h"
+#include "processtablemodel.h"
 #include <QFont>
 #include <QFontMetrics>
 
