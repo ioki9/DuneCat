@@ -1,9 +1,11 @@
-#ifndef LINUXPROCESSOBSERVER_H
-#define LINUXPROCESSOBSERVER_H
+#pragma once
 #include <QObject>
 #include <QThread>
 #include <QAtomicInteger>
-#include "dcprocessinfo.h"
+#include "processinfo.h"
+
+namespace DuneCat
+{
 class LinuxProcessObserver : public QThread
 {
     Q_OBJECT
@@ -20,8 +22,7 @@ private:
     int nl_sock;
 
 signals:
-    void process_created(const DCProcessInfo& process);
-    void process_deleted(const DCProcessInfo& process);
+    void process_created(const ProcessInfo& process);
+    void process_deleted(const ProcessInfo& process);
 };
-
-#endif // LINUXPROCESSOBSERVER_H
+}

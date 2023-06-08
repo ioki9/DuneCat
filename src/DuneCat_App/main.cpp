@@ -1,8 +1,10 @@
 #include "essentialheaders.h"
-#include "dcsettings.h"
-#include "dcprocesstablemodel.h"
-#include "dcsortfilterprocessmodel.h"
+#include "Settings.h"
+#include "ProcessTableModel.h"
+#include "SortFilterProcessModel.h"
 #include <QQuickStyle>
+
+using namespace DuneCat;
 
 int main(int argc, char *argv[])
 {
@@ -19,16 +21,16 @@ int main(int argc, char *argv[])
         }
     }
 
-    qRegisterMetaType<DCProcessInfo>("DCProcessInfo");
+    qRegisterMetaType<ProcessInfo>("ProcessInfo");
     //quint16 port = static_cast<quint16>(QUrl("udp://tracker.openbittorrent.com:6969/announce").port());
     //QHostAddress host=QHostInfo::fromName(QUrl("udp://tracker.openbittorrent.com:6969/announce").host()).addresses()[0];
-    //std::unique_ptr<DCTrackerManager> manager =
-    //        std::make_unique<DCTrackerManager>(DCEndPoint{host,port});
-    //manager->open_connection(DCEndPoint{QHostAddress("37.139.120.14"),3478});
+    //std::unique_ptr<TrackerManager> manager =
+    //        std::make_unique<TrackerManager>(EndPoint{host,port});
+    //manager->open_connection(EndPoint{QHostAddress("37.139.120.14"),3478});
 
     qputenv("QT_QUICK_CONTROLS_CONF",":/DuneCat/imports/qtquickcontrols2.conf");
-    qmlRegisterType<DCProcessTableModel>("TableModels",1,0,"ProcessTableModel");
-    qmlRegisterType<DCSortFilterProcessModel>("TableModels",1,0,"SortFilterProcessModel");
+    qmlRegisterType<ProcessTableModel>("TableModels",1,0,"ProcessTableModel");
+    qmlRegisterType<SortFilterProcessModel>("TableModels",1,0,"SortFilterProcessModel");
     qmlRegisterSingletonType(QUrl("qrc:/DuneCat/imports/qml/DCStyle.qml"), "DCStyle", 1, 0, "DCStyle");
     QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << QString(":/DuneCat/imports/icons"));
     QIcon::setThemeName("Default");

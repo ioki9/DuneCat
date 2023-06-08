@@ -1,9 +1,11 @@
 #include "wmieventsink.h"
 #include <strsafe.h>
-#include "dcprocessinfo.h"
-#include "dctools.h"
+#include "processinfo.h"
+#include "tools.h"
 #include "wmiclient.h"
 
+namespace DuneCat
+{
 WMIEventSink::WMIEventSink(WMIClient *client) : m_wmiClient {client}
 {
     m_lRef = 0;
@@ -35,7 +37,7 @@ HRESULT WMIEventSink::QueryInterface(REFIID riid, void** ppv)
 
 
 HRESULT WMIEventSink::Indicate(long lObjectCount,
-    IWbemClassObject **apObjArray)
+                               IWbemClassObject **apObjArray)
 {
     for (int i = 0; i < lObjectCount; i++)
     {
@@ -45,10 +47,10 @@ HRESULT WMIEventSink::Indicate(long lObjectCount,
 }
 
 HRESULT WMIEventSink::SetStatus(
-            /* [in] */ LONG lFlags,
-            /* [in] */ HRESULT hResult,
-            /* [in] */ BSTR strParam,
-            /* [in] */ IWbemClassObject __RPC_FAR *pObjParam)
+    /* [in] */ LONG lFlags,
+    /* [in] */ HRESULT hResult,
+    /* [in] */ BSTR strParam,
+    /* [in] */ IWbemClassObject __RPC_FAR *pObjParam)
 {
     if(lFlags == WBEM_STATUS_COMPLETE)
     {
@@ -60,4 +62,5 @@ HRESULT WMIEventSink::SetStatus(
     }
 
     return WBEM_S_NO_ERROR;
+}
 }

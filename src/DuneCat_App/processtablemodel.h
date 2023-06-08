@@ -1,10 +1,11 @@
-#ifndef DCPROCESSTABLEMODEL_H
-#define DCPROCESSTABLEMODEL_H
+#pragma once
 #include <QAbstractListModel>
-#include "dcprocesstracker.h"
+#include "processtracker.h"
 #include <vector>
 
-class DCProcessTableModel : public QAbstractTableModel
+namespace DuneCat
+{
+class ProcessTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
@@ -16,7 +17,7 @@ public:
         user_name,
         domain_name
     };
-    explicit DCProcessTableModel(QObject *parent = nullptr);
+    explicit ProcessTableModel(QObject *parent = nullptr);
     // Basic functionality:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent) const override;
@@ -28,12 +29,11 @@ public:
 private:
     QMutex mutex;
     std::vector<int> m_column_widths;
-    std::vector<DCProcessInfo> m_processes;
-    DCProcessTracker *m_proc_tracker = nullptr;
+    std::vector<ProcessInfo> m_processes;
+    ProcessTracker *m_proc_tracker = nullptr;
     int m_column_count{5};
 private slots:
-    void add_new_process(const DCProcessInfo& proc);
-    void remove_process(const DCProcessInfo& proc);
+    void add_new_process(const ProcessInfo& proc);
+    void remove_process(const ProcessInfo& proc);
 };
-
-#endif // DCPROCESSTABLEMODEL_H
+}

@@ -1,10 +1,12 @@
-#import "../dcprocesstracker.h"
+#import "../processtracker.h"
 #include <pwd.h>
 #include <libproc.h>
 #include <sys/kauth.h>
 #import "OSXProcessObserver.h"
 #import <Cocoa/Cocoa.h>
 
+namespace DuneCat
+{
 std::vector<DCProcessInfo> get_bsd_process_list()
 {
     pid_t pids[2048];
@@ -78,4 +80,4 @@ int DCProcessTracker::get_process_count()
     m_process_count = bytes/sizeof(pids[0]);
     return m_process_count;
 }
-
+}

@@ -1,13 +1,15 @@
 #include <DuneCatConfig.h>
-#include "dctools.h"
+#include "tools.h"
 #include <string>
 #include <stdlib.h>
 #include <charconv>
 
-//TODO: for linux make a more generic way to autostart an app (with .sh script after deployment)
-bool tools::bootUpStart(bool isOn)
+namespace DuneCat
 {
-    #ifdef Q_OS_LINUX
+//TODO: for linux make a more generic way to autostart an app (with .sh script after deployment)
+bool bootUpStart(bool isOn)
+{
+#ifdef Q_OS_LINUX
     // Path to the autorun folder
     QString autostartPath = QStandardPaths::standardLocations(QStandardPaths::ConfigLocation).at(0) + QLatin1String("/autostart");
     /* Check whether there is a directory in which to store the autorun file.*/
@@ -30,18 +32,18 @@ bool tools::bootUpStart(bool isOn)
                 QString autorunContent("[Desktop Entry]\n"
                                        "Type=Application\n"
                                        "Exec=" + QCoreApplication::applicationFilePath() + "\n"
-                                       "Hidden=flase\n"
-                                       "NoDisplay=false\n"
-                                       "X-GNOME-Autostart-enabled=true\n"
-                                       "Name[en_GB]=DuneCat\n"
-                                       "Name=DuneCat\n"
-                                       "Comment[en_GB]=DuneCat\n"
-                                       "Comment=DuneCat\n");
+                                                                                   "Hidden=flase\n"
+                                                                                   "NoDisplay=false\n"
+                                                                                   "X-GNOME-Autostart-enabled=true\n"
+                                                                                   "Name[en_GB]=DuneCat\n"
+                                                                                   "Name=DuneCat\n"
+                                                                                   "Comment[en_GB]=DuneCat\n"
+                                                                                   "Comment=DuneCat\n");
                 QTextStream outStream(&autorunFile);
                 outStream << autorunContent;
                 // Set access rights, including on the performance of the file, otherwise the autorun does not work
                 autorunFile.setPermissions(QFileDevice::ExeUser|QFileDevice::ExeOwner|QFileDevice::ExeOther|QFileDevice::ExeGroup|
-                                       QFileDevice::WriteUser|QFileDevice::ReadUser);
+                                           QFileDevice::WriteUser|QFileDevice::ReadUser);
                 autorunFile.close();
                 QProcess process;
                 process.start("chmod +x",QStringList() << autostartPath + QLatin1String("/DuneCat.desktop"));
@@ -54,14 +56,14 @@ bool tools::bootUpStart(bool isOn)
         return false;
     }
 
-    #elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MAC)
 
     // Remove any existing login entry for this app first, in case there was one
     // from a previous installation, that may be under a different launch path.
     {
         QStringList args;
         args << "-e tell application \"System Events\" to delete login item\""
-            + macOSXAppBundleName() + "\"";
+                    + macOSXAppBundleName() + "\"";
 
         QProcess::execute("osascript", args);
     }
@@ -78,7 +80,7 @@ bool tools::bootUpStart(bool isOn)
     else
         return false;
 
-    #elif defined(Q_OS_WIN)
+#elif defined(Q_OS_WIN)
     QSettings bootUpSettings("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
     if (isOn) {
         bootUpSettings.setValue(PROJECT_NAME, QDir::toNativeSeparators(QCoreApplication::applicationFilePath()));
@@ -88,42 +90,42 @@ bool tools::bootUpStart(bool isOn)
         bootUpSettings.remove(PROJECT_NAME);
         return false;
     }
-    #endif
+#endif
     return false;
 }
 
-QString tools::macOSXAppBundleName()
+QString macOSXAppBundleName()
 {
-    #ifdef Q_OS_MAC
-        QString bundlePath = macOSXAppBundlePath();
-        QFileInfo fileInfo(bundlePath);
-        return fileInfo.baseName();
-    #else
-        return "";
-    #endif
+#ifdef Q_OS_MAC
+    QString bundlePath = macOSXAppBundlePath();
+    QFileInfo fileInfo(bundlePath);
+    return fileInfo.baseName();
+#else
+    return "";
+#endif
 }
 
-QString tools::macOSXAppBundlePath()
+QString macOSXAppBundlePath()
 {
-    #ifdef Q_OS_MAC
-        QDir dir = QDir ( QCoreApplication::applicationDirPath() );
-        dir.cdUp();
-        dir.cdUp();
-        QString absolutePath = dir.absolutePath();
-        // absolutePath will contain a "/" at the end,
-        // but we want the clean path to the .app bundle
-        if ( absolutePath.length() > 0 && absolutePath.right(1) == "/" ) {
-            absolutePath.chop(1);
-        }
-        return absolutePath;
-    #else
-        return "";
-    #endif
+#ifdef Q_OS_MAC
+    QDir dir = QDir ( QCoreApplication::applicationDirPath() );
+    dir.cdUp();
+    dir.cdUp();
+    QString absolutePath = dir.absolutePath();
+    // absolutePath will contain a "/" at the end,
+    // but we want the clean path to the .app bundle
+    if ( absolutePath.length() > 0 && absolutePath.right(1) == "/" ) {
+        absolutePath.chop(1);
+    }
+    return absolutePath;
+#else
+    return "";
+#endif
 }
 
 
 #ifdef Q_OS_WIN
-QDateTime tools::fromBSTRToDateTime(BSTR bstr)
+QDateTime fromBSTRToDateTime(BSTR bstr)
 {
 
     int wslen = SysStringLen(bstr);
@@ -132,9 +134,9 @@ QDateTime tools::fromBSTRToDateTime(BSTR bstr)
     std::string str(len, '\0');
 
     len = WideCharToMultiByte(CP_ACP, 0 /* no flags */,
-                                pstr, wslen /* not necessary NULL-terminated */,
-                                &str[0], len,
-                                NULL, NULL /* no default char */);
+                              pstr, wslen /* not necessary NULL-terminated */,
+                              &str[0], len,
+                              NULL, NULL /* no default char */);
     std::string_view str_view{str};
     int year{},month{},day{};
     std::from_chars(str_view.data(),str_view.data()+4,year);
@@ -150,3 +152,4 @@ QDateTime tools::fromBSTRToDateTime(BSTR bstr)
     return QDateTime(QDate(year,month,day),QTime(hour,min,sec,msec));
 }
 #endif
+}

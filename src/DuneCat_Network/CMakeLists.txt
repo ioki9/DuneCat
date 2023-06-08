@@ -4,14 +4,13 @@ qt_add_qml_module(DCNetwork
     VERSION 1.0
     RESOURCE_PREFIX /DuneCat/imports
     SOURCES
-    dcstunclient.cpp  dcstunclient.h
-    dctrackermanager.cpp dctrackermanager.h
-    dcnetworkmodels.h
-
+    stunclient.cpp  stunclient.h
+    trackermanager.cpp trackermanager.h
+    networkmodels.h
 )
 
 target_precompile_headers(DCNetwork
     PUBLIC networkheaders.h ${CMAKE_SOURCE_DIR}/src/DuneCat_App/essentialheaders.h)
 target_include_directories(DCNetwork
-    PUBLIC ${CMAKE_SOURCE_DIR}/src/DuneCat_App)
+    PUBLIC ${CMAKE_SOURCE_DIR}/src/DuneCat_Core)
 target_link_libraries(DCNetwork PUBLIC qt_libs)

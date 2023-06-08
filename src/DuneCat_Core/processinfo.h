@@ -2,7 +2,8 @@
 #define DCPROCESSSTRUCTS_H
 #include <QtGlobal>
 #include <QtCore>
-struct DCProcessInfo{
+namespace DuneCat{
+struct ProcessInfo{
     QString name;
     QString description;
     QString file_path;
@@ -14,4 +15,6 @@ struct DCProcessInfo{
     QDateTime creation_date;
 
 };
+}
+
 #endif // DCPROCESSSTRUCTS_H

@@ -1,4 +1,4 @@
-#include "dcprocesstracker.h"
+#include "ProcessTracker.h"
 #include "wmiclient.h"
 #include <utility>
 #include <vector>
@@ -6,33 +6,35 @@
 #include <strsafe.h>
 #pragma comment(lib,"Version.lib")
 
-DCProcessTracker::DCProcessTracker(QObject *parent)
+namespace DuneCat
+{
+ProcessTracker::ProcessTracker(QObject *parent)
     : QObject{parent}
 {
     connect(WMIClient::get_instance(),&WMIClient::new_process_created,
-            this,&DCProcessTracker::process_created_recieved);
+            this,&ProcessTracker::process_created_recieved);
     connect(WMIClient::get_instance(),&WMIClient::process_deleted,
-            this,&DCProcessTracker::process_deleted_recieved);
+            this,&ProcessTracker::process_deleted_recieved);
 }
 
-DCProcessTracker::~DCProcessTracker()
+ProcessTracker::~ProcessTracker()
 {
 }
 
 // returns empty vector if failed
-std::vector<DCProcessInfo> DCProcessTracker::get_process_list()
+std::vector<ProcessInfo> ProcessTracker::get_process_list()
 {
     //process count updates through signals if we already set it once before.
     if(m_process_count != -1)
         return WMIClient::get_instance()->get_process_list();
 
-    std::vector<DCProcessInfo> vec =  WMIClient::get_instance()->get_process_list();
+    std::vector<ProcessInfo> vec =  WMIClient::get_instance()->get_process_list();
     if(vec.size()!=0)
         m_process_count = vec.size();
     return vec;
 }
 //returns -1 if failed
-int DCProcessTracker::get_process_count()
+int ProcessTracker::get_process_count()
 {
     if(m_process_count != -1)
         return m_process_count;
@@ -68,7 +70,7 @@ int DCProcessTracker::get_process_count()
     return count;
 }
 
-QString DCProcessTracker::get_process_description(QString filepath)
+QString ProcessTracker::get_process_description(QString filepath)
 {
     if(filepath.isEmpty())
         return "";
@@ -99,7 +101,7 @@ QString DCProcessTracker::get_process_description(QString filepath)
             continue;
         WCHAR subblock[50];
         StringCchPrintf(subblock,50,L"\\StringFileInfo\\%04x%04x\\FileDescription",
-                                 lpTranslate[i].wLanguage,lpTranslate[i].wCodePage);
+                        lpTranslate[i].wLanguage,lpTranslate[i].wCodePage);
         WCHAR *wdescription = NULL;
         UINT dwBytes;
         if(VerQueryValue(sKey.get(), subblock, (LPVOID*)&wdescription, &dwBytes))
@@ -109,16 +111,17 @@ QString DCProcessTracker::get_process_description(QString filepath)
     return description;
 }
 
-void DCProcessTracker::process_deleted_recieved(const DCProcessInfo &process)
+void ProcessTracker::process_deleted_recieved(const ProcessInfo &process)
 {
     if(m_process_count != -1)
         m_process_count--;
     emit process_deleted(process);
 }
 
-void DCProcessTracker::process_created_recieved(const DCProcessInfo& process)
+void ProcessTracker::process_created_recieved(const ProcessInfo& process)
 {
     if(m_process_count != -1)
         m_process_count++;
     emit process_created(process);
+}
 }

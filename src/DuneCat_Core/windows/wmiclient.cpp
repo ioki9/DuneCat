@@ -1,7 +1,7 @@
 #include "wmiclient.h"
 #include "wmieventsink.h"
-#include "dctools.h"
-#include "dcprocesstracker.h"
+#include "tools.h"
+#include "processtracker.h"
 #include <vector>
 #include <chrono>
 #include <iostream>
@@ -9,6 +9,8 @@
 #include <strsafe.h>
 #define MAX_NAME 256
 
+namespace DuneCat
+{
 QObject* WMIClient::client = nullptr;
 WMIClient::WMIClient(QObject* parent) : QObject(parent)
 {
@@ -43,7 +45,7 @@ void WMIClient::handle_event(IWbemClassObject *obj)
     //        handle_process_deletion(obj);
     HRESULT hr;
     IUnknown* inst = nullptr;
-    DCProcessInfo proc_info{};
+    ProcessInfo proc_info{};
     VARIANT vtProp;
     VARIANT vtClassProp;
     BSTR strClassProp = SysAllocString(L"__CLASS");//__CLASS
@@ -57,7 +59,7 @@ void WMIClient::handle_event(IWbemClassObject *obj)
     if(SUCCEEDED(hr))
     {
         inst = vtProp.punkVal;
-        DCProcessTracker tracker;
+        ProcessTracker tracker;
         hr = inst->QueryInterface(IID_IWbemClassObject,reinterpret_cast<void**>(&obj));
         if(SUCCEEDED(hr))
         {
@@ -74,7 +76,7 @@ void WMIClient::handle_event(IWbemClassObject *obj)
 
             hr = obj->Get(L"CreationDate",0,&vtVal,NULL,NULL);
             if(SUCCEEDED(hr))
-                proc_info.creation_date = tools::fromBSTRToDateTime(vtVal.bstrVal);
+                proc_info.creation_date = fromBSTRToDateTime(vtVal.bstrVal);
             VariantClear(&vtVal);
 
             hr = obj->Get(L"ExecutablePath",0,&vtVal,NULL,NULL);
@@ -103,7 +105,7 @@ void WMIClient::handle_event(IWbemClassObject *obj)
             {
                 hr = obj->Get(L"TerminationDate",0,&vtVal,NULL,NULL);
                 if(SUCCEEDED(hr))
-                    proc_info.termination_date = tools::fromBSTRToDateTime(vtVal.bstrVal);
+                    proc_info.termination_date = fromBSTRToDateTime(vtVal.bstrVal);
                 VariantClear(&vtVal);
                 emit process_deleted(proc_info);
             }
@@ -284,14 +286,14 @@ bool WMIClient::subscribe_to_event(BSTR event_query)
     return true;
 }
 
-std::vector<DCProcessInfo> WMIClient::get_process_list()
+std::vector<ProcessInfo> WMIClient::get_process_list()
 {
     HRESULT hres;
     IEnumWbemClassObject* pEnumerator = NULL;
     BSTR wql = SysAllocString(L"WQL");
     BSTR query = SysAllocString(L"SELECT * FROM Win32_Process");
     hres = m_pSvc->ExecQuery( wql, query,
-                           WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
+                             WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
     SysReleaseString(wql);
     SysReleaseString(query);
     if (FAILED(hres))
@@ -299,17 +301,17 @@ std::vector<DCProcessInfo> WMIClient::get_process_list()
         qDebug() << "Couldn't get process list. ExecQuery failed" << " Error code = 0x"
                  << std::hex << hres << '\n';
         qDebug()<< _com_error(hres).ErrorMessage() << '\n';
-        return std::vector<DCProcessInfo>();            // Program has failed.
+        return std::vector<ProcessInfo>();            // Program has failed.
     }
 
     // Get the data from the WQL sentence
     IWbemClassObject *pclsObj = NULL;
     ULONG uReturn = 0;
-    std::vector<DCProcessInfo> process_list{};
-    DCProcessTracker tracker;
+    std::vector<ProcessInfo> process_list{};
+    ProcessTracker tracker;
     while (pEnumerator)
     {
-        DCProcessInfo proc_info;
+        ProcessInfo proc_info;
         HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 
         if(0 == uReturn || FAILED(hr))
@@ -328,7 +330,7 @@ std::vector<DCProcessInfo> WMIClient::get_process_list()
 
         hr = pclsObj->Get(L"CreationDate",0,&vtProp,NULL,NULL);
         if(SUCCEEDED(hr))
-            proc_info.creation_date = tools::fromBSTRToDateTime(vtProp.bstrVal);
+            proc_info.creation_date = fromBSTRToDateTime(vtProp.bstrVal);
         VariantClear(&vtProp);
 
         hr = pclsObj->Get(L"ExecutablePath",0,&vtProp,NULL,NULL);
@@ -443,4 +445,5 @@ HRESULT WMIClient::get_user_from_process(const DWORD procId,  _bstr_t& strUser, 
     CloseHandle( hToken );
     CloseHandle( hProcess );
     return bres?S_OK:E_FAIL;
+}
 }

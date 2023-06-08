@@ -1,19 +1,21 @@
-#include "dcprocesstablemodel.h"
+#include "ProcessTableModel.h"
 #include <QFont>
 #include <QFontMetrics>
 
-DCProcessTableModel::DCProcessTableModel(QObject *parent)
+namespace DuneCat
+{
+ProcessTableModel::ProcessTableModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
     m_column_widths = std::vector<int>(m_column_count,0);
-    m_proc_tracker = new DCProcessTracker(this);
+    m_proc_tracker = new ProcessTracker(this);
     m_processes = m_proc_tracker->get_process_list();
-    connect(m_proc_tracker,&DCProcessTracker::process_created,this,&DCProcessTableModel::add_new_process);
-    connect(m_proc_tracker,&DCProcessTracker::process_deleted,this,&DCProcessTableModel::remove_process);
+    connect(m_proc_tracker,&ProcessTracker::process_created,this,&ProcessTableModel::add_new_process);
+    connect(m_proc_tracker,&ProcessTracker::process_deleted,this,&ProcessTableModel::remove_process);
 }
 
 
-int DCProcessTableModel::rowCount(const QModelIndex &parent) const
+int ProcessTableModel::rowCount(const QModelIndex &parent) const
 {
     // For list models only the root node (an invalid parent) should return the list's size. For all
     // other (valid) parents, rowCount() should return 0 so that it does not become a tree model.
@@ -21,12 +23,12 @@ int DCProcessTableModel::rowCount(const QModelIndex &parent) const
         return 0;
     return m_processes.size();
 }
-int DCProcessTableModel::columnCount(const QModelIndex &parent) const
+int ProcessTableModel::columnCount(const QModelIndex &parent) const
 {
     return m_column_count;
 }
 
-QVariant DCProcessTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant ProcessTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if(role != Qt::DisplayRole)
         return QVariant();
@@ -46,7 +48,7 @@ QVariant DCProcessTableModel::headerData(int section, Qt::Orientation orientatio
     return QVariant();
 }
 
-int DCProcessTableModel::columnWidth(int c, const QFont *font)
+int ProcessTableModel::columnWidth(int c, const QFont *font)
 {
     if(!m_column_widths[c])
     {
@@ -65,7 +67,7 @@ int DCProcessTableModel::columnWidth(int c, const QFont *font)
     return m_column_widths[c];
 }
 
-int DCProcessTableModel::columnWidth(int c, int pointSize)
+int ProcessTableModel::columnWidth(int c, int pointSize)
 {
     if(!m_column_widths[c])
     {
@@ -77,28 +79,28 @@ int DCProcessTableModel::columnWidth(int c, int pointSize)
 }
 
 
-QVariant DCProcessTableModel::data(const QModelIndex &index, int role) const
+QVariant ProcessTableModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || !rowCount() || role != Qt::DisplayRole)
         return QVariant();
 
     switch(index.column())
     {
-        case static_cast<int>(EColumns::process_name):
-            return QVariant(m_processes[index.row()].name);
-        case static_cast<int>(EColumns::description):
-            return QVariant(m_processes[index.row()].description);
-        case static_cast<int>(EColumns::pid):
-            return QVariant(m_processes[index.row()].pid);
-        case static_cast<int>(EColumns::user_name):
-            return QVariant(m_processes[index.row()].owner_user);
-        case static_cast<int>(EColumns::domain_name):
-            return QVariant(m_processes[index.row()].owner_domain);
+    case static_cast<int>(EColumns::process_name):
+        return QVariant(m_processes[index.row()].name);
+    case static_cast<int>(EColumns::description):
+        return QVariant(m_processes[index.row()].description);
+    case static_cast<int>(EColumns::pid):
+        return QVariant(m_processes[index.row()].pid);
+    case static_cast<int>(EColumns::user_name):
+        return QVariant(m_processes[index.row()].owner_user);
+    case static_cast<int>(EColumns::domain_name):
+        return QVariant(m_processes[index.row()].owner_domain);
     }
     return QVariant();
 }
 
-QHash<int, QByteArray> DCProcessTableModel::roleNames() const
+QHash<int, QByteArray> ProcessTableModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
     roles[Qt::DisplayRole] = "display";
@@ -106,7 +108,7 @@ QHash<int, QByteArray> DCProcessTableModel::roleNames() const
 }
 
 
-void DCProcessTableModel::add_new_process(const DCProcessInfo& proc)
+void ProcessTableModel::add_new_process(const ProcessInfo& proc)
 {
     mutex.lock();
     beginInsertRows(QModelIndex(), rowCount(),rowCount());
@@ -115,11 +117,10 @@ void DCProcessTableModel::add_new_process(const DCProcessInfo& proc)
     mutex.unlock();
 }
 
-void DCProcessTableModel::remove_process(const DCProcessInfo& proc)
+void ProcessTableModel::remove_process(const ProcessInfo& proc)
 {
-    qDebug()<<"recieved pid:"<<proc.pid;
     auto it = std::find_if(m_processes.begin(),m_processes.end(),
-                        [&proc](const DCProcessInfo& srch){return srch.pid == proc.pid;});
+                           [&proc](const ProcessInfo& srch){return srch.pid == proc.pid;});
     if(it == std::end(m_processes))
         return;
 
@@ -131,3 +132,4 @@ void DCProcessTableModel::remove_process(const DCProcessInfo& proc)
     mutex.unlock();
 }
 
+}

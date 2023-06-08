@@ -5,8 +5,6 @@ set(CMAKE_AUTOUIC ON)
 
 qt_add_executable(${PROJECT_NAME}
     main.cpp
-    dctools.cpp
-    dctools.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -30,9 +28,9 @@ qt_add_qml_module(${PROJECT_NAME}
         "qml/DCAdminPanel.qml"
         "qml/controls/DCProcessTable.qml"
     SOURCES
-        "dcsortfilterprocessmodel.h" "dcsortfilterprocessmodel.cpp"
-        "dcprocesstablemodel.h" "dcprocesstablemodel.cpp"
-        "dcsettings.h" "dcsettings.cpp"
+        "sortfilterprocessmodel.h" "sortfilterprocessmodel.cpp"
+        "processtablemodel.h" "processtablemodel.cpp"
+        "settings.h" "settings.cpp"
     RESOURCES
         "icons/20x20/desktop.png"
         "icons/20x20/circle_indicator.png"

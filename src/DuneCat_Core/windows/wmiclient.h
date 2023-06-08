@@ -1,8 +1,10 @@
-#ifndef WMICLIENT_H
-#define WMICLIENT_H
+#pragma once
 #include "essentialheaders.h"
-#include "dcprocessinfo.h"
+#include "processinfo.h"
 #include <QCoreApplication>
+
+namespace DuneCat
+{
 class WMIEventSink;
 class WMIClient : public QObject
 {
@@ -19,12 +21,12 @@ public:
         return  instance;
     }
 
-    std::vector<DCProcessInfo> get_process_list();
+    std::vector<ProcessInfo> get_process_list();
 
 private:
+    explicit WMIClient(QObject* parent = nullptr);
     ~WMIClient();
     static QObject* client;
-    explicit WMIClient(QObject* parent = nullptr);
     IWbemLocator *m_pLoc = nullptr;
     IWbemServices *m_pSvc = nullptr;
     WMIEventSink* m_pSink = nullptr;
@@ -41,8 +43,7 @@ private:
     BOOL get_logon_from_token(HANDLE hToken, _bstr_t& strUser, _bstr_t& strdomain);
 
 signals:
-    void process_deleted(const DCProcessInfo& process);
-    void new_process_created(const DCProcessInfo& new_process);
+    void process_deleted(const ProcessInfo& process);
+    void new_process_created(const ProcessInfo& new_process);
 };
-
-#endif // WMICLIENT_H
+}

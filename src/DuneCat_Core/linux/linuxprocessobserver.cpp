@@ -5,6 +5,8 @@
 #include <linux/cn_proc.h>
 #include <signal.h>
 
+namespace DuneCat
+{
 int LinuxProcessObserver::nl_connect()
 {
     int rc;
@@ -89,17 +91,17 @@ int LinuxProcessObserver::handle_proc_ev(int nl_sock)
             perror("netlink recv");
             return -1;
         }
-        DCProcessInfo proc{};
+        ProcessInfo proc{};
         switch (nlcn_msg.proc_ev.what) {
         case proc_event::PROC_EVENT_NONE:
-                qDebug()<<"set mcast listen ok\n";
-                break;
+            qDebug()<<"set mcast listen ok\n";
+            break;
         case proc_event::PROC_EVENT_FORK:
         {
             qDebug()<<"fork: parent tid="<< nlcn_msg.proc_ev.event_data.fork.parent_pid<<
-                      " pid= "<<nlcn_msg.proc_ev.event_data.fork.parent_tgid<<
-                      "-> child tid="<< nlcn_msg.proc_ev.event_data.fork.child_tgid<<
-                      " pid= "<<nlcn_msg.proc_ev.event_data.fork.child_pid;
+                " pid= "<<nlcn_msg.proc_ev.event_data.fork.parent_tgid<<
+                "-> child tid="<< nlcn_msg.proc_ev.event_data.fork.child_tgid<<
+                " pid= "<<nlcn_msg.proc_ev.event_data.fork.child_pid;
 
             proc.pid = nlcn_msg.proc_ev.event_data.fork.child_pid;
             emit process_created(proc);
@@ -137,7 +139,7 @@ void LinuxProcessObserver::run()
 {
     int rc = EXIT_SUCCESS;
     struct sigaction sa;
-  //  signal(SIGINT, &on_sigint);
+    //  signal(SIGINT, &on_sigint);
 
     sigaction(SA_RESTART,&sa,NULL);
 
@@ -171,9 +173,4 @@ LinuxProcessObserver::~LinuxProcessObserver()
 {
     close(nl_sock);
 }
-
-
-
-
-
-
+}

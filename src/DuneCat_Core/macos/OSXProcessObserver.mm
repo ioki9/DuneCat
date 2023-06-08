@@ -1,10 +1,10 @@
 #import "OSXProcessObserver.h"
-#include "dcprocesstracker.h"
-#include "dcprocessinfo.h"
-DCProcessTracker* tracker;
+#include "processtracker.h"
+#include "processinfo.h"
+ProcessTracker* tracker;
 
 @implementation OSXProcessObserver
--(void)setCallback:(DCProcessTracker*)callback
+-(void)setCallback:(ProcessTracker*)callback
 {
     tracker = callback;
 }
@@ -38,7 +38,7 @@ DCProcessTracker* tracker;
 {
     NSLog(@"launched %@\n", [[note userInfo] objectForKey:@"NSApplicationName"]);
     qDebug()<<"launched";
-    DCProcessInfo proc;
+    ProcessInfo proc;
     proc.name = QString::fromNSString([[note userInfo] objectForKey:@"NSApplicationName"]);
     proc.file_path = QString::fromNSString([[note userInfo] objectForKey:@"NSApplicationPath"]);
     proc.pid = [[[note userInfo] objectForKey:@"NSApplicationProcessIdentifier"] intValue];
@@ -50,7 +50,7 @@ DCProcessTracker* tracker;
 {
     NSLog(@"terminated %@\n", [[note userInfo] objectForKey:@"NSApplicationName"]);
     qDebug()<<"terminated";
-    DCProcessInfo proc;
+    ProcessInfo proc;
     proc.name = QString::fromNSString([[note userInfo] objectForKey:@"NSApplicationName"]);
     proc.file_path = QString::fromNSString([[note userInfo] objectForKey:@"NSApplicationPath"]);
     proc.pid = [[[note userInfo] objectForKey:@"NSApplicationProcessIdentifier"] intValue];

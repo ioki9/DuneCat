@@ -1,6 +1,8 @@
 #pragma once
 #include "networkheaders.h"
 
+namespace DuneCat
+{
 template<typename E>
 struct enable_bitmask_operators{ static constexpr bool enable = false;};
 
@@ -10,7 +12,7 @@ operator|(E lhs,E rhs)
 {
     typedef typename std::underlying_type<E>::type underlying;
     return static_cast<E>(
-    static_cast<underlying>(lhs) | static_cast<underlying>(rhs));
+        static_cast<underlying>(lhs) | static_cast<underlying>(rhs));
 }
 template<typename E>
 typename std::enable_if<enable_bitmask_operators<E>::enable,E>::type
@@ -18,7 +20,7 @@ operator&(E lhs,E rhs)
 {
     typedef typename std::underlying_type<E>::type underlying;
     return static_cast<E>(
-    static_cast<underlying>(lhs) & static_cast<underlying>(rhs));
+        static_cast<underlying>(lhs) & static_cast<underlying>(rhs));
 }
 
 template<typename E>
@@ -76,30 +78,30 @@ template<> struct enable_bitmask_operators<DatagramType>
     static constexpr bool enable=true;
 };
 
-struct DCStunAttribute
+struct StunAttribute
 {
     quint16 type;
     quint16 length;
     QByteArray body;
 };
 
-struct DCStunHeader
+struct StunHeader
 {
     quint16 msg_type{};
     quint16 msg_length{0};
     //constant according to RFC5389
     const quint32 magic_cookie {qToBigEndian(0x2112A442)};
     quint32 transaction_id[3];
-    QVector<DCStunAttribute> attributes;
+    QVector<StunAttribute> attributes;
 };
 
-struct DCEndPoint
+struct EndPoint
 {
     QHostAddress address;
     quint16 port;
 };
 
-struct DCRTO
+struct RTO
 {
     float RTO;
     float SRTT;
@@ -109,7 +111,7 @@ struct DCRTO
     const quint8 k{4};
 };
 
-struct DCTrackerConnect
+struct TrackerConnect
 {
     struct Request{
         const quint64 protocol_id {0x41727101980};
@@ -125,7 +127,7 @@ struct DCTrackerConnect
     Response response{};
 };
 
-struct DCTrackerAnnounce
+struct TrackerAnnounce
 {
     struct Request{
         quint64 connection_id;
@@ -153,3 +155,4 @@ struct DCTrackerAnnounce
     Request request{};
     Response response{};
 };
+}

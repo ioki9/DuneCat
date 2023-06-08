@@ -1,16 +1,17 @@
 qt_add_library(DCCore STATIC)
 set(SOURCE_LIST
-    dcprocesstracker.h dcprocessinfo.h
+    processtracker.h processinfo.h
+    tools.cpp tools.h
 )
 if(WIN32)
-    list(APPEND SOURCE_LIST windows/dcprocesstracker.cpp
+    list(APPEND SOURCE_LIST windows/processtracker.cpp
         windows/wmieventsink.h windows/wmieventsink.cpp
         windows/wmiclient.h windows/wmiclient.cpp)
 elseif(APPLE)
-    list(APPEND SOURCE_LIST macos/dcprocesstracker.mm
+    list(APPEND SOURCE_LIST macos/processtracker.mm
         macos/OSXProcessObserver.mm macos/OSXProcessObserver.h)
 elseif(UNIX)
-    list(APPEND SOURCE_LIST linux/dcprocesstracker.cpp linux/linuxprocessobserver.h linux/linuxprocessobserver.cpp)
+    list(APPEND SOURCE_LIST linux/processtracker.cpp linux/linuxprocessobserver.h linux/linuxprocessobserver.cpp)
 endif()
 qt_add_qml_module(DCCore
     URI DCCore
@@ -19,10 +20,13 @@ qt_add_qml_module(DCCore
     SOURCES
     ${SOURCE_LIST}
     )
+target_include_directories(DCCore PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/DuneCat_App
+    "${PROJECT_BINARY_DIR}")
 target_precompile_headers(DCCore
     PUBLIC ${CMAKE_SOURCE_DIR}/src/DuneCat_App/essentialheaders.h)
-target_include_directories(DCCore
-    PUBLIC ${CMAKE_SOURCE_DIR}/src/DuneCat_App)
+
+
 target_link_libraries(DCCore PUBLIC qt_libs)
 if(APPLE)
     set_target_properties(DCCore PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks" )

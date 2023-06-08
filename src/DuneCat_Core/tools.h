@@ -1,9 +1,8 @@
-#ifndef DCTOOLS_H
-#define DCTOOLS_H
+#pragma once
 #include <type_traits>
-#include "essentialheaders.h"
+#include "../DuneCat_App/essentialheaders.h"
 
-namespace tools
+namespace DuneCat
 {
     QString macOSXAppBundlePath();
     QString macOSXAppBundleName();
@@ -21,4 +20,3 @@ namespace tools
     }
 
 }
-#endif // DCTOOLS_H

@@ -1,4 +1,4 @@
-#include "dcprocesstracker.h"
+#include "processtracker.h"
 #include <unistd.h>
 #include <limits.h>
 #include <sys/types.h>
@@ -8,6 +8,8 @@
 #include <sys/time.h>
 #include "linuxprocessobserver.h"
 
+namespace DuneCat
+{
 //see: https://man7.org/linux/man-pages/man5/proc.5.html
 // or  https://kb.novaordis.com/index.php//proc/pid/stat#Field_2_-_Executable_File_Name
 enum StatParams : uint8_t
@@ -178,7 +180,7 @@ bool get_info_by_pid(quint32 pid, DCProcessInfo& out)
     struct stat sb;
     ssize_t buff {PATH_MAX};
     if(lstat(QByteArray(dir.absoluteFilePath().toUtf8()),&sb) != -1)
-         out.owner_user = get_user(sb.st_uid);
+        out.owner_user = get_user(sb.st_uid);
 
     //get path
     if (sb.st_size != 0)
@@ -221,7 +223,7 @@ std::vector<DCProcessInfo> DCProcessTracker::get_process_list()
     for(const auto& info : proc_ls)
     {
         if(!pat.match(info.baseName()).hasMatch())
-          continue;
+            continue;
 
         DCProcessInfo proc;
         proc.pid = info.baseName().toInt();
@@ -245,7 +247,7 @@ int DCProcessTracker::get_process_count()
     for(const auto& info : proc_ls)
     {
         if(!pat.match(info.baseName()).hasMatch())
-          continue;
+            continue;
         m_process_count++;
     }
     return m_process_count;
@@ -272,4 +274,5 @@ void DCProcessTracker::process_created_recieved(const DCProcessInfo& process)
 QString DCProcessTracker::get_process_description(QString filepath)
 {
     return "";
+}
 }

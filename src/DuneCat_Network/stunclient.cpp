@@ -1,31 +1,33 @@
-#include "dcstunclient.h"
-#include "dctools.h"
+#include "stunclient.h"
+#include "tools.h"
 
-DCStunClient::DCStunClient(QVector<DCEndPoint> stun_servers, QObject *parent)
+namespace DuneCat
+{
+StunClient::StunClient(QVector<EndPoint> stun_servers, QObject *parent)
     : QUdpSocket{parent}, m_stunServers{stun_servers}
 {
 
 }
 
-DCStunClient::DCStunClient(const DCEndPoint& stun_server, QObject *parent)
+StunClient::StunClient(const EndPoint& stun_server, QObject *parent)
     : QUdpSocket{parent}, m_stunServers{stun_server}
 {
     set_header();
     m_timer = new QTimer();
-    m_current_server = DCEndPoint{stun_server.address,stun_server.port};
-    m_mapped_address = std::make_unique<DCEndPoint>(DCEndPoint{QHostAddress(),0});
+    m_current_server = EndPoint{stun_server.address,stun_server.port};
+    m_mapped_address = std::make_unique<EndPoint>(EndPoint{QHostAddress(),0});
     m_rto = 1000;
     prepare_data();
     send_request();
 }
 
-DCStunClient::~DCStunClient()
+StunClient::~StunClient()
 {
     m_timer->deleteLater();
 }
 
 //m_msgHeader should be created before calling this function
-void DCStunClient::prepare_data()
+void StunClient::prepare_data()
 {
     QDataStream out(&m_data,QIODevice::WriteOnly);
     out.setByteOrder(QDataStream::BigEndian);
@@ -36,13 +38,13 @@ void DCStunClient::prepare_data()
 }
 
 //call when m_data is ready to be sent
-void DCStunClient::send_request()
+void StunClient::send_request()
 {
     qDebug()<<"Bytes sent: "<<writeDatagram(m_data,m_current_server.address, m_current_server.port);
     wait_response();
 }
 
-void DCStunClient::resend_request()
+void StunClient::resend_request()
 {
     if(m_rto > 38000)
     {
@@ -54,30 +56,30 @@ void DCStunClient::resend_request()
     qDebug()<<"Bytes resent: "<<writeDatagram(m_data,m_current_server.address, m_current_server.port);
 }
 
-void DCStunClient::wait_response()
+void StunClient::wait_response()
 {
     m_timer->setInterval(m_rto);
-    connect(this, &QUdpSocket::readyRead, this, &DCStunClient::process_data);
+    connect(this, &QUdpSocket::readyRead, this, &StunClient::process_data);
     //resend if timed out
-    connect(m_timer, &QTimer::timeout, this, &DCStunClient::resend_request);
+    connect(m_timer, &QTimer::timeout, this, &StunClient::resend_request);
     m_timer->start();
 }
 
-void DCStunClient::compute_RTO()
+void StunClient::compute_RTO()
 {
 
 }
 
-bool DCStunClient::process_data()
+bool StunClient::process_data()
 {
     m_timer->stop();
-    disconnect(this,&QUdpSocket::readyRead,this,&DCStunClient::process_data);
+    disconnect(this,&QUdpSocket::readyRead,this,&StunClient::process_data);
     if(!bytesAvailable())
         return false;
     QNetworkDatagram datagram = receiveDatagram();
     QByteArray recData = datagram.data();
     //dont process error responses for now
-    if(tools::QByteArrayToInt<quint16>(recData.sliced(0,2)) == 0x0111)
+    if(QByteArrayToInt<quint16>(recData.sliced(0,2)) == 0x0111)
     {
         qDebug()<<"Server returned error.";
         emit processing_error();
@@ -91,14 +93,14 @@ bool DCStunClient::process_data()
         return false;
     }
 
-    QVector<DCStunAttribute> attributes{};
+    QVector<StunAttribute> attributes{};
     //collect all attributes
     for(qsizetype count{20};count<recData.size();)
     {
-        DCStunAttribute attribute;
-        attribute.type = tools::QByteArrayToInt<quint16>(recData.sliced(count,2));
+        StunAttribute attribute;
+        attribute.type = QByteArrayToInt<quint16>(recData.sliced(count,2));
         count+=2;
-        attribute.length = tools::QByteArrayToInt<quint16>(recData.sliced(count,2));
+        attribute.length = QByteArrayToInt<quint16>(recData.sliced(count,2));
         count+=2;
         attribute.body = recData.sliced(count,static_cast<qsizetype>(attribute.length));
         count+=attribute.length;
@@ -112,15 +114,15 @@ bool DCStunClient::process_data()
             continue;
 
         //port always at the same position regardless of attribute type
-        m_mapped_address->port = tools::QByteArrayToInt<quint16>(attr.body.sliced(2,2));
+        m_mapped_address->port = QByteArrayToInt<quint16>(attr.body.sliced(2,2));
         //IPv4
-        if(tools::QByteArrayToInt<quint16>(attr.body.sliced(0,2)) == 0x0001)
+        if(QByteArrayToInt<quint16>(attr.body.sliced(0,2)) == 0x0001)
         {
             //MAPPED-ADDRESS
 
             if(attr.type == 0x01)
                 m_mapped_address->address =
-                    QHostAddress(tools::QByteArrayToInt<quint32>(attr.body.sliced(4,4)));
+                    QHostAddress(QByteArrayToInt<quint32>(attr.body.sliced(4,4)));
 
             //XOR-MAPPED-ADDRESS
             else
@@ -135,7 +137,7 @@ bool DCStunClient::process_data()
             //MAPPED-ADDRESS
             if(attr.type == 0x01)
                 m_mapped_address->address =
-                        QHostAddress(reinterpret_cast<quint8*>(attr.body.sliced(4,16).data()));
+                    QHostAddress(reinterpret_cast<quint8*>(attr.body.sliced(4,16).data()));
             //XOR-MAPPED-ADDRESS
             else
             {
@@ -161,7 +163,7 @@ bool DCStunClient::process_data()
     return true;
 }
 
-void DCStunClient::set_header(quint16 message_type)
+void StunClient::set_header(quint16 message_type)
 {
     QRandomGenerator generator;
     //transaction id should be random
@@ -170,4 +172,4 @@ void DCStunClient::set_header(quint16 message_type)
 
     m_msg_header.msg_type = message_type;
 }
-
+}
