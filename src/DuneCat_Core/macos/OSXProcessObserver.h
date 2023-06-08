@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
+#include "processtracker.h"
 
-class DuneCat::ProcessTracker;
 @interface OSXProcessObserver : NSObject
 -(void)setCallback:(DuneCat::ProcessTracker*)callback;
 -(void)enableNotification;
