@@ -160,7 +160,7 @@ QDateTime get_proc_start_time(const QFileInfo& proc_dir)
     return result;
 }
 
-bool get_info_by_pid(quint32 pid, DCProcessInfo& out)
+bool get_info_by_pid(quint32 pid, ProcessInfo& out)
 {
     QFileInfo dir(QString("/proc/") + QString::number(pid));
     if(!dir.exists())
@@ -195,26 +195,26 @@ bool get_info_by_pid(quint32 pid, DCProcessInfo& out)
 }
 
 LinuxProcessObserver* observer;
-DCProcessTracker::DCProcessTracker(QObject *parent) : QObject(parent)
+ProcessTracker::ProcessTracker(QObject *parent) : QObject(parent)
 {
     observer = new LinuxProcessObserver(this);
     connect(observer, &LinuxProcessObserver::finished, observer, &QObject::deleteLater);
-    connect(observer,&LinuxProcessObserver::process_created,this,&DCProcessTracker::process_created_recieved);
-    connect(observer,&LinuxProcessObserver::process_deleted,this,&DCProcessTracker::process_deleted_recieved);
+    connect(observer,&LinuxProcessObserver::process_created,this,&ProcessTracker::process_created_recieved);
+    connect(observer,&LinuxProcessObserver::process_deleted,this,&ProcessTracker::process_deleted_recieved);
 
     observer->start();
 }
 
-DCProcessTracker::~DCProcessTracker()
+ProcessTracker::~ProcessTracker()
 {
     observer->need_exit.storeRelaxed(true);
     observer->quit();
     observer->wait();
 }
 
-std::vector<DCProcessInfo> DCProcessTracker::get_process_list()
+std::vector<ProcessInfo> ProcessTracker::get_process_list()
 {
-    std::vector<DCProcessInfo> proc_list{};
+    std::vector<ProcessInfo> proc_list{};
     const QDir proc_dir(QString("/proc"));
     if(!proc_dir.exists())
         return proc_list;
@@ -225,7 +225,7 @@ std::vector<DCProcessInfo> DCProcessTracker::get_process_list()
         if(!pat.match(info.baseName()).hasMatch())
             continue;
 
-        DCProcessInfo proc;
+        ProcessInfo proc;
         proc.pid = info.baseName().toInt();
         if(!get_info_by_pid(proc.pid,proc))
             continue;
@@ -234,7 +234,7 @@ std::vector<DCProcessInfo> DCProcessTracker::get_process_list()
     return proc_list;
 }
 
-int DCProcessTracker::get_process_count()
+int ProcessTracker::get_process_count()
 {
     if(m_process_count != -1)
         return m_process_count;
@@ -253,16 +253,16 @@ int DCProcessTracker::get_process_count()
     return m_process_count;
 }
 
-void DCProcessTracker::process_deleted_recieved(const DCProcessInfo &process)
+void ProcessTracker::process_deleted_recieved(const ProcessInfo &process)
 {
     if(m_process_count != -1)
         m_process_count--;
     emit process_deleted(process);
 }
 
-void DCProcessTracker::process_created_recieved(const DCProcessInfo& process)
+void ProcessTracker::process_created_recieved(const ProcessInfo& process)
 {
-    DCProcessInfo proc = process;
+    ProcessInfo proc = process;
     if(!get_info_by_pid(process.pid,proc))
         return;
     if(m_process_count != -1)
@@ -271,7 +271,7 @@ void DCProcessTracker::process_created_recieved(const DCProcessInfo& process)
     emit process_created(proc);
 }
 
-QString DCProcessTracker::get_process_description(QString filepath)
+QString ProcessTracker::get_process_description(QString filepath)
 {
     return "";
 }
