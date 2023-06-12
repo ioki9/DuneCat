@@ -11,7 +11,8 @@ elseif(APPLE)
      list(APPEND SOURCE_LIST ${DCCORE_DIR}/macos/processtracker.mm ${DCCORE_DIR}/macos/OSXProcessObserver.mm
      ${DCCORE_DIR}/macos/OSXProcessObserver.h)
 elseif(UNIX)
-    list(APPEND SOURCE_LIST ${DCCORE_DIR}/linux/processtracker.cpp)
+    list(APPEND SOURCE_LIST ${DCCORE_DIR}/linux/processtracker.cpp ${DCCORE_DIR}/linux/linuxprocessobserver.cpp
+        ${DCCORE_DIR}/linux/linuxprocessobserver.h)
 endif()
 
 add_executable(core_tests ${SOURCE_LIST}
