@@ -3,7 +3,7 @@
 #include <string>
 #include <stdlib.h>
 #include <charconv>
-
+#include <chrono>
 namespace DuneCat
 {
 //TODO: for linux make a more generic way to autostart an app (with .sh script after deployment)
@@ -127,8 +127,9 @@ QString macOSXAppBundlePath()
 #ifdef Q_OS_WIN
 QDateTime fromBSTRToDateTime(BSTR bstr)
 {
-
     int wslen = SysStringLen(bstr);
+    if(wslen < 14)
+        return QDateTime();
     const wchar_t* pstr = (wchar_t*)bstr;
     int len = WideCharToMultiByte(CP_ACP, 0, pstr, wslen, NULL, 0, NULL, NULL);
     std::string str(len, '\0');
@@ -149,7 +150,10 @@ QDateTime fromBSTRToDateTime(BSTR bstr)
     std::from_chars(str_view.data()+12,str_view.data()+14,sec);
     std::from_chars(str_view.data()+15,str_view.data()+18,msec);
 
-    return QDateTime(QDate(year,month,day),QTime(hour,min,sec,msec));
+    QDateTime result(QDate(year,month,day),QTime(hour,min,sec,msec));
+    if(result > QDateTime::currentDateTime())
+        return QDateTime();
+    return result;
 }
 #endif
 }
