@@ -1,5 +1,4 @@
 #import "OSXProcessObserver.h"
-#include "processtracker.h"
 #include "processinfo.h"
 
 DuneCat::ProcessTracker* tracker;

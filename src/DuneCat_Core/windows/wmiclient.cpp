@@ -18,7 +18,6 @@ WMIClient::WMIClient(QObject* parent) : QObject(parent)
         qDebug()<<"WMIClient initialization failed.";
 }
 
-
 WMIClient::~WMIClient()
 {
     if(is_initialized)
@@ -51,7 +50,6 @@ void WMIClient::handle_event(IWbemClassObject *obj)
     BSTR strClassProp = SysAllocString(L"__CLASS");//__CLASS
     hr = obj->Get(strClassProp,0,&vtClassProp,NULL,NULL);
     SysFreeString(strClassProp);
-
     BSTR strInstanceProp = SysAllocString(L"TargetInstance");//__CLASS
     hr = obj->Get(strInstanceProp,0,&vtProp,NULL,NULL);
     SysFreeString(strInstanceProp);
