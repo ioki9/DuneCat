@@ -198,9 +198,9 @@ LinuxProcessObserver* observer;
 ProcessTracker::ProcessTracker(QObject *parent) : QObject(parent)
 {
     observer = new LinuxProcessObserver(this);
-    connect(observer, &LinuxProcessObserver::finished, observer, &QObject::deleteLater);
-    connect(observer,&LinuxProcessObserver::process_created,this,&ProcessTracker::process_created_recieved);
-    connect(observer,&LinuxProcessObserver::process_deleted,this,&ProcessTracker::process_deleted_recieved);
+    connect(observer, &DuneCat::LinuxProcessObserver::finished, observer, &QObject::deleteLater);
+    connect(observer,&DuneCat::LinuxProcessObserver::process_created,this,&DuneCat::ProcessTracker::process_created_recieved);
+    connect(observer,&DuneCat::LinuxProcessObserver::process_deleted,this,&DuneCat::ProcessTracker::process_deleted_recieved);
 
     observer->start();
 }
