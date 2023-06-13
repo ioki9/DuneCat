@@ -425,14 +425,12 @@ HRESULT WMIClient::get_user_from_process(const DWORD procId,  _bstr_t& strUser, 
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ ,FALSE,procId);
     if(hProcess == NULL)
     {
-        //qDebug()<<"Couldn't open process with id "<<procId<<'\n';
         return E_FAIL;
     }
     HANDLE hToken = NULL;
 
     if( !OpenProcessToken( hProcess, TOKEN_QUERY, &hToken ) )
     {
-        //qDebug()<<"Couldn't open process token with process id "<<procId<<'\n';
         CloseHandle( hProcess );
         return E_FAIL;
     }

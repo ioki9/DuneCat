@@ -19,12 +19,15 @@ signals:
     void process_deleted(const ProcessInfo& process);
 private slots:
 #if !defined(Q_OS_MAC)
-    //slots for wmi events on windows platform
+    //slots for notifications on Linux and Windows
     void process_deleted_recieved(const ProcessInfo& process);
     void process_created_recieved(const ProcessInfo& process);
     friend class WMIClient;
-    //get description for windows processes
+    //windows related functions
+#ifdef Q_OS_WINDOWS
+    std::vector<ProcessInfo> get_winapi_process_list();
     QString get_process_description(QString filepath);
-#endif
+#endif // Q_OS_WINDOWS
+#endif // !Q_OS_MAC
 };
 }

@@ -41,7 +41,7 @@ private:
     bool initialize();
     HRESULT get_user_from_process(const DWORD procId,  _bstr_t& strUser, _bstr_t& strdomain);
     BOOL get_logon_from_token(HANDLE hToken, _bstr_t& strUser, _bstr_t& strdomain);
-
+    friend class ProcessTracker;
 signals:
     void process_deleted(const ProcessInfo& process);
     void new_process_created(const ProcessInfo& new_process);
