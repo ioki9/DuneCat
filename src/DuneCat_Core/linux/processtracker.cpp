@@ -270,9 +270,3 @@ void ProcessTracker::process_created_recieved(const ProcessInfo& process)
 
     emit process_created(proc);
 }
-
-QString ProcessTracker::get_process_description(QString filepath)
-{
-    return "";
-}
-}

@@ -22,9 +22,10 @@ private slots:
     //slots for notifications on Linux and Windows
     void process_deleted_recieved(const ProcessInfo& process);
     void process_created_recieved(const ProcessInfo& process);
-    friend class WMIClient;
+
     //windows related functions
-#ifdef Q_OS_WINDOWS
+#ifdef Q_OS_WIN
+    friend class WMIClient;
     std::vector<ProcessInfo> get_winapi_process_list();
     QString get_process_description(QString filepath);
 #endif // Q_OS_WINDOWS
