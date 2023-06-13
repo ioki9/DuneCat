@@ -9,7 +9,11 @@ ProcessTableModel::ProcessTableModel(QObject *parent)
 {
     m_column_widths = std::vector<int>(m_column_count,0);
     m_proc_tracker = new ProcessTracker(this);
+    auto start = std::chrono::steady_clock::now();
     m_processes = m_proc_tracker->get_process_list();
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end-start;
+    qDebug()<<elapsed_seconds.count();
     connect(m_proc_tracker,&ProcessTracker::process_created,this,&ProcessTableModel::add_new_process);
     connect(m_proc_tracker,&ProcessTracker::process_deleted,this,&ProcessTableModel::remove_process);
 }

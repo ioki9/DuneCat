@@ -70,7 +70,7 @@ ScrollView {
         id: viewDelegate
         Rectangle {
             id:wrapper
-            implicitHeight: textDel.implicitHeight+5
+            implicitHeight: textDel.implicitHeight+15
             color: "white"//selected ? "lightblue" : "white"
             required property bool selected
             required property bool current

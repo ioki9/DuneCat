@@ -28,6 +28,13 @@ Rectangle {
         text: "^"
         visible:false
     }
+    Rectangle{
+        id:lowerBorder
+        anchors.bottom: parent.bottom
+        height: 1
+        width: parent.width
+        color: "darkgrey"
+    }
 
     //resize logic
     MouseArea{
