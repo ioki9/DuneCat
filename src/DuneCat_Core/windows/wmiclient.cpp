@@ -422,19 +422,17 @@ BOOL WMIClient::get_logon_from_token(HANDLE hToken, _bstr_t& strUser, _bstr_t& s
 
 HRESULT WMIClient::get_user_from_process(const DWORD procId,  _bstr_t& strUser, _bstr_t& strdomain)
 {
-    DWORD nameSize = MAX_NAME;
-    WCHAR filename[MAX_NAME];
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ ,FALSE,procId);
     if(hProcess == NULL)
     {
-        qDebug()<<"Couldn't open process with id "<<procId<<'\n';
+        //qDebug()<<"Couldn't open process with id "<<procId<<'\n';
         return E_FAIL;
     }
     HANDLE hToken = NULL;
 
     if( !OpenProcessToken( hProcess, TOKEN_QUERY, &hToken ) )
     {
-        qDebug()<<"Couldn't open process token with process id "<<procId<<'\n';
+        //qDebug()<<"Couldn't open process token with process id "<<procId<<'\n';
         CloseHandle( hProcess );
         return E_FAIL;
     }
