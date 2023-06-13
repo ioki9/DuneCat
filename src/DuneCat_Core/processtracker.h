@@ -24,10 +24,10 @@ private slots:
     void process_created_recieved(const ProcessInfo& process);
     friend class WMIClient;
     //windows related functions
-#ifdef Q_OS_WINDOWS
+#ifdef Q_OS_WIN
     std::vector<ProcessInfo> get_winapi_process_list();
     QString get_process_description(QString filepath);
-#endif // Q_OS_WINDOWS
+#endif // Q_OS_WIN
 #endif // !Q_OS_MAC
 };
 }
