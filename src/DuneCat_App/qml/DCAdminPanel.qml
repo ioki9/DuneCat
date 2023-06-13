@@ -1,12 +1,20 @@
 import QtQuick
 import QtQuick.Controls.Material
-Rectangle {
 
+Rectangle {
+    enum DCMenuButton{
+        Home,
+        Settings,
+        Devices,
+        About
+    }
+    id: root
     color:Material.primaryColor
     property alias listSpacing : listView.spacing
-    property alias activePageUrl: listView.activePage
+    property alias activePage: listView.activePage
     ListView
     {
+
         id: listView
         clip:true
         focus: true
@@ -14,7 +22,7 @@ Rectangle {
         interactive: false
         anchors.topMargin: 70
         anchors.fill: parent
-        property string activePage:"qrc:/DuneCat/imports/qml/pages/DCMainPage.qml"
+        property int activePage:DCAdminPanel.DCMenuButton.Home
 
         delegate: ItemDelegate {
             id: itemDelegate
@@ -41,14 +49,14 @@ Rectangle {
             highlighted: hovered || listView.currentIndex === index
             onClicked: {
                 listView.currentIndex = index
-                listView.activePage = model.source
+                listView.activePage = model.enumeration
             }
         }
         model:ListModel {
-            ListElement { title: "Home"; source: "qrc:/DuneCat/imports/qml/pages/DCMainPage.qml"; icon:"drawer" }
-            ListElement { title: "Settings"; source: "qrc:/DuneCat/imports/qml/pages/DCSettingsPage.qml"; icon:"menu" }
-            ListElement { title: "Devices"; source: "qrc:/DuneCat/imports/SettingsDialog.qml"; icon:"menu" }
-            ListElement { title: "About"; source: "qrc:/DuneCat/imports/SettingsDialog.qml"; icon:"menu" }
+            ListElement { title: "Home"; enumeration: DCAdminPanel.DCMenuButton.Home; icon:"drawer" }
+            ListElement { title: "Settings"; enumeration: DCAdminPanel.DCMenuButton.Settings; icon:"menu" }
+            ListElement { title: "Devices"; enumeration: DCAdminPanel.DCMenuButton.Devices; icon:"menu" }
+            ListElement { title: "About"; enumeration: DCAdminPanel.DCMenuButton.About; icon:"menu" }
 
         }
     }
