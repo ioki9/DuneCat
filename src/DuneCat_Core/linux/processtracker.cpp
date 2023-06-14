@@ -270,3 +270,4 @@ void ProcessTracker::process_created_recieved(const ProcessInfo& process)
 
     emit process_created(proc);
 }
+}
