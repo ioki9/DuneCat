@@ -24,7 +24,6 @@ ProcessTracker::~ProcessTracker()
 {
 }
 
-//TODO: get process list using winapi
 // returns empty vector if failed
 std::vector<ProcessInfo> ProcessTracker::get_process_list()
 {
