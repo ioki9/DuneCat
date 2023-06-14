@@ -42,9 +42,10 @@ Rectangle {
         anchors.right: parent.right
         height:parent.height
         width: 5
+        acceptedButtons: Qt.LeftButton
         hoverEnabled: true
         onMouseXChanged: {
-            if(pressed){
+            if(borderMouseArea.pressedButtons & Qt.LeftButton){
                 parent.width = (parent.width + mouseX) >= minColWidth ? (parent.width + mouseX) : parent.width
             }
         }
