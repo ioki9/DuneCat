@@ -84,8 +84,8 @@ bool bootUpStart(bool isOn)
         return true;
     }
     bootUpSettings.remove(PROJECT_NAME);
-    return false;
 #endif
+    return false;
 }
 
 QString macOSXAppBundleName()
