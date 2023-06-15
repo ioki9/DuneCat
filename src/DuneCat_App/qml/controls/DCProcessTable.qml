@@ -71,12 +71,12 @@ ScrollView {
         Rectangle {
             id:wrapper
             implicitHeight: textDel.implicitHeight+15
-            color: "white"//selected ? "lightblue" : "white"
+            color: "white"
             required property bool selected
             required property bool current
             Text{
-                z:3
                 id: textDel
+                z: 3
                 width:parent.width
                 text:model.display
                 font.pointSize: 10
