@@ -38,7 +38,7 @@ std::vector<ProcessInfo> ProcessTracker::get_process_list()
     return vec;
 }
 //returns -1 if failed
-int ProcessTracker::get_process_count() const
+int ProcessTracker::get_process_count()
 {
     if(m_process_count != -1)
         return m_process_count;
@@ -71,6 +71,7 @@ int ProcessTracker::get_process_count() const
     } while( Process32Next( hProcessSnap, &pe32 ) );
 
     CloseHandle( hProcessSnap );
+    m_process_count = count;
     return count;
 }
 std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()

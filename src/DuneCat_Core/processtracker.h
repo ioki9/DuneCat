@@ -11,7 +11,7 @@ public:
     explicit ProcessTracker(QObject *parent = nullptr);
     ~ProcessTracker();
     std::vector<ProcessInfo> get_process_list();
-    int get_process_count() const;
+    int get_process_count();
 private:
     int m_process_count{-1};
 signals:

@@ -70,7 +70,7 @@ std::vector<ProcessInfo> ProcessTracker::get_process_list()
     return result;
 }
 
-int ProcessTracker::get_process_count() const
+int ProcessTracker::get_process_count()
 {
     if(m_process_count != -1)
         return m_process_count;
