@@ -1,7 +1,7 @@
 #include <DuneCatConfig.h>
 #include "tools.h"
 #include <string>
-#include <stdlib.h>
+#include <cstdlib>
 #include <charconv>
 #include <chrono>
 namespace DuneCat
@@ -53,7 +53,6 @@ bool bootUpStart(bool isOn)
     } else {
         // Delete the startup file
         if(autorunFile.exists()) autorunFile.remove();
-        return false;
     }
 
 #elif defined(Q_OS_MAC)
@@ -77,21 +76,16 @@ bool bootUpStart(bool isOn)
         QProcess::execute("osascript", args);
         return true;
     }
-    else
-        return false;
-
 #elif defined(Q_OS_WIN)
     QSettings bootUpSettings("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
     if (isOn) {
         bootUpSettings.setValue(PROJECT_NAME, QDir::toNativeSeparators(QCoreApplication::applicationFilePath()));
         bootUpSettings.sync();
         return true;
-    } else {
-        bootUpSettings.remove(PROJECT_NAME);
-        return false;
     }
-#endif
+    bootUpSettings.remove(PROJECT_NAME);
     return false;
+#endif
 }
 
 QString macOSXAppBundleName()
@@ -128,16 +122,17 @@ QString macOSXAppBundlePath()
 QDateTime fromBSTRToDateTime(BSTR bstr)
 {
     int wslen = SysStringLen(bstr);
-    if(wslen < 14)
-        return QDateTime();
+    int min_str_len{14};
+    if(wslen < min_str_len)
+        return QDateTime{};
     const wchar_t* pstr = (wchar_t*)bstr;
     int len = WideCharToMultiByte(CP_ACP, 0, pstr, wslen, NULL, 0, NULL, NULL);
     std::string str(len, '\0');
 
-    len = WideCharToMultiByte(CP_ACP, 0 /* no flags */,
-                              pstr, wslen /* not necessary NULL-terminated */,
-                              &str[0], len,
-                              NULL, NULL /* no default char */);
+    WideCharToMultiByte(CP_ACP, 0 /* no flags */,
+                        pstr, wslen /* not necessary NULL-terminated */,
+                        str.data(), len,
+                        NULL, NULL /* no default char */);
     std::string_view str_view{str};
     int year{},month{},day{};
     std::from_chars(str_view.data(),str_view.data()+4,year);
@@ -152,7 +147,7 @@ QDateTime fromBSTRToDateTime(BSTR bstr)
 
     QDateTime result(QDate(year,month,day),QTime(hour,min,sec,msec));
     if(result > QDateTime::currentDateTime())
-        return QDateTime();
+        return QDateTime{};
     return result;
 }
 #endif

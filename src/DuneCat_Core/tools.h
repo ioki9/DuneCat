@@ -15,8 +15,8 @@ namespace DuneCat
     {
         if(orderOfBytes == QDataStream::BigEndian)
             return qFromBigEndian(*(reinterpret_cast<T*>(bytes.data())));
-        else
-            return qFromLittleEndian(*(reinterpret_cast<T*>(bytes.data())));
+
+        return qFromLittleEndian(*(reinterpret_cast<T*>(bytes.data())));
     }
 
 }
