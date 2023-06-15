@@ -6,6 +6,7 @@
 #include <strsafe.h>
 #include <Psapi.h>
 #include <processthreadsapi.h>
+#include <qt_windows.h>
 #pragma comment(lib,"Version.lib")
 
 namespace DuneCat
@@ -29,15 +30,15 @@ std::vector<ProcessInfo> ProcessTracker::get_process_list()
 {
     //process count updates through signals if we already set it once before.
     if(m_process_count != -1)
-        return get_winapi_process_list();
+        return ProcessTracker::get_winapi_process_list();
 
-    std::vector<ProcessInfo> vec =  get_winapi_process_list();
-    if(vec.size()!=0)
+    std::vector<ProcessInfo> vec = ProcessTracker::get_winapi_process_list();
+    if(!vec.empty())
         m_process_count = vec.size();
     return vec;
 }
 //returns -1 if failed
-int ProcessTracker::get_process_count()
+int ProcessTracker::get_process_count() const
 {
     if(m_process_count != -1)
         return m_process_count;
@@ -132,7 +133,17 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
         }
         info.pid = pe32.th32ProcessID;
         info.name = QString::fromWCharArray(pe32.szExeFile);
-        info.description = get_process_description(info.file_path);
+        info.description = ProcessTracker::get_process_description(info.file_path);
+
+//        if(!info.file_path.isEmpty())
+//        {
+//            wchar_t *lol = new wchar_t[ info.file_path.length() + 1];
+//            info.file_path.toWCharArray(lol);
+//            lol[info.file_path.length()] = '\0';
+//            info.icon = QPixmap::fromImage(QImage::fromHICON(ExtractIcon(GetModuleHandle(NULL),lol,0)));
+//            delete[] lol;
+//        }
+
         result.push_back(info);
         CloseHandle(process_handle);
     } while( Process32Next( hProcessSnap, &pe32 ) );
@@ -141,14 +152,14 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
     return result;
 }
 
-QString ProcessTracker::get_process_description(QString filepath)
+QString ProcessTracker::get_process_description(QStringView filepath)
 {
     if(filepath.isEmpty())
         return "";
     std::unique_ptr<WCHAR[]>filename = std::make_unique<WCHAR[]>(filepath.size()+1);
     filepath.toWCharArray(filename.get());
     int dwLen = GetFileVersionInfoSize(filename.get(), NULL);
-    if(!dwLen)
+    if(dwLen == 0)
         return "";
 
     std::unique_ptr<BYTE[]> sKey = std::make_unique<BYTE[]>(dwLen);

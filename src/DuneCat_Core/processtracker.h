@@ -11,7 +11,7 @@ public:
     explicit ProcessTracker(QObject *parent = nullptr);
     ~ProcessTracker();
     std::vector<ProcessInfo> get_process_list();
-    int get_process_count();
+    int get_process_count() const;
 private:
     int m_process_count{-1};
 signals:
@@ -26,8 +26,8 @@ private slots:
     //windows related functions
 #ifdef Q_OS_WIN
     friend class WMIClient;
-    std::vector<ProcessInfo> get_winapi_process_list();
-    QString get_process_description(QString filepath);
+    static std::vector<ProcessInfo> get_winapi_process_list();
+    static QString get_process_description(QStringView filepath);
 #endif // Q_OS_WIN
 #endif // !Q_OS_MAC
 };
