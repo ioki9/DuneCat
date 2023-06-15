@@ -16,16 +16,15 @@ public:
         if(client)
             return qobject_cast<WMIClient*>(WMIClient::client);
 
-        auto instance = new WMIClient(QCoreApplication::instance());
+        auto *instance = new WMIClient(QCoreApplication::instance());
         client = instance;
         return  instance;
     }
-
     std::vector<ProcessInfo> get_process_list();
 
 private:
     explicit WMIClient(QObject* parent = nullptr);
-    ~WMIClient();
+    ~WMIClient() override;
     static QObject* client;
     IWbemLocator *m_pLoc = nullptr;
     IWbemServices *m_pSvc = nullptr;

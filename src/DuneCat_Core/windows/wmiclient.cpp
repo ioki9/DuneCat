@@ -48,7 +48,7 @@ void WMIClient::handle_event(IWbemClassObject *obj)
     VARIANT vtProp;
     VARIANT vtClassProp;
     BSTR strClassProp = SysAllocString(L"__CLASS");//__CLASS
-    hr = obj->Get(strClassProp,0,&vtClassProp,NULL,NULL);
+    obj->Get(strClassProp,0,&vtClassProp,NULL,NULL);
     SysFreeString(strClassProp);
     BSTR strInstanceProp = SysAllocString(L"TargetInstance");//__CLASS
     hr = obj->Get(strInstanceProp,0,&vtProp,NULL,NULL);
@@ -214,7 +214,7 @@ bool WMIClient::initialize()
 
     // Receive event notifications -----------------------------
     // Use an unsecured apartment for security
-    hres = CoCreateInstance(CLSID_UnsecuredApartment, NULL,
+    CoCreateInstance(CLSID_UnsecuredApartment, NULL,
                             CLSCTX_LOCAL_SERVER, IID_IUnsecuredApartment,
                             (void**)&m_pUnsecApp);
 
