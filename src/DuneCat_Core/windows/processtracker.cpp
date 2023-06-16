@@ -124,7 +124,7 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
             if( OpenProcessToken( process_handle, TOKEN_QUERY, &token_handle ) != 0 )
             {
                 _bstr_t bstr_user,bstr_domain;
-                if(WMIClient::get_instance()->get_logon_from_token(token_handle, bstr_user, bstr_domain)!=0)
+                if(WMIClient::get_logon_from_token(token_handle, bstr_user, bstr_domain)!=0)
                 {
                     info.owner_user = QString::fromWCharArray(bstr_user);
                     info.owner_domain = QString::fromWCharArray(bstr_domain);
@@ -156,7 +156,7 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
 QString ProcessTracker::get_process_description(QStringView filepath)
 {
     if(filepath.isEmpty())
-        return "";
+        return QLatin1String("");
     std::unique_ptr<WCHAR[]>filename = std::make_unique<WCHAR[]>(filepath.size()+1);
     filepath.toWCharArray(filename.get());
     int dwLen = GetFileVersionInfoSize(filename.get(), NULL);
@@ -177,7 +177,7 @@ QString ProcessTracker::get_process_description(QStringView filepath)
                        (LPVOID*)&lpTranslate, &cbTranslate))
         return "";
 
-    QString description{""};
+    QString description{QLatin1String("")};
     for(unsigned int i = 0; i < (cbTranslate / sizeof(LANGANDCODEPAGE)); i++)
     {
         if(lpTranslate[i].wLanguage != 1033)

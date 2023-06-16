@@ -3,7 +3,7 @@
 
 namespace DuneCat
 {
-StunClient::StunClient(QVector<EndPoint> stun_servers, QObject *parent)
+StunClient::StunClient(const QVector<EndPoint>& stun_servers, QObject *parent)
     : QUdpSocket{parent}, m_stunServers{stun_servers}
 {
 

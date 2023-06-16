@@ -10,12 +10,12 @@ class StunClient : public QUdpSocket
 
 public:
     StunClient() = delete;
-    explicit StunClient(QVector<EndPoint> stun_servers, QObject *parent = nullptr);
+    explicit StunClient(const QVector<EndPoint> &stun_servers, QObject *parent = nullptr);
     explicit StunClient(const EndPoint& stun_server, QObject *parent = nullptr);
-    ~StunClient();
-    inline quint16 get_mapped_port() const {return m_mapped_address->port;}
-    inline QHostAddress get_mapped_address() const { return m_mapped_address->address;}
-    inline EndPoint get_current_server() const {return m_current_server;}
+    ~StunClient() override;
+    [[nodiscard]] inline quint16 get_mapped_port() const {return m_mapped_address->port;}
+    [[nodiscard]] inline QHostAddress get_mapped_address() const { return m_mapped_address->address;}
+    [[nodiscard]] inline EndPoint get_current_server() const {return m_current_server;}
 private:
     QVector<EndPoint> m_stunServers;
     void prepare_data();
