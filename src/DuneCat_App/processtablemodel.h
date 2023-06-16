@@ -25,7 +25,8 @@ public:
     Q_INVOKABLE int columnWidth(int c,const QFont *font = nullptr);
     Q_INVOKABLE int columnWidth(int c, int pointSize);
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    virtual QHash<int,QByteArray> roleNames() const override;
+    QHash<int, QByteArray> roleNames() const override;
+
 private:
     QMutex mutex;
     std::vector<int> m_column_widths;
@@ -33,7 +34,7 @@ private:
     ProcessTracker *m_proc_tracker = nullptr;
     int m_column_count{5};
 private slots:
-    void add_new_process(const ProcessInfo& proc);
+    void add_new_process(const ProcessInfo &proc);
     void remove_process(const ProcessInfo& proc);
 };
 }

@@ -9,7 +9,7 @@ class ProcessTracker : public QObject
     Q_DISABLE_COPY_MOVE(ProcessTracker)
 public:
     explicit ProcessTracker(QObject *parent = nullptr);
-    ~ProcessTracker();
+    ~ProcessTracker() override;
     std::vector<ProcessInfo> get_process_list();
     int get_process_count();
 private:

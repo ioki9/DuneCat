@@ -13,7 +13,7 @@ class Settings : public QObject
     public:
     explicit Settings(QObject *parent = nullptr);
     bool setAutoStart(bool isOn);
-    bool isAutoStartOn() const;
+    [[nodiscard]] bool isAutoStartOn() const;
 signals:
     void autoStartChanged();
 private:

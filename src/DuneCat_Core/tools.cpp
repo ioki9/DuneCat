@@ -77,7 +77,7 @@ bool bootUpStart(bool isOn)
         return true;
     }
 #elif defined(Q_OS_WIN)
-    QSettings bootUpSettings("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
+    QSettings bootUpSettings(QStringLiteral("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"), QSettings::NativeFormat);
     if (isOn) {
         bootUpSettings.setValue(PROJECT_NAME, QDir::toNativeSeparators(QCoreApplication::applicationFilePath()));
         bootUpSettings.sync();
@@ -95,7 +95,7 @@ QString macOSXAppBundleName()
     QFileInfo fileInfo(bundlePath);
     return fileInfo.baseName();
 #else
-    return "";
+    return QLatin1String("");
 #endif
 }
 
@@ -113,7 +113,7 @@ QString macOSXAppBundlePath()
     }
     return absolutePath;
 #else
-    return "";
+    return QLatin1String("");
 #endif
 }
 
