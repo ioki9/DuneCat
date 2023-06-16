@@ -35,21 +35,20 @@ int ProcessTableModel::columnCount(const QModelIndex &parent) const
 QVariant ProcessTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if(role != Qt::DisplayRole)
-        return QVariant();
-    switch(section)
-    {
+        return {};
+    switch (section) {
     case static_cast<int>(EColumns::process_name):
-        return QString("Process name");
+        return {QStringLiteral("Process name")};
     case static_cast<int>(EColumns::description):
-        return QString("Name");
+        return {QStringLiteral("Name")};
     case static_cast<int>(EColumns::pid):
-        return QVariant(QString("PID"));
+        return {QStringLiteral("PID")};
     case static_cast<int>(EColumns::user_name):
-        return QVariant(QString("User name"));
+        return {QStringLiteral("User name")};
     case static_cast<int>(EColumns::domain_name):
-        return QVariant(QString("Domain name"));
+        return {QStringLiteral("Domain name")};
     }
-    return QVariant();
+    return {};
 }
 
 int ProcessTableModel::columnWidth(int c, const QFont *font)
@@ -75,7 +74,7 @@ int ProcessTableModel::columnWidth(int c, int pointSize)
 {
     if(!m_column_widths[c])
     {
-        QFont* font = new QFont(QGuiApplication::font());
+        auto* font = new QFont(QGuiApplication::font());
         font->setPointSize(pointSize);
         columnWidth(c,font);
     }
@@ -86,22 +85,22 @@ int ProcessTableModel::columnWidth(int c, int pointSize)
 QVariant ProcessTableModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || !rowCount() || role != Qt::DisplayRole)
-        return QVariant();
+        return {};
 
     switch(index.column())
     {
     case static_cast<int>(EColumns::process_name):
-        return QVariant(m_processes[index.row()].name);
+        return {m_processes[index.row()].name};
     case static_cast<int>(EColumns::description):
-        return QVariant(m_processes[index.row()].description);
+        return {m_processes[index.row()].description};
     case static_cast<int>(EColumns::pid):
-        return QVariant(m_processes[index.row()].pid);
+        return {m_processes[index.row()].pid};
     case static_cast<int>(EColumns::user_name):
-        return QVariant(m_processes[index.row()].owner_user);
+        return {m_processes[index.row()].owner_user};
     case static_cast<int>(EColumns::domain_name):
-        return QVariant(m_processes[index.row()].owner_domain);
+        return {m_processes[index.row()].owner_domain};
     }
-    return QVariant();
+    return {};
 }
 
 QHash<int, QByteArray> ProcessTableModel::roleNames() const

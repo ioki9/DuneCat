@@ -31,14 +31,14 @@ int main(int argc, char *argv[])
     qputenv("QT_QUICK_CONTROLS_CONF",":/DuneCat/imports/qtquickcontrols2.conf");
     qmlRegisterType<ProcessTableModel>("TableModels",1,0,"ProcessTableModel");
     qmlRegisterType<SortFilterProcessModel>("TableModels",1,0,"SortFilterProcessModel");
-    qmlRegisterSingletonType(QUrl("qrc:/DuneCat/imports/qml/DCStyle.qml"), "DCStyle", 1, 0, "DCStyle");
-    QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << QString(":/DuneCat/imports/icons"));
-    QIcon::setThemeName("Default");
+    qmlRegisterSingletonType(QUrl(QStringLiteral("qrc:/DuneCat/imports/qml/DCStyle.qml")), "DCStyle", 1, 0, "DCStyle");
+    QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << QStringLiteral(":/DuneCat/imports/icons"));
+    QIcon::setThemeName(QStringLiteral("Default"));
     QQmlApplicationEngine engine;
-    engine.addImportPath(":/DuneCat/imports/qml");
-    engine.addImportPath(":/DuneCat/imports/qml/controls");
-    engine.addImportPath(":/DuneCat/imports/qml/pages");
-    engine.addImportPath(":/DuneCat/imports/qml/components");
+    engine.addImportPath(QStringLiteral(":/DuneCat/imports/qml"));
+    engine.addImportPath(QStringLiteral(":/DuneCat/imports/qml/controls"));
+    engine.addImportPath(QStringLiteral(":/DuneCat/imports/qml/pages"));
+    engine.addImportPath(QStringLiteral(":/DuneCat/imports/qml/components"));
     const QUrl url(u"qrc:/DuneCat/imports/main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
