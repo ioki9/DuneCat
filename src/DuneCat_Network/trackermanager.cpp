@@ -3,8 +3,8 @@
 
 namespace DuneCat
 {
-TrackerManager::TrackerManager(const EndPoint &tracker, QObject *parent)
-    : QObject{parent}, m_current_tracker{tracker}
+TrackerManager::TrackerManager(EndPoint tracker, QObject *parent)
+    : QObject{parent}, m_current_tracker{std::move(tracker)}
 {
     m_timeout_timer = new QTimer();
     connect(this,&TrackerManager::conn_succeed,this,&TrackerManager::send_announce);
@@ -34,14 +34,14 @@ void TrackerManager::init_parameters()
     m_announce.request.key = 0;
 }
 
-void TrackerManager::open_connection(EndPoint stun_server)
+void TrackerManager::open_connection(const EndPoint& stun_server)
 {
     m_socket = std::make_unique<StunClient>(stun_server);
     connect(m_socket.get(),&StunClient::updated,this,&TrackerManager::init_parameters);
     connect(m_socket.get(),&StunClient::updated,this,&TrackerManager::connection_request);
 }
 
-void TrackerManager::open_connection(QVector<EndPoint> stun_servers)
+void TrackerManager::open_connection(const QVector<EndPoint>& stun_servers)
 {
     m_socket = std::make_unique<StunClient>(stun_servers);
     connect(m_socket.get(),&StunClient::updated,this,&TrackerManager::init_parameters);

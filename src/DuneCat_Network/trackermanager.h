@@ -10,15 +10,15 @@ class TrackerManager : public QObject
     Q_OBJECT
     Q_DISABLE_COPY_MOVE(TrackerManager)
 public:
-    explicit TrackerManager(const EndPoint& tracker_addr,QObject* parent = nullptr);
+    explicit TrackerManager(EndPoint tracker_addr, QObject* parent = nullptr);
     ~TrackerManager();
     inline EndPoint get_current_tracker() const {return m_current_tracker;}
     inline StunClient* get_socket() const { return m_socket.get();}
     inline int get_announce_interval() const {return m_reannounce_interval;}
     inline void set_announce_interval(int interval) { m_reannounce_interval = interval;}
     inline QVector<EndPoint>& get_endpoints() {return m_endpoints;}
-    void open_connection(EndPoint stun_server);
-    void open_connection(QVector<EndPoint> stun_servers);
+    void open_connection(const EndPoint& stun_server);
+    void open_connection(const QVector<EndPoint>& stun_servers);
     void force_announce();
 
 signals:
