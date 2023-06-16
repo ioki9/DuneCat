@@ -25,9 +25,9 @@ WMIClient::~WMIClient()
         m_pLoc->Release();
         m_pUnsecApp->Release();
         m_pSink->Release();
-        for(auto stubUnk : m_pStubUnkList)
+        for(auto* stubUnk : m_pStubUnkList)
             stubUnk->Release();
-        for(auto stubSink : m_pStubSinkList)
+        for(auto* stubSink : m_pStubSinkList)
         {
             m_pSvc->CancelAsyncCall(stubSink);
             stubSink->Release();
@@ -57,49 +57,23 @@ void WMIClient::handle_event(IWbemClassObject *obj)
     if(SUCCEEDED(hr))
     {
         inst = vtProp.punkVal;
-        ProcessTracker tracker;
         hr = inst->QueryInterface(IID_IWbemClassObject,reinterpret_cast<void**>(&obj));
         if(SUCCEEDED(hr))
         {
             VARIANT vtVal;
-            hr = obj->Get(L"Name",0,&vtVal,NULL,NULL);
-            if(SUCCEEDED(hr))
-                proc_info.name = QString::fromWCharArray(vtVal.bstrVal);
-            VariantClear(&vtVal);
-
-            hr = obj->Get(L"ProcessId",0,&vtVal,NULL,NULL);
-            if(SUCCEEDED(hr))
-                proc_info.pid = vtVal.uintVal;
-            VariantClear(&vtVal);
-
-            hr = obj->Get(L"CreationDate",0,&vtVal,NULL,NULL);
-            if(SUCCEEDED(hr))
-                proc_info.creation_date = fromBSTRToDateTime(vtVal.bstrVal);
-            VariantClear(&vtVal);
-
-            hr = obj->Get(L"ExecutablePath",0,&vtVal,NULL,NULL);
-            if(SUCCEEDED(hr))
-                proc_info.file_path = QString::fromWCharArray(vtVal.bstrVal);
-            VariantClear(&vtVal);
-
-            hr = obj->Get(L"CommandLine",0,&vtVal,NULL,NULL);
-            if(SUCCEEDED(hr))
-                proc_info.command_line = QString::fromWCharArray(vtVal.bstrVal);
-            VariantClear(&vtVal);
-            proc_info.description = tracker.get_process_description(proc_info.file_path);
-
+            proc_info = get_process_stats(obj);
             if(QString::fromWCharArray(vtClassProp.bstrVal) == QString("__InstanceCreationEvent"))
             {
                 _bstr_t str_user;
                 _bstr_t str_domain;
-                if(SUCCEEDED(get_user_from_process(proc_info.pid,str_user,str_domain)));
+                if(SUCCEEDED(get_user_from_process(proc_info.pid,str_user,str_domain)))
                 {
                     proc_info.owner_user = QString::fromWCharArray(str_user);
                     proc_info.owner_domain = QString::fromWCharArray(str_domain);
                 }
                 emit new_process_created(proc_info);
             }
-            else if(QString::fromWCharArray(vtClassProp.bstrVal) == QString("__InstanceDeletionEvent"))
+            else if(QString::fromWCharArray(vtClassProp.bstrVal) == "__InstanceDeletionEvent")
             {
                 hr = obj->Get(L"TerminationDate",0,&vtVal,NULL,NULL);
                 if(SUCCEEDED(hr))
@@ -243,6 +217,39 @@ bool WMIClient::initialize()
     return true;
 }
 
+ProcessInfo WMIClient::get_process_stats(IWbemClassObject *obj)
+{
+    HRESULT hr;
+    ProcessInfo proc_info;
+    VARIANT vtVal;
+    hr = obj->Get(L"Name",0,&vtVal,NULL,NULL);
+    if(SUCCEEDED(hr))
+        proc_info.name = QString::fromWCharArray(vtVal.bstrVal);
+    VariantClear(&vtVal);
+
+    hr = obj->Get(L"ProcessId",0,&vtVal,NULL,NULL);
+    if(SUCCEEDED(hr))
+        proc_info.pid = vtVal.uintVal;
+    VariantClear(&vtVal);
+
+    hr = obj->Get(L"CreationDate",0,&vtVal,NULL,NULL);
+    if(SUCCEEDED(hr))
+        proc_info.creation_date = fromBSTRToDateTime(vtVal.bstrVal);
+    VariantClear(&vtVal);
+
+    hr = obj->Get(L"ExecutablePath",0,&vtVal,NULL,NULL);
+    if(SUCCEEDED(hr))
+        proc_info.file_path = QString::fromWCharArray(vtVal.bstrVal);
+    VariantClear(&vtVal);
+
+    hr = obj->Get(L"CommandLine",0,&vtVal,NULL,NULL);
+    if(SUCCEEDED(hr))
+        proc_info.command_line = QString::fromWCharArray(vtVal.bstrVal);
+    VariantClear(&vtVal);
+    proc_info.description = ProcessTracker::get_process_description(proc_info.file_path);
+    return proc_info;
+}
+
 bool WMIClient::subscribe_to_event(BSTR event_query)
 {
     HRESULT hres;
@@ -299,14 +306,13 @@ std::vector<ProcessInfo> WMIClient::get_process_list()
         qDebug() << "Couldn't get process list. ExecQuery failed" << " Error code = 0x"
                  << std::hex << hres << '\n';
         qDebug()<< _com_error(hres).ErrorMessage() << '\n';
-        return std::vector<ProcessInfo>();            // Program has failed.
+        return {};            // Program has failed.
     }
 
     // Get the data from the WQL sentence
     IWbemClassObject *pclsObj = NULL;
     ULONG uReturn = 0;
     std::vector<ProcessInfo> process_list{};
-    ProcessTracker tracker;
     while (pEnumerator)
     {
         ProcessInfo proc_info;
@@ -316,38 +322,15 @@ std::vector<ProcessInfo> WMIClient::get_process_list()
             break;
 
         VARIANT vtProp;
-        hr = pclsObj->Get(L"Name",0,&vtProp,NULL,NULL);
-        if(SUCCEEDED(hr))
-            proc_info.name = QString::fromWCharArray(vtProp.bstrVal);
-        VariantClear(&vtProp);
-
-        hr = pclsObj->Get(L"ProcessId",0,&vtProp,NULL,NULL);
-        if(SUCCEEDED(hr))
-            proc_info.pid = vtProp.uintVal;
-        VariantClear(&vtProp);
-
-        hr = pclsObj->Get(L"CreationDate",0,&vtProp,NULL,NULL);
-        if(SUCCEEDED(hr))
-            proc_info.creation_date = fromBSTRToDateTime(vtProp.bstrVal);
-        VariantClear(&vtProp);
-
-        hr = pclsObj->Get(L"ExecutablePath",0,&vtProp,NULL,NULL);
-        if(SUCCEEDED(hr))
-            proc_info.file_path = QString::fromWCharArray(vtProp.bstrVal);
-        VariantClear(&vtProp);
-
-        hr = pclsObj->Get(L"CommandLine",0,&vtProp,NULL,NULL);
-        if(SUCCEEDED(hr))
-            proc_info.command_line = QString::fromWCharArray(vtProp.bstrVal);
-        VariantClear(&vtProp);
+        proc_info = get_process_stats(pclsObj);
         _bstr_t str_user;
         _bstr_t str_domain;
-        if(SUCCEEDED(get_user_from_process(proc_info.pid,str_user,str_domain)));
+        if(SUCCEEDED(get_user_from_process(proc_info.pid,str_user,str_domain)))
         {
             proc_info.owner_user = QString::fromWCharArray(str_user);
             proc_info.owner_domain = QString::fromWCharArray(str_domain);
         }
-        proc_info.description = tracker.get_process_description(proc_info.file_path);
+        proc_info.description = ProcessTracker::get_process_description(proc_info.file_path);
         process_list.push_back(proc_info);
     }
 
