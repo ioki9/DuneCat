@@ -19,21 +19,19 @@ jobs:
           - os: macos-latest
             qtArch: clang_64
             qtHost: mac
-            qtTools: 'tools_ninja'
-            CXX: -DCMAKE_CXX_COMPILER = clang++
+            CXX: clang++
             CC: clang
           - os: windows-latest
             qtArch: win64_mingw
             qtHost: windows
-            qtTools: 'tools_mingw90 tools_ninja'
-            CXX: -DCMAKE_CXX_COMPILER = ${{ github.workspace }}/Qt6Lib/Qt/Tools/mingw1120_64/bin/g++.exe
+            artifact: "Windows-MinGW.tar.xz"
+            CXX: g++
             CC: gcc
             
           - os: ubuntu-latest
             qtArch: gcc_64
             qtHost: linux
-            qtTools: 'tools_ninja'
-            CXX: -DCMAKE_CXX_COMPILER=/usr/bin/g++ 
+            CXX: g++
             CC: gcc
     runs-on: ${{matrix.os}}
     permissions:
@@ -55,7 +53,48 @@ jobs:
           set-env: 'true'
           aqtversion: '==3.1.*'
           py7zrversion: '==0.19.*'
-          tools: ${{matrix.qtTools}}
+    - name: Download Ninja and CMake
+      id: cmake_and_ninja
+      shell: cmake -P {0}
+      run: |
+        set(ninja_version "1.11.0")
+        set(cmake_version "3.24.2")
+
+        message(STATUS "Using host CMake version: ${CMAKE_VERSION}")
+
+        if ("${ { runner.os } }" STREQUAL "Windows")
+          set(ninja_suffix "win.zip")
+          set(cmake_suffix "win64-x64.zip")
+          set(cmake_dir "cmake-${cmake_version}-win64-x64/bin")
+        elseif ("${ { runner.os } }" STREQUAL "Linux")
+          set(ninja_suffix "linux.zip")
+          set(cmake_suffix "Linux-x86_64.tar.gz")
+          set(cmake_dir "cmake-${cmake_version}-Linux-x86_64/bin")
+        elseif ("${ { runner.os } }" STREQUAL "macOS")
+          set(ninja_suffix "mac.zip")
+          set(cmake_suffix "Darwin-x86_64.tar.gz")
+          set(cmake_dir "cmake-${cmake_version}-Darwin-x86_64/CMake.app/Contents/bin")
+        endif()
+
+        set(ninja_url "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-${ninja_suffix}")
+        file(DOWNLOAD "${ninja_url}" ./ninja.zip SHOW_PROGRESS)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ninja.zip)
+
+        set(cmake_url "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-${cmake_suffix}")
+        file(DOWNLOAD "${cmake_url}" ./cmake.zip SHOW_PROGRESS)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./cmake.zip)
+
+        # Save the path for other steps
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${cmake_dir}" cmake_dir)
+        message("::set-output name=cmake_dir::${cmake_dir}")
+
+        if (NOT "${ { runner.os } }" STREQUAL "Windows")
+          execute_process(
+            COMMAND chmod +x ninja
+            COMMAND chmod +x ${cmake_dir}/cmake
+          )
+        endif()
+      
 #    - name: Configure and build this project
 #      uses: threeal/cmake-action@latest
 #      with:
@@ -65,13 +104,42 @@ jobs:
 #        run-test: false
 #        targets: all
 #        args: -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-        
-    - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -G Ninja -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}} ${{matrix.CXX}} 
+    - name: Configure
+      shell: cmake -P {0} 
+      run: |
+        set(ENV{CC} ${ { matrix.CC } })
+        set(ENV{CXX} ${ { matrix.CXX } })
 
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja" ninja_program)
+
+        execute_process(
+          COMMAND ${ { steps.cmake_and_ninja.outputs.cmake_dir } }/cmake
+            -S .
+            -B build
+            -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+            -G Ninja
+            -D CMAKE_MAKE_PROGRAM=${ninja_program}
+          RESULT_VARIABLE result
+        )
+        if (NOT result EQUAL 0)
+          message(FATAL_ERROR "Bad exit status")
+        endif() 
+    #- name: Configure CMake
+    #   run: cmake -B ${{github.workspace}}/build -G Ninja -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}} ${{matrix.CXX}} 
+
+    #- name: Build
+    #  run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-
+      shell: cmake -P {0}
+      run: |
+        set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
+        execute_process(
+          COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --build build
+          RESULT_VARIABLE result
+        )
+        if (NOT result EQUAL 0)
+          message(FATAL_ERROR "Bad exit status")
+        endif()
     - name: Test
       if: matrix.os != 'ubuntu-latest'
       working-directory: ${{github.workspace}}/build
