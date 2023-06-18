@@ -90,8 +90,8 @@ jobs:
 
         if (NOT "${{runner.os}}" STREQUAL "Windows")
           execute_process(
-            COMMAND chmod +x ninja
-            COMMAND chmod +x ${cmake_dir}/cmake
+            COMMAND chmod +x ninja.exe
+            COMMAND chmod +x ${cmake_dir}/cmake.exe
           )
         endif()
       
