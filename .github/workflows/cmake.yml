@@ -19,8 +19,8 @@ jobs:
           - os: macos-latest
             qtArch: clang_64
             qtHost: mac
-            qtTools: ''
-            CXX: ''
+            qtTools: 'tools_ninja'
+            CXX: -DCMAKE_CXX_COMPILER = clang++
             CC: clang
           - os: windows-latest
             qtArch: win64_mingw
@@ -32,8 +32,8 @@ jobs:
           - os: ubuntu-latest
             qtArch: gcc_64
             qtHost: linux
-            qtTools: ''
-            CXX: ''
+            qtTools: 'tools_ninja'
+            CXX: -DCMAKE_CXX_COMPILER = g++
             CC: gcc
     runs-on: ${{matrix.os}}
     permissions:
