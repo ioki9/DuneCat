@@ -1,4 +1,5 @@
-#pragma once
+#ifndef STUNCLINE_H
+#define STUNCLINE_H
 #include "networkheaders.h"
 #include "networkmodels.h"
 namespace DuneCat
@@ -39,3 +40,4 @@ private slots:
     bool process_data();
 };
 }
+#endif

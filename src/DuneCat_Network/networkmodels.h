@@ -1,4 +1,5 @@
-#pragma once
+#ifndef NETWORKMODELS_H
+#define NETWORKMODELS_H
 #include "networkheaders.h"
 
 namespace DuneCat
@@ -156,3 +157,4 @@ struct TrackerAnnounce
     Response response{};
 };
 }
+#endif

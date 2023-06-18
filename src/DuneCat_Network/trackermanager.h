@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TRACKERMANAGER_H
+#define TRACKERMANAGER_H
 #include "networkheaders.h"
 #include "stunclient.h"
 
@@ -46,3 +47,4 @@ private slots:
     bool receive_conn_response(QNetworkDatagram& datagram);
 };
 }
+#endif
