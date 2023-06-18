@@ -21,7 +21,7 @@ public:
         return  instance;
     }
     std::vector<ProcessInfo> get_process_list();
-    static BOOL get_logon_from_token(HANDLE hToken, _bstr_t& strUser, _bstr_t& strdomain);
+    static BOOL get_logon_from_token(HANDLE hToken, BSTR &strUser, BSTR &strdomain);
 
 private:
     explicit WMIClient(QObject* parent = nullptr);
@@ -40,7 +40,7 @@ private:
     void handle_process_deletion(IWbemClassObject* obj);
     bool initialize();
     ProcessInfo get_process_stats(IWbemClassObject* obj);
-    HRESULT get_user_from_process(const DWORD procId,  _bstr_t& strUser, _bstr_t& strdomain);
+    HRESULT get_user_from_process(const DWORD procId, BSTR strUser, BSTR strdomain);
 signals:
     void process_deleted(const ProcessInfo& process);
     void new_process_created(const ProcessInfo& new_process);

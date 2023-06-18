@@ -41,8 +41,8 @@ void CoreTests::bench_get_process_list()
 }
 //windows specific tests
 #ifdef Q_OS_WINDOWS
-#include <atlbase.h>
 #include <charconv>
+
 void CoreTests::test_tools_fromBSTRToDateTime()
 {
     BSTR test1 = SysAllocString(L"20250912231519.818644");

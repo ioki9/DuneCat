@@ -5,8 +5,8 @@
 #include <winver.h>
 #include <strsafe.h>
 #include <Psapi.h>
+#include <windows.h>
 #include <processthreadsapi.h>
-#include <qt_windows.h>
 #pragma comment(lib,"Version.lib")
 
 namespace DuneCat
@@ -119,15 +119,16 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
                                                QTime(sys_time.wHour,sys_time.wMinute,sys_time.wSecond,sys_time.wMilliseconds),
                                                Qt::UTC,0).toLocalTime();
             }
-
             HANDLE token_handle = NULL;
-            if( OpenProcessToken( process_handle, TOKEN_QUERY, &token_handle ) != 0 )
+            if( OpenProcessToken( process_handle, TOKEN_QUERY, &token_handle ) != FALSE )
             {
-                _bstr_t bstr_user,bstr_domain;
-                if(WMIClient::get_logon_from_token(token_handle, bstr_user, bstr_domain)!=0)
+                BSTR bstr_user,bstr_domain;
+                if(WMIClient::get_logon_from_token(token_handle, bstr_user, bstr_domain) != FALSE)
                 {
                     info.owner_user = QString::fromWCharArray(bstr_user);
                     info.owner_domain = QString::fromWCharArray(bstr_domain);
+                    SysFreeString(bstr_user);
+                    SysFreeString(bstr_domain);
                 }
             }
             CloseHandle( token_handle );
@@ -144,8 +145,7 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
 //            info.icon = QPixmap::fromImage(QImage::fromHICON(ExtractIcon(GetModuleHandle(NULL),lol,0)));
 //            delete[] lol;
 //        }
-
-        result.push_back(info);
+        result.push_back(std::move(info));
         CloseHandle(process_handle);
     } while( Process32Next( hProcessSnap, &pe32 ) );
 

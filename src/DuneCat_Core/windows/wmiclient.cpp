@@ -6,6 +6,7 @@
 #include <chrono>
 #include <iostream>
 #include <psapi.h>
+#include <oleauto.h>
 #include <strsafe.h>
 #define MAX_NAME 256
 
@@ -64,12 +65,14 @@ void WMIClient::handle_event(IWbemClassObject *obj)
             proc_info = get_process_stats(obj);
             if(QString::fromWCharArray(vtClassProp.bstrVal) == QString("__InstanceCreationEvent"))
             {
-                _bstr_t str_user;
-                _bstr_t str_domain;
+                BSTR str_user;
+                BSTR str_domain;
                 if(SUCCEEDED(get_user_from_process(proc_info.pid,str_user,str_domain)))
                 {
                     proc_info.owner_user = QString::fromWCharArray(str_user);
                     proc_info.owner_domain = QString::fromWCharArray(str_domain);
+                    SysFreeString(str_user);
+                    SysFreeString(str_domain);
                 }
                 emit new_process_created(proc_info);
             }
@@ -143,8 +146,9 @@ bool WMIClient::initialize()
     // Connect to WMI through the IWbemLocator::ConnectServer method
     // Connect to the local root\cimv2 namespace
     // and obtain pointer pSvc to make IWbemServices calls.
+    BSTR root_str = SysAllocString(L"ROOT\\CIMV2");
     hres = m_pLoc->ConnectServer(
-        _bstr_t(L"ROOT\\CIMV2"),
+        root_str,
         NULL,
         NULL,
         0,
@@ -153,7 +157,7 @@ bool WMIClient::initialize()
         0,
         &m_pSvc
         );
-
+    SysFreeString(root_str);
     if (FAILED(hres))
     {
         qDebug() << "Could not connect to root\\cimv2 namespace. Error code = "<< std::hex << hres << '\n';
@@ -200,9 +204,9 @@ bool WMIClient::initialize()
     if(!subscribe_to_event(creationQuery))
     {
         return false;
-        SysReleaseString(creationQuery);
+        SysFreeString(creationQuery);
     }
-    SysReleaseString(creationQuery);
+    SysFreeString(creationQuery);
 
     BSTR deletionQuery = SysAllocString(L"SELECT * "
                                         "FROM __InstanceDeletionEvent WITHIN 1 "
@@ -210,9 +214,9 @@ bool WMIClient::initialize()
     if(!subscribe_to_event(deletionQuery))
     {
         return false;
-        SysReleaseString(deletionQuery);
+        SysFreeString(deletionQuery);
     }
-    SysReleaseString(deletionQuery);
+    SysFreeString(deletionQuery);
     is_initialized = true;
     return true;
 }
@@ -271,7 +275,7 @@ bool WMIClient::subscribe_to_event(BSTR event_query)
         NULL,
         pStubSink);
 
-    SysReleaseString(bstr_wql);
+    SysFreeString(bstr_wql);
     // Check for errors.
     if (FAILED(hres))
     {
@@ -299,8 +303,8 @@ std::vector<ProcessInfo> WMIClient::get_process_list()
     BSTR query = SysAllocString(L"SELECT * FROM Win32_Process");
     hres = m_pSvc->ExecQuery( wql, query,
                              WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
-    SysReleaseString(wql);
-    SysReleaseString(query);
+    SysFreeString(wql);
+    SysFreeString(query);
     if (FAILED(hres))
     {
         qDebug() << "Couldn't get process list. ExecQuery failed" << " Error code = 0x"
@@ -323,27 +327,28 @@ std::vector<ProcessInfo> WMIClient::get_process_list()
 
         VARIANT vtProp;
         proc_info = get_process_stats(pclsObj);
-        _bstr_t str_user;
-        _bstr_t str_domain;
+        BSTR str_user,str_domain;
         if(SUCCEEDED(get_user_from_process(proc_info.pid,str_user,str_domain)))
         {
             proc_info.owner_user = QString::fromWCharArray(str_user);
             proc_info.owner_domain = QString::fromWCharArray(str_domain);
+            SysFreeString(str_user);
+            SysFreeString(str_domain);
         }
         proc_info.description = ProcessTracker::get_process_description(proc_info.file_path);
+        SysFreeString(str_user);
+        SysFreeString(str_domain);
         process_list.push_back(proc_info);
     }
 
     return process_list;
 }
 
-BOOL WMIClient::get_logon_from_token(HANDLE hToken, _bstr_t& strUser, _bstr_t& strdomain)
+BOOL WMIClient::get_logon_from_token(HANDLE hToken, BSTR& strUser, BSTR& strdomain)
 {
     DWORD dwSize = MAX_NAME;
     BOOL bSuccess = FALSE;
     DWORD dwLength = 0;
-    strUser = "";
-    strdomain = "";
     PTOKEN_USER ptu = NULL;
     //Verify the parameter passed in is not NULL.
     if (NULL == hToken)
@@ -393,8 +398,8 @@ BOOL WMIClient::get_logon_from_token(HANDLE hToken, _bstr_t& strUser, _bstr_t& s
     }
     else
     {
-        strUser = lpName;
-        strdomain = lpDomain;
+        strUser = SysAllocString(lpName);
+        strdomain = SysAllocString(lpDomain);
         bSuccess = TRUE;
     }
     //cleanup
@@ -403,7 +408,7 @@ BOOL WMIClient::get_logon_from_token(HANDLE hToken, _bstr_t& strUser, _bstr_t& s
     return bSuccess;
 }
 
-HRESULT WMIClient::get_user_from_process(const DWORD procId,  _bstr_t& strUser, _bstr_t& strdomain)
+HRESULT WMIClient::get_user_from_process(const DWORD procId,  BSTR strUser, BSTR strdomain)
 {
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ ,FALSE,procId);
     if(hProcess == NULL)
@@ -412,12 +417,12 @@ HRESULT WMIClient::get_user_from_process(const DWORD procId,  _bstr_t& strUser, 
     }
     HANDLE hToken = NULL;
 
-    if( !OpenProcessToken( hProcess, TOKEN_QUERY, &hToken ) )
+    if( !OpenProcessToken(hProcess, TOKEN_QUERY, &hToken ) )
     {
         CloseHandle( hProcess );
         return E_FAIL;
     }
-    BOOL bres = get_logon_from_token (hToken, strUser,  strdomain);
+    BOOL bres = get_logon_from_token(hToken, strUser, strdomain);
 
     CloseHandle( hToken );
     CloseHandle( hProcess );
