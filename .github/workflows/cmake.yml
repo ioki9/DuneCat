@@ -20,7 +20,7 @@ jobs:
             qtArch: clang_64
             qtHost: mac
           - os: windows-latest
-            qtArch: win64_msvc2019_64
+            qtArch: win64_mingw
             qtHost: windows
           - os: ubuntu-latest
             qtArch: gcc_64
