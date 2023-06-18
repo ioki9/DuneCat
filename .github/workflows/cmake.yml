@@ -36,7 +36,10 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v3
-    
+    - name: Set up MinGW
+      uses: egor-tensin/setup-mingw@v2
+      with:
+        platform: x64
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
       with:
@@ -58,7 +61,7 @@ jobs:
         c-compiler: ${{matrix.CC}}
         cxx-compiler: ${{matrix.CXX}}
         run-test: false
-        args: -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}}
+        args: -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         
    #- name: Configure CMake
    #   run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}}
