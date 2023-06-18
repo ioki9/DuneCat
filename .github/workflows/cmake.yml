@@ -58,6 +58,7 @@ jobs:
         c-compiler: ${{matrix.CC}}
         cxx-compiler: ${{matrix.CXX}}
         run-test: false
+        targets: all
         args: -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         
    #- name: Configure CMake
