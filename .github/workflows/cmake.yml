@@ -55,11 +55,11 @@ jobs:
     - name: Configure and build this project
       uses: threeal/cmake-action@latest
       with:
-        #generator: Ninja
-        c-compiler: ${{matrix.CC}}
-        cxx-compiler: ${{matrix.CXX}}
+        generator: Ninja
+        #c-compiler: ${{matrix.CC}}
+        #cxx-compiler: ${{matrix.CXX}}
         run-test: false
-        args: -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}}
+        args: -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}} -DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable} -DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX} -DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C} -DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}
         
    #- name: Configure CMake
    #   run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}}
