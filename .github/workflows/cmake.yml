@@ -21,19 +21,16 @@ jobs:
             qtHost: mac
             CXX: clang++
             CC: clang
-            generator: Ninja
           - os: windows-latest
             qtArch: win64_mingw
             qtHost: windows
             CXX: g++
             CC: gcc
-            generator:  MinGW Makefiles
           - os: ubuntu-latest
             qtArch: gcc_64
             qtHost: linux
             CXX: g++
             CC: gcc
-            generator: Ninja
     runs-on: ${{matrix.os}}
     permissions:
       contents: write
@@ -54,21 +51,21 @@ jobs:
           set-env: 'true'
           aqtversion: '==3.1.*'
           py7zrversion: '==0.19.*'
-    - name: Configure and build this project
-      uses: threeal/cmake-action@latest
-      with:
-        generator: ${{matrix.generator}}
-        c-compiler: ${{matrix.CC}}
-        cxx-compiler: ${{matrix.CXX}}
-        run-test: false
-        targets: all
-        args: -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+#    - name: Configure and build this project
+#      uses: threeal/cmake-action@latest
+#      with:
+#        generator: Ninja
+#        c-compiler: ${{matrix.CC}}
+#        cxx-compiler: ${{matrix.CXX}}
+#        run-test: false
+#        targets: all
+#        args: -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         
-   #- name: Configure CMake
-   #   run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}}
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -G Ninja -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}} -DCMAKE_CXX_COMPILER = g++
 
-    #- name: Build
-    #  run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Test
       if: matrix.os != 'ubuntu-latest'
