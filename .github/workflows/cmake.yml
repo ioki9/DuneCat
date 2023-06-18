@@ -21,16 +21,19 @@ jobs:
             qtHost: mac
             CXX: clang++
             CC: clang
+            generator: Ninja
           - os: windows-latest
             qtArch: win64_mingw
             qtHost: windows
-            CXX: clang++
-            CC: clang
+            CXX: g++
+            CC: gcc
+            generator: Mingw32-make
           - os: ubuntu-latest
             qtArch: gcc_64
             qtHost: linux
             CXX: g++
             CC: gcc
+            generator: Ninja
     runs-on: ${{matrix.os}}
     permissions:
       contents: write
@@ -54,7 +57,7 @@ jobs:
     - name: Configure and build this project
       uses: threeal/cmake-action@latest
       with:
-        generator: Ninja
+        generator: ${{matrix.generator}}
         c-compiler: ${{matrix.CC}}
         cxx-compiler: ${{matrix.CXX}}
         run-test: false
