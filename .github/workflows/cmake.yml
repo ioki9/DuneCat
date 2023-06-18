@@ -20,20 +20,20 @@ jobs:
             qtArch: clang_64
             qtHost: mac
             qtTools: ''
-            CXX: clang++
+            CXX: ''
             CC: clang
           - os: windows-latest
             qtArch: win64_mingw
             qtHost: windows
             qtTools: 'tools_mingw90 tools_ninja'
-            CXX: g++
+            CXX: -DCMAKE_CXX_COMPILER = ${{ github.workspace }}/Qt6Lib/Qt/Tools/mingw1120_64/bin/g++.exe
             CC: gcc
             
           - os: ubuntu-latest
             qtArch: gcc_64
             qtHost: linux
             qtTools: ''
-            CXX: g++
+            CXX: ''
             CC: gcc
     runs-on: ${{matrix.os}}
     permissions:
@@ -67,7 +67,7 @@ jobs:
 #        args: -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -G Ninja -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}} -DCMAKE_CXX_COMPILER = ${{matrix.CXX}}
+      run: cmake -B ${{github.workspace}}/build -G Ninja -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}} ${{matrix.CXX}} 
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
