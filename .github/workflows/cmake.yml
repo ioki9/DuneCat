@@ -9,7 +9,7 @@ on:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+  BUILD_TYPE: "Release"
 
 jobs:
   build:
@@ -107,8 +107,8 @@ jobs:
     - name: Configure
       shell: cmake -P {0} 
       run: |
-        set(ENV{CC} ${ { matrix.CC } })
-        set(ENV{CXX} ${ { matrix.CXX } })
+        set(ENV{CC} ${{ matrix.CC} })
+        set(ENV{CXX} ${{ matrix.CXX } })
 
         file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja" ninja_program)
 
