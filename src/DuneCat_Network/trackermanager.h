@@ -1,7 +1,6 @@
 #pragma once
 #include "networkheaders.h"
 #include "stunclient.h"
-#include "trackermanager.h"
 
 namespace DuneCat
 {
