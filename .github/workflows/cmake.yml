@@ -19,16 +19,20 @@ jobs:
           - os: macos-latest
             qtArch: clang_64
             qtHost: mac
+            qtTools: ''
             CXX: clang++
             CC: clang
           - os: windows-latest
             qtArch: win64_mingw
             qtHost: windows
+            qtTools: 'tools_mingw90 tools_ninja'
             CXX: g++
             CC: gcc
+            
           - os: ubuntu-latest
             qtArch: gcc_64
             qtHost: linux
+            qtTools: ''
             CXX: g++
             CC: gcc
     runs-on: ${{matrix.os}}
@@ -51,6 +55,7 @@ jobs:
           set-env: 'true'
           aqtversion: '==3.1.*'
           py7zrversion: '==0.19.*'
+          tools: ${{matrix.qtTools}}
 #    - name: Configure and build this project
 #      uses: threeal/cmake-action@latest
 #      with:
