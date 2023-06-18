@@ -24,8 +24,8 @@ jobs:
           - os: windows-latest
             qtArch: win64_mingw
             qtHost: windows
-            CXX: g++
-            CC: gcc
+            CXX: clang++
+            CC: clang
           - os: ubuntu-latest
             qtArch: gcc_64
             qtHost: linux
