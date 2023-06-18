@@ -33,7 +33,7 @@ jobs:
             qtArch: gcc_64
             qtHost: linux
             qtTools: 'tools_ninja'
-            CXX: -DCMAKE_CXX_COMPILER = g++
+            CXX: -DCMAKE_CXX_COMPILER=/usr/bin/g++ 
             CC: gcc
     runs-on: ${{matrix.os}}
     permissions:
