@@ -27,7 +27,7 @@ jobs:
             qtHost: windows
             CXX: g++
             CC: gcc
-            generator: Mingw32-make
+            generator:  MinGW Makefiles
           - os: ubuntu-latest
             qtArch: gcc_64
             qtHost: linux
