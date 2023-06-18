@@ -49,7 +49,7 @@ jobs:
           cache: 'true'
           cache-key-prefix: 'install-qt-action-${{matrix.os}}'
           set-env: 'true'
-          tools-only: 'false'
+          tools: 'tools_mingw90 tools_ninja'
           aqtversion: '==3.1.*'
           py7zrversion: '==0.19.*'
     - name: Configure and build this project
