@@ -56,10 +56,10 @@ jobs:
       uses: threeal/cmake-action@latest
       with:
         generator: Ninja
-        #c-compiler: ${{matrix.CC}}
-        #cxx-compiler: ${{matrix.CXX}}
+        c-compiler: ${{matrix.CC}}
+        cxx-compiler: ${{matrix.CXX}}
         run-test: false
-        args: -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}} -DCMAKE_C_COMPILER:FILEPATH=${{ github.workspace }}/Qt6Lib/Tools/mingw1120_64/bin/gcc.exe -DCMAKE_CXX_COMPILER:FILEPATH=${{ github.workspace }}/Qt6Lib/Tools/mingw1120_64/bin/g++.exe
+        args: -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}}
         
    #- name: Configure CMake
    #   run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}}
