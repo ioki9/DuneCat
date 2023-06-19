@@ -139,8 +139,13 @@ jobs:
     - name: Configure
       shell: cmake -P {0}
       run: |
-        set(ENV{CC} ${{ matrix.CC }})
-        set(ENV{CXX} ${{ matrix.CXX }})
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          set(ENV{CXX} $ENV{GITHUB_WORKSPACE}/mingw64/bin/${{ matrix.CXX }}.exe)
+          set(ENV{CC} $ENV{GITHUB_WORKSPACE}/mingw64/bin/${{ matrix.CC }}.exe)
+        else()
+          set(ENV{CXX} ${{ matrix.CXX }})
+          set(ENV{CC} ${{ matrix.CC }})
+        endif()
 
         set(path_separator ":")
         if ("${{ runner.os }}" STREQUAL "Windows")
