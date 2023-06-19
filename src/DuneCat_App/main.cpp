@@ -3,7 +3,6 @@
 #include "processtablemodel.h"
 #include "sortfilterprocessmodel.h"
 #include <QQuickStyle>
-
 using namespace DuneCat;
 
 int main(int argc, char *argv[])
@@ -20,14 +19,12 @@ int main(int argc, char *argv[])
             break;
         }
     }
-
     qRegisterMetaType<ProcessInfo>("ProcessInfo");
     //quint16 port = static_cast<quint16>(QUrl("udp://tracker.openbittorrent.com:6969/announce").port());
     //QHostAddress host=QHostInfo::fromName(QUrl("udp://tracker.openbittorrent.com:6969/announce").host()).addresses()[0];
     //std::unique_ptr<TrackerManager> manager =
     //        std::make_unique<TrackerManager>(EndPoint{host,port});
     //manager->open_connection(EndPoint{QHostAddress("37.139.120.14"),3478});
-
     qputenv("QT_QUICK_CONTROLS_CONF",":/DuneCat/imports/qtquickcontrols2.conf");
     qmlRegisterType<ProcessTableModel>("TableModels",1,0,"ProcessTableModel");
     qmlRegisterType<SortFilterProcessModel>("TableModels",1,0,"SortFilterProcessModel");
