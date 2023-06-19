@@ -58,5 +58,5 @@ if(WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC wbemuuid)
 endif()
 target_include_directories(${PROJECT_NAME} PUBLIC
-    ${CMAKE_SOURCE_DIR}/src/DuneCat_Core
-    ${CMAKE_SOURCE_DIR}/src/DuneCat_Network)
+    ${CMAKE_SOURCE_DIR}/src/DuneCat_Core)
+    #${CMAKE_SOURCE_DIR}/src/DuneCat_Network)
