@@ -2,7 +2,7 @@
 #include "tools.h"
 #include <string>
 #include <cstdlib>
-#include <charconv>
+//#include <charconv>
 #include <chrono>
 namespace DuneCat
 {
@@ -135,16 +135,16 @@ QDateTime fromBSTRToDateTime(BSTR bstr)
                         NULL, NULL /* no default char */);
     std::string_view str_view{str};
     int year{},month{},day{};
-    std::from_chars(str_view.data(),str_view.data()+4,year);
-    std::from_chars(str_view.data()+4,str_view.data()+6,month);
-    std::from_chars(str_view.data()+6,str_view.data()+8,day);
+    // std::from_chars(str_view.data(),str_view.data()+4,year);
+    // std::from_chars(str_view.data()+4,str_view.data()+6,month);
+    // std::from_chars(str_view.data()+6,str_view.data()+8,day);
 
-    int hour{},min{},sec{},msec{};
-    std::from_chars(str_view.data()+8,str_view.data()+10,hour);
-    std::from_chars(str_view.data()+10,str_view.data()+12,min);
-    std::from_chars(str_view.data()+12,str_view.data()+14,sec);
-    std::from_chars(str_view.data()+15,str_view.data()+18,msec);
-
+    // int hour{},min{},sec{},msec{};
+    // std::from_chars(str_view.data()+8,str_view.data()+10,hour);
+    // std::from_chars(str_view.data()+10,str_view.data()+12,min);
+    // std::from_chars(str_view.data()+12,str_view.data()+14,sec);
+    // std::from_chars(str_view.data()+15,str_view.data()+18,msec);
+    return QDateTime();
     QDateTime result(QDate(year,month,day),QTime(hour,min,sec,msec));
     if(result > QDateTime::currentDateTime())
         return QDateTime{};
