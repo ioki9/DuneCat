@@ -6,29 +6,37 @@ on:
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
-
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  CMAKE_VERSION: 3.24.3
+  NINJA_VERSION: 1.11.1
   BUILD_TYPE: Release
+  CCACHE_VERSION: 4.7.3
 
 jobs:
   build:
     strategy:
       matrix:
         include:
-          - os: macos-latest
+          - name: "macOS Latest Clang"
+            os: macos-latest
             qtArch: clang_64
             qtHost: mac
+            artifact: "macOS.7z"
             CXX: clang++
             CC: clang
-          - os: windows-latest
+          - name: "Windows Latest MinGW"
+            os: windows-latest
             qtArch: win64_mingw
             qtHost: windows
+            artifact: "Windows-MinGW.tar.xz"
             CXX: g++
             CC: gcc
-          - os: ubuntu-latest
+            
+          - name: "Ubuntu Latest GCC"
+            os: ubuntu-latest
             qtArch: gcc_64
             qtHost: linux
+            artifact: "Linux.7z"
             CXX: g++
             CC: gcc
     runs-on: ${{matrix.os}}
@@ -36,7 +44,7 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
       with:
@@ -51,21 +59,154 @@ jobs:
           set-env: 'true'
           aqtversion: '==3.1.*'
           py7zrversion: '==0.19.*'
-    - name: Configure and build this project
-      uses: threeal/cmake-action@latest
+    - name: Download Ninja, CMake and MnigW-w64(Windows)
+      shell: cmake -P {0}
+      run: |
+        set(cmake_version $ENV{CMAKE_VERSION})
+        set(ninja_version $ENV{NINJA_VERSION})
+
+        message(STATUS "Using host CMake version: ${CMAKE_VERSION}")
+
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          set(ninja_suffix "win.zip")
+          set(cmake_suffix "windows-x86_64.zip")
+          set(cmake_dir "cmake-${cmake_version}-windows-x86_64/bin")         
+        elseif ("${{ runner.os }}" STREQUAL "Linux")
+          set(ninja_suffix "linux.zip")
+          set(cmake_suffix "linux-x86_64.tar.gz")
+          set(cmake_dir "cmake-${cmake_version}-linux-x86_64/bin")
+        elseif ("${{ runner.os }}" STREQUAL "macOS")
+          set(ninja_suffix "mac.zip")
+          set(cmake_suffix "macos-universal.tar.gz")
+          set(cmake_dir "cmake-${cmake_version}-macos-universal/CMake.app/Contents/bin")
+        endif()
+
+        set(ninja_url "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-${ninja_suffix}")
+        file(DOWNLOAD "${ninja_url}" ./ninja.zip SHOW_PROGRESS)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ninja.zip)
+
+        set(cmake_url "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-${cmake_suffix}")
+        file(DOWNLOAD "${cmake_url}" ./cmake.zip SHOW_PROGRESS)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./cmake.zip)
+        if("${{ runner.os }}" STREQUAL "Windows")
+          set(mingw_dir_bin "mingw64/bin")
+          set(mingw_dir_include "mingw64/include")
+          set(mingw_url "https://github.com/cristianadam/mingw-builds/releases/download/v11.2.0-rev3/x86_64-11.2.0-release-posix-seh-rt_v9-rev3.7z")
+          file(DOWNLOAD "${mingw_url}" ./mingw.zip SHOW_PROGRESS)
+          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./mingw.zip)
+          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${mingw_dir_include}" mingw_dir_include)
+          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${mingw_dir_bin}" mingw_dir_bin)
+          file(APPEND "$ENV{GITHUB_PATH}" "$ENV{GITHUB_WORKSPACE};${mingw_dir_bin};${mingw_dir_include}")
+        endif()
+        # Add to PATH environment variable
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${cmake_dir}" cmake_dir)
+        set(path_separator ":")
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          set(path_separator ";")
+        endif()
+        file(APPEND "$ENV{GITHUB_PATH}" "$ENV{GITHUB_WORKSPACE}${path_separator}${cmake_dir}")
+
+        if (NOT "${{ runner.os }}" STREQUAL "Windows")
+          execute_process(
+            COMMAND chmod +x ninja
+            COMMAND chmod +x ${cmake_dir}/cmake
+          )
+        endif()
+
+    - name: Download ccache
+      id: ccache
+      shell: cmake -P {0}
+      run: |
+        set(ccache_url "https://github.com/cristianadam/ccache/releases/download/v$ENV{CCACHE_VERSION}/${{ runner.os }}.tar.xz")
+        file(DOWNLOAD "${ccache_url}" ./ccache.tar.xz SHOW_PROGRESS)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ccache.tar.xz)
+
+    - name: Prepare ccache timestamp
+      id: ccache_cache_timestamp
+      shell: cmake -P {0}
+      run: |
+        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
+        file(APPEND "$ENV{GITHUB_OUTPUT}" "timestamp=${current_date}")
+
+    - name: ccache cache files
+      uses: actions/cache@v3
       with:
-        generator: Ninja
-        c-compiler: ${{matrix.CC}}
-        cxx-compiler: ${{matrix.CXX}}
-        run-test: false
-        args: -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}}
+        path: .ccache
+        key: ${{ matrix.name }}-ccache-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+        restore-keys: |
+          ${{ matrix.name }}-ccache-
+
+    - name: Configure
+      shell: cmake -P {0}
+      run: |
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          set(ENV{CXX} $ENV{GITHUB_WORKSPACE}/mingw64/bin/${{ matrix.CXX }}.exe)
+          set(ENV{CC} $ENV{GITHUB_WORKSPACE}/mingw64/bin/${{ matrix.CC }}.exe)
+        else()
+          set(ENV{CXX} ${{ matrix.CXX }})
+          set(ENV{CC} ${{ matrix.CC }})
+        endif()
+
+        set(path_separator ":")
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          set(path_separator ";")
+        endif()
+        set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
+
+        execute_process(
+          COMMAND cmake
+            -S .
+            -B build
+            -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
+            -G Ninja
+            -D CMAKE_MAKE_PROGRAM=ninja
+            -D CMAKE_C_COMPILER_LAUNCHER=ccache
+            -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          RESULT_VARIABLE result
+        )
+        if (NOT result EQUAL 0)
+          message(FATAL_ERROR "Bad exit status")
+        endif()
+
+
+    - name: Build
+      shell: cmake -P {0}
+      run: |
+        set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
+
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}" ccache_basedir)
+        set(ENV{CCACHE_BASEDIR} "${ccache_basedir}")
+        set(ENV{CCACHE_DIR} "${ccache_basedir}/.ccache")
+        set(ENV{CCACHE_COMPRESS} "true")
+        set(ENV{CCACHE_COMPRESSLEVEL} "6")
+        set(ENV{CCACHE_MAXSIZE} "400M")
         
-   #- name: Configure CMake
-   #   run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{github.workspace}}
+        execute_process(COMMAND ccache -p)
+        execute_process(COMMAND ccache -z)
 
-    #- name: Build
-    #  run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        execute_process(
+          COMMAND cmake --build build
+          RESULT_VARIABLE result
+          OUTPUT_VARIABLE output
+          ERROR_VARIABLE output
+          ECHO_OUTPUT_VARIABLE ECHO_ERROR_VARIABLE
+        )
+        if (NOT result EQUAL 0)
+          string(REGEX MATCH "FAILED:.*$" error_message "${output}")
+          string(REPLACE "\n" "%0A" error_message "${error_message}")
+          message("::error::${error_message}")
+          message(FATAL_ERROR "Build failed")
+        endif()
 
+    - name: ccache statistics
+      shell: cmake -P {0}
+      run: |
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}" ccache_basedir)
+        set(ENV{CCACHE_BASEDIR} "${ccache_basedir}")
+        set(ENV{CCACHE_DIR} "${ccache_basedir}/.ccache")
+
+        execute_process(COMMAND ccache -s)
+ 
     - name: Test
       if: matrix.os != 'ubuntu-latest'
       working-directory: ${{github.workspace}}/build

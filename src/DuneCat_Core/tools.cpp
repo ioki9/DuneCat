@@ -144,7 +144,6 @@ QDateTime fromBSTRToDateTime(BSTR bstr)
     std::from_chars(str_view.data()+10,str_view.data()+12,min);
     std::from_chars(str_view.data()+12,str_view.data()+14,sec);
     std::from_chars(str_view.data()+15,str_view.data()+18,msec);
-
     QDateTime result(QDate(year,month,day),QTime(hour,min,sec,msec));
     if(result > QDateTime::currentDateTime())
         return QDateTime{};
