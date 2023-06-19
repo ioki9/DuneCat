@@ -53,7 +53,7 @@ qt_add_qml_module(${PROJECT_NAME}
 )
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC essentialheaders.h)
-target_link_libraries(${PROJECT_NAME} PUBLIC qt_libs Qt6::QuickControls2 DCCore DCNetwork )
+target_link_libraries(${PROJECT_NAME} PUBLIC qt_libs Qt6::QuickControls2 DCCore) #DCNetwork )
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC wbemuuid)
 endif()
