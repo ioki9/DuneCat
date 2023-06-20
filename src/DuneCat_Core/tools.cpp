@@ -122,7 +122,7 @@ QString macOSXAppBundlePath()
 QDateTime fromBSTRToDateTime(BSTR bstr)
 {
     int wslen = SysStringLen(bstr);
-    int min_str_len{14};
+    constexpr int min_str_len{14};
     if(wslen < min_str_len)
         return QDateTime{};
     const wchar_t* pstr = (wchar_t*)bstr;
