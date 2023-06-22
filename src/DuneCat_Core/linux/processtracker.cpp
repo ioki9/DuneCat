@@ -80,7 +80,7 @@ std::vector<QString> get_stat_params(const QFileInfo& dir_info,const std::vector
     QByteArray pid{dir_info.baseName().toUtf8()};
     QByteArray name{""};
     QByteArray line = stat.readLine();
-    if(line.size() == 0)
+    if(line.isEmpty())
         return std::vector<QString>{};
     size_t name_pid_offset{0};
 
