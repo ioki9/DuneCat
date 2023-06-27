@@ -26,6 +26,8 @@ public:
     [[nodiscard]] inline bool is_valid() const {return m_is_valid;}
     [[nodiscard]] inline QString get_database_name() const { return m_db_name;}
     [[nodiscard]] inline QString get_connection_name() const {return m_connection_name;}
+    //returns -1 in case of error
+    [[nodiscard]] int table_exists(const QString& table_name) const;
 
 private:
     void print_last_db_error(QLatin1StringView text);

@@ -105,11 +105,37 @@ void DBManager::close_connection()
     m_db.close();
 }
 
+int DBManager::table_exists(const QString &table_name) const
+{
+    if(!m_db.isValid() || !m_db.isOpen())
+    {
+        qDebug()<<"Can't check table. Database is valid:"<<m_db.isValid()<<". Database is open:"<<m_db.isOpen();
+        return -1;
+    }
+
+    QSqlQuery query = m_db.exec(
+        QStringLiteral("SELECT name FROM sqlite_master WHERE type='table' AND name='%1'").arg(table_name));
+    if(!query.isActive())
+    {
+        qDebug()<<"Query to check the table isn't valid. Error:"<<query.lastError();
+        return -1;
+    }
+    if(query.next())
+        return 1;
+    return 0;
+}
+
+//TODO?: make it a template fucntion
+void DBManager::print_last_db_error(QLatin1StringView text)
+{
+    qDebug()<<text<<m_db.lastError().text();
+}
+
+
 bool DBManager::create_connection(const QString& connection_name,bool open)
 {
     if(m_db.isValid())
     {
-        m_is_valid = true;
         if(m_db.isOpen() == open)
             return true;
 
