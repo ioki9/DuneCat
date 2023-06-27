@@ -166,6 +166,13 @@ bool DBManager::create_connection(const QString& connection_name,bool open)
     }
 }
 
+void DBManager::remove_connection(const QString &connection_name)
+{
+    QSqlDatabase::removeDatabase(connection_name);
+    if(!m_db.isValid())
+        m_is_valid = false;
+}
+
 
 
 
