@@ -15,11 +15,11 @@ public:
     DBManager& operator=(DBManager&& other);
     DBManager(const DBManager& copy)= delete;
     DBManager& operator=(const DBManager& copy) = delete;
-    bool create_connection(QStringView connection_name,bool open);
+    bool create_connection(const QString &connection_name, bool open);
     bool open_connection();
     void close_connection();
-    inline void set_database_name(QStringView name){m_db_name = name; m_db.setDatabaseName(name);}
-    inline void set_driver_name(QStringView driver = QStringLiteral("QSQLITE")){m_driver_name = driver;}
+    inline void set_database_name(const QString& name){m_db_name = name; m_db.setDatabaseName(name);}
+    inline void set_driver_name(const QString& driver = QStringLiteral("QSQLITE")){m_driver_name = driver;}
     [[nodiscard]] inline bool is_valid() const {return m_is_valid;}
     [[nodiscard]] inline QString get_database_name() const { return m_db_name;}
     [[nodiscard]] inline QString get_connection_name() const {return m_connection_name;}

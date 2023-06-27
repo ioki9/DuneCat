@@ -23,16 +23,21 @@ DBManager::DBManager(const QString& connection_name,const QString& database_name
 DBManager::DBManager()
     : m_connection_name{QStringLiteral("")}, m_db_name{QStringLiteral("")},
     m_driver_name{QStringLiteral("QSQLITE")}
-
 {
 
+}
+
+DBManager::~DBManager()
+{
+    if(m_db.isOpen())
+        m_db.close();
 }
 
 DBManager::DBManager(DBManager&& other)
     : m_connection_name{std::move(other.m_connection_name)},m_db_name{std::move(other.m_db_name)}
 {
     m_db = QSqlDatabase::database(m_connection_name,other.m_db.isOpen());
-
+    other.m_db.close();
     if(m_db.isValid())
     {
         m_is_valid = true;
@@ -74,7 +79,7 @@ void DBManager::close_connection()
     m_db.close();
 }
 
-bool DBManager::create_connection(QStringView connection_name,bool open)
+bool DBManager::create_connection(const QString& connection_name,bool open)
 {
     if(m_db.isValid())
     {
@@ -90,7 +95,7 @@ bool DBManager::create_connection(QStringView connection_name,bool open)
         return true;
     }
 
-    m_db = QSqlDatabase::database(QLatin1String(connection_name),open);
+    m_db = QSqlDatabase::database(connection_name,open);
     if(m_db.isValid())
         return m_is_valid = true;;
 
@@ -110,11 +115,6 @@ bool DBManager::create_connection(QStringView connection_name,bool open)
     }
 }
 
-DBManager::~DBManager()
-{
-    if(m_db.isOpen())
-        m_db.close();
-}
 
 
 
