@@ -11,12 +11,12 @@ DBManager::DBManager(const QString& connection_name,const QString& database_name
         m_db = QSqlDatabase::addDatabase(m_driver_name,connection_name);
     if(!m_db.isValid())
     {
-        qDebug() << "Database isn't valid. Failed with error:"<<m_db.lastError().text();
+        print_last_db_error(QLatin1StringView("Database isn't valid. Failed with error:"));
         m_is_valid = false;
         return;
     }
-
-    m_db.setDatabaseName(database_name);
+    if(!database_name.isEmpty())
+        m_db.setDatabaseName(database_name);
     m_is_valid = true;
 }
 
@@ -44,7 +44,7 @@ DBManager::DBManager(DBManager&& other)
         m_db.setDatabaseName(m_db_name);
     }
     else
-        qDebug() <<"Moved database isn't valid. Failed with error:"<< m_db.lastError().text();
+        print_last_db_error(QLatin1StringView("Moved database isn't valid. Failed with error:"));
 }
 
 DBManager& DBManager::operator=(DBManager&& other)
@@ -59,16 +59,42 @@ DBManager& DBManager::operator=(DBManager&& other)
         m_db.setDatabaseName(other.m_db_name);
     }
     else
-        qDebug() <<"Moved database isn't valid. Failed with error:"<< m_db.lastError().text();
+        print_last_db_error(QLatin1StringView("Moved database isn't valid. Failed with error:"));
+
     m_connection_name = std::move(other.m_connection_name);
     m_db_name = std::move(other.m_db_name);
     return *this;
 }
 bool DBManager::open_connection()
 {
+    if(!m_db.isValid())
+    {
+        print_last_db_error(QLatin1StringView("Failed to open the database. Error:"));
+        return false;
+    }
+    if(m_db.isOpen())
+        return true;
+    else if(!m_db.open())
+    {
+        print_last_db_error(QLatin1StringView("Failed to open the database. Error:"));
+        return false;
+    }
+    return true;
+}
+
+bool DBManager::open_connection(const QString& database_name)
+{
+    if(!m_db.isValid())
+    {
+        print_last_db_error(QLatin1StringView("Failed to open the database. Error:"));
+        return false;
+    }
+    if(m_db.isOpen())
+        m_db.close();
+    m_db.setDatabaseName(database_name);
     if(!m_db.isValid() || !m_db.open())
     {
-        qDebug()<<"failed to open the database. Error:"<<m_db.lastError().text();
+        print_last_db_error(QLatin1StringView("Failed to open the database. Error:"));
         return false;
     }
     return true;
@@ -99,7 +125,6 @@ bool DBManager::create_connection(const QString& connection_name,bool open)
     if(m_db.isValid())
         return m_is_valid = true;;
 
-
     m_db = QSqlDatabase::addDatabase(m_driver_name,connection_name);
     if(m_db.isValid())
     {
@@ -110,7 +135,7 @@ bool DBManager::create_connection(const QString& connection_name,bool open)
     }
     else
     {
-        qDebug() << "Database isn't valid. Failed with error:"<<m_db.lastError().text();
+        print_last_db_error(QLatin1StringView("Database isn't valid. Failed with error:"));
         return m_is_valid = false;
     }
 }
