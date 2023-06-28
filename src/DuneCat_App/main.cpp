@@ -3,7 +3,7 @@
 #include "processtablemodel.h"
 #include "sortfilterprocessmodel.h"
 #include <QQuickStyle>
-#include "dbmanager.h"
+#include "dbbase.h"
 using namespace DuneCat;
 
 int main(int argc, char *argv[])
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    DBManager manager{"lulw","dbtest"};
+    DBBase manager{"lulw","dbtest"};
     qRegisterMetaType<ProcessInfo>("ProcessInfo");
 
     qputenv("QT_QUICK_CONTROLS_CONF",":/DuneCat/imports/qtquickcontrols2.conf");
