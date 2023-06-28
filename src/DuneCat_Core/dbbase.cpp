@@ -1,8 +1,8 @@
-#include "dbmanager.h"
+#include "dbbase.h"
 
 namespace DuneCat
 {
-DBManager::DBManager(const QString& connection_name,const QString& database_name)
+DBBase::DBBase(const QString& connection_name,const QString& database_name)
     : m_connection_name{connection_name}, m_db_name{database_name},
     m_driver_name{QStringLiteral("QSQLITE")}
 {
@@ -20,20 +20,20 @@ DBManager::DBManager(const QString& connection_name,const QString& database_name
     m_is_valid = true;
 }
 
-DBManager::DBManager()
+DBBase::DBBase()
     : m_connection_name{QStringLiteral("")}, m_db_name{QStringLiteral("")},
     m_driver_name{QStringLiteral("QSQLITE")}
 {
 
 }
 
-DBManager::~DBManager()
+DBBase::~DBBase()
 {
     if(m_db.isOpen())
         m_db.close();
 }
 
-DBManager::DBManager(DBManager&& other)
+DBBase::DBBase(DBBase&& other)
     : m_connection_name{std::move(other.m_connection_name)},m_db_name{std::move(other.m_db_name)}
 {
     m_db = QSqlDatabase::database(m_connection_name,other.m_db.isOpen());
@@ -47,7 +47,7 @@ DBManager::DBManager(DBManager&& other)
         print_last_db_error(QLatin1StringView("Moved database isn't valid. Failed with error:"));
 }
 
-DBManager& DBManager::operator=(DBManager&& other)
+DBBase& DBBase::operator=(DBBase&& other)
 {
     if(m_db.isOpen())
         m_db.close();
@@ -65,7 +65,7 @@ DBManager& DBManager::operator=(DBManager&& other)
     m_db_name = std::move(other.m_db_name);
     return *this;
 }
-bool DBManager::open_connection()
+bool DBBase::open_connection()
 {
     if(!m_db.isValid())
     {
@@ -82,7 +82,7 @@ bool DBManager::open_connection()
     return true;
 }
 
-bool DBManager::open_connection(const QString& database_name)
+bool DBBase::open_connection(const QString& database_name)
 {
     if(!m_db.isValid())
     {
@@ -100,16 +100,16 @@ bool DBManager::open_connection(const QString& database_name)
     return true;
 }
 
-void DBManager::close_connection()
+void DBBase::close_connection()
 {
     m_db.close();
 }
 
-int DBManager::table_exists(const QString &table_name) const
+int DBBase::table_exists(const QString &table_name) const
 {
     if(!m_db.isValid() || !m_db.isOpen())
     {
-        qDebug()<<"Can't check table. Database is valid:"<<m_db.isValid()<<". Database is open:"<<m_db.isOpen();
+        qWarning()<<"Can't check table. Database is valid:"<<m_db.isValid()<<". Database is open:"<<m_db.isOpen();
         return -1;
     }
 
@@ -117,7 +117,7 @@ int DBManager::table_exists(const QString &table_name) const
         QStringLiteral("SELECT name FROM sqlite_master WHERE type='table' AND name='%1'").arg(table_name));
     if(!query.isActive())
     {
-        qDebug()<<"Query to check the table isn't valid. Error:"<<query.lastError();
+        qWarning()<<"Query to check the table isn't valid. Error:"<<query.lastError();
         return -1;
     }
     if(query.next())
@@ -126,13 +126,13 @@ int DBManager::table_exists(const QString &table_name) const
 }
 
 //TODO?: make it a template fucntion
-void DBManager::print_last_db_error(QLatin1StringView text)
+void DBBase::print_last_db_error(QLatin1StringView text)
 {
-    qDebug()<<text<<m_db.lastError().text();
+    qWarning()<<text<<m_db.lastError().text();
 }
 
 
-bool DBManager::create_connection(const QString& connection_name,bool open)
+bool DBBase::create_connection(const QString& connection_name,bool open)
 {
     if(m_db.isValid())
     {
@@ -166,7 +166,7 @@ bool DBManager::create_connection(const QString& connection_name,bool open)
     }
 }
 
-void DBManager::remove_connection(const QString &connection_name)
+void DBBase::remove_connection(const QString &connection_name)
 {
     QSqlDatabase::removeDatabase(connection_name);
     if(!m_db.isValid())

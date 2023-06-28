@@ -1,20 +1,19 @@
-#ifndef DBMANAGER_H
-#define DBMANAGER_H
+#pragma once
 #include <QtSql>
 
 
 namespace DuneCat
 {
-class DBManager
+class DBBase
 {
 public:
-    DBManager(const QString& connection_name, const QString &database_name = QStringLiteral(""));
-    DBManager();
-    ~DBManager();
-    DBManager(DBManager&& other);
-    DBManager& operator=(DBManager&& other);
-    DBManager(const DBManager& copy)= delete;
-    DBManager& operator=(const DBManager& copy) = delete;
+    DBBase(const QString& connection_name, const QString &database_name = QStringLiteral(""));
+    DBBase();
+    ~DBBase();
+    explicit DBBase(DBBase&& other);
+    DBBase& operator=(DBBase&& other);
+    DBBase(const DBBase& copy)= delete;
+    DBBase& operator=(const DBBase& copy) = delete;
     bool create_connection(const QString& connection_name, bool open);
     void remove_connection(const QString& connection_name);
     bool open_connection();
@@ -38,4 +37,3 @@ private:
     QString m_driver_name;
 };
 }
-#endif // DBMANAGER_H
