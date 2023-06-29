@@ -2,7 +2,7 @@ qt_add_library(DCCore STATIC)
 set(SOURCE_LIST
     processtracker.h processinfo.h
     tools.cpp tools.h
-    dbbase.h dbbase.cpp
+    dbmanager.h dbmanager.cpp
     dbreader.h dbreader.cpp
 )
 if(WIN32)
