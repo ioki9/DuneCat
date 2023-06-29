@@ -10,10 +10,10 @@ public:
     DBManager(const QString& connection_name, const QString &database_name = QStringLiteral(""));
     DBManager();
     virtual ~DBManager();
-    explicit DBManager(DBManager&& other);
-    DBManager& operator=(DBManager&& other);
-    DBManager(const DBManager& copy)= delete;
-    DBManager& operator=(const DBManager& copy) = delete;
+    explicit DBManager(DBManager&& other) = delete;
+    DBManager& operator=(DBManager&& other) = delete;
+    DBManager(const DBManager& other);
+    DBManager& operator=(const DBManager& other);
 
     bool connect(const QString& connection_name, bool create_if_not_exist = true);
     QSqlDatabase create_connection(const QString& connection_name);
@@ -23,10 +23,10 @@ public:
     void close();
 
 
-    [[nodiscard]] bool is_valid() const;
-    [[nodiscard]] bool is_open() const;
+    [[nodiscard]] inline bool is_valid() const;
+    [[nodiscard]] inline bool is_open() const;
     [[nodiscard]] inline QSqlDatabase& get_database() const;
-    void set_database_name(const QString& name);
+    inline void set_database_name(const QString& name);
     [[nodiscard]] inline QString get_database_name() const;
     [[nodiscard]] inline QString get_connection_name() const;
     //returns -1 in case of error

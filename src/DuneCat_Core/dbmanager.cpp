@@ -35,35 +35,16 @@ DBManager::~DBManager()
         m_db.close();
 }
 
-DBManager::DBManager(DBManager&& other)
+DBManager::DBManager(const DBManager& other)
 {
-    m_db = QSqlDatabase::database(other.m_db.connectionName(),other.m_db.isOpen());
-    other.m_db.close();
-    if(m_db.isValid())
-    {
-        m_db.setDatabaseName(other.m_db.databaseName());
-    }
-    else
-        print_last_db_error(QLatin1StringView("Moved database isn't valid. Failed with error:"));
+    m_db = other.m_db;
 }
 
-DBManager& DBManager::operator=(DBManager&& other)
+DBManager& DBManager::operator=(const DBManager& other)
 {
-    if(m_db.isOpen())
-        m_db.close();
-    m_db = QSqlDatabase::database(other.m_db.connectionName(),other.m_db.isOpen());
-
-    if(m_db.isValid())
-    {
-        m_db.setDatabaseName(other.m_db.databaseName());
-    }
-    else
-        print_last_db_error(QLatin1StringView("Moved database isn't valid. Failed with error:"));
-
+    m_db = other.m_db;
     return *this;
 }
-
-
 
 bool DBManager::open()
 {
