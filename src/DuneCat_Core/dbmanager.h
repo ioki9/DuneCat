@@ -10,10 +10,10 @@ public:
     DBManager(const QString& connection_name, const QString &database_name = QStringLiteral(""));
     DBManager();
     virtual ~DBManager();
-    explicit DBManager(DBManager&& other) = delete;
+    DBManager(DBManager&& other) = delete;
     DBManager& operator=(DBManager&& other) = delete;
-    DBManager(const DBManager& other);
-    DBManager& operator=(const DBManager& other);
+    explicit DBManager(const DBManager& other);
+    explicit DBManager& operator=(const DBManager& other);
 
     bool connect(const QString& connection_name, bool create_if_not_exist = true);
     QSqlDatabase create_connection(const QString& connection_name);
