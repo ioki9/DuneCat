@@ -7,23 +7,12 @@ QString DBManager::m_driver_name = QStringLiteral("QSQLITE");
 
 DBManager::DBManager(const QString& connection_name,const QString& database_name)
 {
-    if(QSqlDatabase::contains(connection_name))
-    {
-        m_db = QSqlDatabase::database(connection_name);
-        return;
-    }
-    m_db = QSqlDatabase::addDatabase(m_driver_name,connection_name);
-    if(!m_db.isValid())
-    {
-        print_last_db_error(QLatin1StringView("Database isn't valid. Failed with error:"));
-            return;
-    }
-
-    if(!database_name.isEmpty())
+    m_db = create_connection(connection_name);
+    if(m_db.isValid() && !database_name.isEmpty())
         m_db.setDatabaseName(database_name);
 }
 
-DBManager::DBManager()
+DBManager::DBManager() : m_db{}
 {
 
 }
@@ -55,13 +44,17 @@ bool DBManager::open()
         return false;
     }
     if(m_db.isOpen())
+    {
+        //Counting every open connection
+        m_connections_count[m_db.connectionName()] += 1;
         return true;
+    }
     else if(!m_db.open())
     {
         print_last_db_error(QLatin1StringView("Failed to open the database. Error:"));
         return false;
     }
-    //Counting every reference to the connection
+
     m_connections_count[m_db.connectionName()] += 1;
     return true;
 }
@@ -82,7 +75,7 @@ bool DBManager::open(const QString& database_name)
         print_last_db_error(QLatin1StringView("Failed to open the database. Error:"));
         return false;
     }
-    //Counting every reference to the connection
+    //Counting every open connection
     m_connections_count[m_db.connectionName()] += 1;
     return true;
 }
@@ -101,7 +94,7 @@ void DBManager::set_database_name(const QString &name)
     m_db.setDatabaseName(name);
 }
 
-QSqlDatabase &DBManager::get_database() const
+QSqlDatabase& DBManager::get_database() const
 {
     return m_db;
 }
@@ -130,7 +123,7 @@ int DBManager::table_exists(const QString &table_name) const
 {
     if(!m_db.isValid() || !m_db.isOpen())
     {
-        qWarning()<<"Can't check table. Database is valid:"<<m_db.isValid()<<". Database is open:"<<m_db.isOpen();
+        qWarning()<<"Can't check the table. Database is valid:"<<m_db.isValid()<<". Database is open:"<<m_db.isOpen();
         return -1;
     }
 
@@ -138,7 +131,7 @@ int DBManager::table_exists(const QString &table_name) const
         QStringLiteral("SELECT name FROM sqlite_master WHERE type='table' AND name='%1'").arg(table_name));
     if(!query.isActive())
     {
-        qWarning()<<"Query to check the table isn't valid. Error:"<<query.lastError();
+        qWarning()<<"Query: "<<query.lastQuery()<<"; in DBManager::table_exists() isn't valid. Error:"<<query.lastError();
         return -1;
     }
     if(query.next())
