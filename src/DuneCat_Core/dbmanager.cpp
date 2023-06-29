@@ -120,6 +120,11 @@ void DBManager::set_database_name(const QString &name)
     m_db.setDatabaseName(name);
 }
 
+QSqlDatabase &DBManager::get_database() const
+{
+    return m_db;
+}
+
 bool DBManager::is_valid() const
 {
     return m_db.isValid();
