@@ -35,7 +35,7 @@ protected:
 private:
     QSqlDatabase m_db;
     bool m_open;
-    static std::map<QString,std::atomic_int16_t> m_open_connections_count;
+    static std::map<QString,std::atomic_int8_t> m_open_connections_count;
     static const QString m_driver_name;
     std::mutex mutex;
 };
