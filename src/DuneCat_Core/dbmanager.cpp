@@ -1,9 +1,9 @@
 #include "dbmanager.h"
-
+#include <mutex>
 namespace DuneCat
 {
-std::map<QString,std::atomic_int8_t> DBManager::m_open_connections_count{};
-QString DBManager::m_driver_name = QStringLiteral("QSQLITE");
+std::map<QString,std::atomic_int16_t> DBManager::m_open_connections_count{};
+const QString DBManager::m_driver_name {QStringLiteral("QSQLITE")};
 
 DBManager::DBManager(const QString& connection_name,const QString& database_name)
 {
@@ -19,19 +19,36 @@ DBManager::DBManager() : m_db{}
 
 DBManager::~DBManager()
 {
-    int8_t count = (m_open_connections_count[m_db.connectionName()] -= 1);
-    if(m_db.isOpen() && count <= 0)
-        m_db.close();
+    if(m_open)
+    {
+        std::scoped_lock lck{mutex};
+        int16_t count = (m_open_connections_count[m_db.connectionName()] -= 1);
+        if(count <= 0)
+            m_db.close();
+    }
 }
 
 DBManager::DBManager(const DBManager& other)
 {
+    m_open = other.m_open;
     m_db = other.m_db;
+    if(m_open)
+    {
+        std::scoped_lock lck{mutex};
+        m_open_connections_count[m_db.connectionName()] += 1;
+    }
 }
 
 DBManager& DBManager::operator=(const DBManager& other)
 {
+    m_open = other.m_open;
     m_db = other.m_db;
+
+    if(m_open)
+    {
+        std::scoped_lock lck{mutex};
+        m_open_connections_count[m_db.connectionName()] += 1;
+    }
     return *this;
 }
 
@@ -46,7 +63,6 @@ bool DBManager::open()
     if(m_db.isOpen())
     {
         //Counting every open connection
-        m_connections_count[m_db.connectionName()] += 1;
         return true;
     }
     else if(!m_db.open())
@@ -54,37 +70,20 @@ bool DBManager::open()
         print_last_db_error(QLatin1StringView("Failed to open the database. Error:"));
         return false;
     }
-
-    m_connections_count[m_db.connectionName()] += 1;
-    return true;
-}
-
-bool DBManager::open(const QString& database_name)
-{
-
-    if(!m_db.isValid())
-    {
-        print_last_db_error(QLatin1StringView("Failed to open the database. Error:"));
-        return false;
-    }
-    if(m_db.isOpen())
-        m_db.close();
-    m_db.setDatabaseName(database_name);
-    if(!m_db.isValid() || !m_db.open())
-    {
-        print_last_db_error(QLatin1StringView("Failed to open the database. Error:"));
-        return false;
-    }
-    //Counting every open connection
-    m_connections_count[m_db.connectionName()] += 1;
-    return true;
+    std::scoped_lock lck{mutex};
+    m_open_connections_count[m_db.connectionName()] += 1;
+    return m_open = true;
 }
 
 void DBManager::close()
 {
-
-    int8_t count = (m_open_connections_count[m_db.connectionName()] -= 1);
+    if(!m_open)
+        return;
+    mutex.lock();
+    int16_t count = (m_open_connections_count[m_db.connectionName()] -= 1);
+    mutex.unlock();
     //Close only if this is was the last open connection.
+    m_open = false;
     if(count <= 0)
         m_db.close();
 }
@@ -94,7 +93,7 @@ void DBManager::set_database_name(const QString &name)
     m_db.setDatabaseName(name);
 }
 
-QSqlDatabase& DBManager::get_database() const
+QSqlDatabase& DBManager::get_database()
 {
     return m_db;
 }
@@ -106,7 +105,7 @@ bool DBManager::is_valid() const
 
 bool DBManager::is_open() const
 {
-    return m_db.isOpen();
+    return m_open;
 }
 
 QString DBManager::get_database_name() const
@@ -179,7 +178,7 @@ QSqlDatabase DBManager::create_connection(const QString& connection_name)
 
 bool DBManager::remove_connection(const QString &connection_name)
 {
-    if(!QSqlDatabase.contains(connection_name))
+    if(!QSqlDatabase::contains(connection_name))
     {
         qDebug()<<"Couldn't remove database connection. No such connection name in a list.";
         return false;

@@ -13,21 +13,20 @@ public:
     DBManager(DBManager&& other) = delete;
     DBManager& operator=(DBManager&& other) = delete;
     explicit DBManager(const DBManager& other);
-    explicit DBManager& operator=(const DBManager& other);
+    DBManager& operator=(const DBManager& other);
 
     bool connect(const QString& connection_name, bool create_if_not_exist = true);
     QSqlDatabase create_connection(const QString& connection_name);
     bool remove_connection(const QString& connection_name);
     bool open();
-    bool open(const QString& database_name);
     void close();
 
-    inline void set_database_name(const QString& name);
-    [[nodiscard]] inline QString get_database_name() const;
-    [[nodiscard]] inline bool is_valid() const;
-    [[nodiscard]] inline bool is_open() const;
-    [[nodiscard]] inline QSqlDatabase& get_database() const;
-    [[nodiscard]] inline QString get_connection_name() const;
+    void set_database_name(const QString& name);
+    [[nodiscard]] QString get_database_name() const;
+    [[nodiscard]] bool is_valid() const;
+    [[nodiscard]] bool is_open() const;
+    [[nodiscard]] QSqlDatabase& get_database();
+    [[nodiscard]] QString get_connection_name() const;
     //returns -1 in case of error
     [[nodiscard]] int table_exists(const QString& table_name) const;
 
@@ -35,8 +34,9 @@ protected:
     void print_last_db_error(QLatin1StringView text);
 private:
     QSqlDatabase m_db;
-
-    static std::map<QString,std::atomic_int8_t> m_open_connections_count;
-    static QString m_driver_name;
+    bool m_open;
+    static std::map<QString,std::atomic_int16_t> m_open_connections_count;
+    static const QString m_driver_name;
+    std::mutex mutex;
 };
 }
