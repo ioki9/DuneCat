@@ -2,7 +2,7 @@
 #include <mutex>
 namespace DuneCat
 {
-std::map<QString,std::atomic_int16_t> DBManager::m_open_connections_count{};
+std::map<QString,std::atomic_int8_t> DBManager::m_open_connections_count{};
 const QString DBManager::m_driver_name {QStringLiteral("QSQLITE")};
 
 DBManager::DBManager(const QString& connection_name,const QString& database_name)
@@ -22,7 +22,7 @@ DBManager::~DBManager()
     if(m_open)
     {
         std::scoped_lock lck{mutex};
-        int16_t count = (m_open_connections_count[m_db.connectionName()] -= 1);
+        int8_t count = (m_open_connections_count[m_db.connectionName()] -= 1);
         if(count <= 0)
             m_db.close();
     }
@@ -80,7 +80,7 @@ void DBManager::close()
     if(!m_open)
         return;
     mutex.lock();
-    int16_t count = (m_open_connections_count[m_db.connectionName()] -= 1);
+    int8_t count = (m_open_connections_count[m_db.connectionName()] -= 1);
     mutex.unlock();
     //Close only if this is was the last open connection.
     m_open = false;
