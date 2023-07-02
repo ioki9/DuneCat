@@ -71,8 +71,10 @@ void WMIClient::handle_event(IWbemClassObject *obj)
                 {
                     proc_info.owner_user = QString::fromWCharArray(str_user);
                     proc_info.owner_domain = QString::fromWCharArray(str_domain);
-                    SysFreeString(str_user);
-                    SysFreeString(str_domain);
+                    if(str_user)
+                        SysFreeString(str_user);
+                    if(str_domain)
+                        SysFreeString(str_domain);
                 }
                 emit new_process_created(proc_info);
             }
@@ -152,7 +154,7 @@ bool WMIClient::initialize()
         NULL,
         NULL,
         0,
-        NULL,
+        0,
         0,
         0,
         &m_pSvc
@@ -203,8 +205,8 @@ bool WMIClient::initialize()
                                         "WHERE TargetInstance ISA 'Win32_Process'" );
     if(!subscribe_to_event(creationQuery))
     {
-        return false;
         SysFreeString(creationQuery);
+        return false;
     }
     SysFreeString(creationQuery);
 
@@ -213,8 +215,8 @@ bool WMIClient::initialize()
                                         "WHERE TargetInstance ISA 'Win32_Process'"  );
     if(!subscribe_to_event(deletionQuery))
     {
-        return false;
         SysFreeString(deletionQuery);
+        return false;
     }
     SysFreeString(deletionQuery);
     is_initialized = true;
@@ -336,8 +338,6 @@ std::vector<ProcessInfo> WMIClient::get_process_list()
             SysFreeString(str_domain);
         }
         proc_info.description = ProcessTracker::get_process_description(proc_info.file_path);
-        SysFreeString(str_user);
-        SysFreeString(str_domain);
         process_list.push_back(proc_info);
     }
 
@@ -408,7 +408,7 @@ BOOL WMIClient::get_logon_from_token(HANDLE hToken, BSTR& strUser, BSTR& strdoma
     return bSuccess;
 }
 
-HRESULT WMIClient::get_user_from_process(const DWORD procId,  BSTR strUser, BSTR strdomain)
+HRESULT WMIClient::get_user_from_process(const DWORD procId, BSTR& strUser, BSTR& strdomain)
 {
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ ,FALSE,procId);
     if(hProcess == NULL)
