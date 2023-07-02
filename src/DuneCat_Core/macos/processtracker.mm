@@ -7,6 +7,12 @@
 
 namespace DuneCat
 {
+
+bool procinfo_less_pid_comp(const ProcessInfo& lhs,const ProcessInfo& rhs)
+{
+    return lhs.pid < rhs.pid;
+}
+
 std::vector<ProcessInfo> get_bsd_process_list()
 {
     pid_t pids[2048];

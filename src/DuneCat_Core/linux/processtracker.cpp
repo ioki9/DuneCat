@@ -10,6 +10,11 @@
 
 namespace DuneCat
 {
+bool procinfo_less_pid_comp(const ProcessInfo& lhs,const ProcessInfo& rhs)
+{
+    return lhs.pid < rhs.pid;
+}
+
 //see: https://man7.org/linux/man-pages/man5/proc.5.html
 // or  https://kb.novaordis.com/index.php//proc/pid/stat#Field_2_-_Executable_File_Name
 enum StatParams : uint8_t

@@ -11,7 +11,10 @@
 
 namespace DuneCat
 {
-
+bool procinfo_less_pid_comp(const ProcessInfo& lhs,const ProcessInfo& rhs)
+{
+    return lhs.pid < rhs.pid;
+}
 ProcessTracker::ProcessTracker(QObject *parent)
     : QObject{parent}
 {
@@ -184,7 +187,7 @@ QString ProcessTracker::get_process_description(QStringView filepath)
         return "";
 
     std::unique_ptr<BYTE[]> sKey = std::make_unique<BYTE[]>(dwLen);
-    if(!GetFileVersionInfo(filename.get(), NULL, dwLen, sKey.get()))
+    if(!GetFileVersionInfo(filename.get(), 0, dwLen, sKey.get()))
         return "";
 
     struct LANGANDCODEPAGE {
@@ -236,7 +239,6 @@ void ProcessTracker::process_created_handler(const ProcessInfo &process)
 void ProcessTracker::process_deleted_handler(const ProcessInfo &process)
 {
     std::scoped_lock lck{proc_vec_mutex};
-    m_process_count -=1;
     auto it = std::lower_bound(m_processes.begin(),m_processes.end(),process,
                                [](auto& value, auto& elem ) { return value.pid < elem.pid;});
     if(it == m_processes.end())
@@ -245,6 +247,8 @@ void ProcessTracker::process_deleted_handler(const ProcessInfo &process)
         return;
     }
     m_processes.erase(it);
+    m_process_count -=1;
+
 }
 
 }
