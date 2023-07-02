@@ -22,7 +22,7 @@ private slots:
     void test_dbmanager_connection();
     void test_dbmanager_copy();
     void test_dbmanager_table_exist();
-    void bench_get_process_list();
+    void test_processtracker_get_process_list();
 };
 
 CoreTests::CoreTests()
@@ -35,12 +35,11 @@ CoreTests::~CoreTests()
 
 }
 
-void CoreTests::bench_get_process_list()
+void CoreTests::test_processtracker_get_process_list()
 {
-    ProcessTracker tracker{};
-    QBENCHMARK{
-        std::vector<ProcessInfo> list = tracker.get_process_list();
-    }
+    std::vector<ProcessInfo> list{};
+    ProcessTracker::get_instance()->get_process_list(list);
+    QVERIFY(!list.empty());
 }
 
 void CoreTests::test_dbmanager_connection()
@@ -132,7 +131,6 @@ void CoreTests::test_dbmanager_table_exist()
     {
         QFile file (QDir::currentPath()+ "/test.db");
         file.remove();
-        qDebug()<<"removed";
     }
     DBManager db{"test_dbmanager_table_exist","test.db"};
     db.open();
@@ -146,6 +144,7 @@ void CoreTests::test_dbmanager_table_exist()
     qDebug()<<query.lastError().text();
     QVERIFY(res);
     QVERIFY(db.table_exists("my_table"));
+    QVERIFY(!db.table_exists("no_table"));
     db.close();
 }
 

@@ -197,6 +197,17 @@ bool get_info_by_pid(quint32 pid, ProcessInfo& out)
 LinuxProcessObserver* observer;
 ProcessTracker::ProcessTracker(QObject *parent) : QObject(parent)
 {
+    m_processes = gather_processes();
+    if(m_processes.empty())
+    {
+        qFatal()<<"Couldn't gather process list. Exiting...";
+        QCoreApplication::exit(-1);
+    }
+    std::sort(m_processes.begin(),m_processes.end(),procinfo_less_pid_comp);
+
+    connect(this,&ProcessTracker::process_created,this,&ProcessTracker::process_created_handler);
+    connect(this,&ProcessTracker::process_deleted,this,&ProcessTracker::process_deleted_handler);
+
     observer = new LinuxProcessObserver(this);
     connect(observer, &DuneCat::LinuxProcessObserver::finished, observer, &QObject::deleteLater);
     connect(observer,&DuneCat::LinuxProcessObserver::process_created,this,&DuneCat::ProcessTracker::process_created_recieved);
@@ -212,8 +223,10 @@ ProcessTracker::~ProcessTracker()
     observer->wait();
 }
 
-std::vector<ProcessInfo> ProcessTracker::get_process_list()
+std::vector<ProcessInfo> ProcessTracker::gather_processes()
 {
+    if(Q_LIKELY(m_process_count != 0))
+        return m_processes;
     std::vector<ProcessInfo> proc_list{};
     const QDir proc_dir(QString("/proc"));
     if(!proc_dir.exists())
@@ -234,9 +247,15 @@ std::vector<ProcessInfo> ProcessTracker::get_process_list()
     return proc_list;
 }
 
+void ProcessTracker::get_process_list(std::vector<ProcessInfo>& list_out) const
+{
+    std::scoped_lock lck{proc_vec_mutex};
+    list_out = m_processes;
+}
+
 int ProcessTracker::get_process_count()
 {
-    if(m_process_count != -1)
+    if(Q_LIKELY(m_process_count != 0))
         return m_process_count;
     const QDir proc_dir(QString("/proc"));
     if(!proc_dir.exists())
@@ -255,8 +274,6 @@ int ProcessTracker::get_process_count()
 
 void ProcessTracker::process_deleted_recieved(const ProcessInfo &process)
 {
-    if(m_process_count != -1)
-        m_process_count--;
     emit process_deleted(process);
 }
 
@@ -265,9 +282,30 @@ void ProcessTracker::process_created_recieved(const ProcessInfo& process)
     ProcessInfo proc = process;
     if(!get_info_by_pid(process.pid,proc))
         return;
-    if(m_process_count != -1)
-        m_process_count++;
-
     emit process_created(proc);
 }
+
+void ProcessTracker::process_created_handler(const ProcessInfo &process)
+{
+    std::scoped_lock lck{proc_vec_mutex};
+    m_process_count +=1;
+    auto it = std::upper_bound(m_processes.begin(), m_processes.end(), process,
+                               [](auto& value, auto& elem ) { return value.pid < elem.pid;});
+    m_processes.insert(it, process);
+}
+
+void ProcessTracker::process_deleted_handler(const ProcessInfo &process)
+{
+    std::scoped_lock lck{proc_vec_mutex};
+    m_process_count -=1;
+    auto it = std::lower_bound(m_processes.begin(),m_processes.end(),process,
+                               [](auto& value, auto& elem ) { return value.pid < elem.pid;});
+    if(it == m_processes.end())
+    {
+        qDebug()<<"process not found. PID: "<<process.pid;
+        return;
+    }
+    m_processes.erase(it);
+}
+
 }

@@ -10,8 +10,8 @@ public:
     DBManager(const QString& connection_name, const QString &database_name = QStringLiteral(""));
     DBManager();
     virtual ~DBManager();
-    DBManager(DBManager&& other) = delete;
-    DBManager& operator=(DBManager&& other) = delete;
+    DBManager(DBManager&&) = delete;
+    DBManager& operator=(DBManager&&) = delete;
     explicit DBManager(const DBManager& other);
     DBManager& operator=(const DBManager& other);
 

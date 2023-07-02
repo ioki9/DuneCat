@@ -15,4 +15,8 @@ struct ProcessInfo{
     QDateTime creation_date;
     QPixmap icon;
 };
+bool procinfo_less_pid_comp(const ProcessInfo& lhs,const ProcessInfo& rhs)
+{
+    return lhs.pid < rhs.pid;
+}
 }

@@ -20,3 +20,4 @@
 #pragma comment(lib, "wbemuuid.lib")
 #endif //Q_OS_WINDOWS
 #include <thread>
+#include <set>

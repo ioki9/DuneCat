@@ -15,10 +15,21 @@ namespace DuneCat
 ProcessTracker::ProcessTracker(QObject *parent)
     : QObject{parent}
 {
+    m_processes = gather_processes();
+    if(m_processes.empty())
+    {
+        qFatal()<<"Couldn't gather process list. Exiting...";
+        QCoreApplication::exit(-1);
+    }
+    std::sort(m_processes.begin(),m_processes.end(),procinfo_less_pid_comp);
+    connect(this,&ProcessTracker::process_created,this,&ProcessTracker::process_created_handler);
+    connect(this,&ProcessTracker::process_deleted,this,&ProcessTracker::process_deleted_handler);
+
     connect(WMIClient::get_instance(),&WMIClient::new_process_created,
             this,&ProcessTracker::process_created_recieved);
     connect(WMIClient::get_instance(),&WMIClient::process_deleted,
             this,&ProcessTracker::process_deleted_recieved);
+
 }
 
 ProcessTracker::~ProcessTracker()
@@ -26,21 +37,22 @@ ProcessTracker::~ProcessTracker()
 }
 
 // returns empty vector if failed
-std::vector<ProcessInfo> ProcessTracker::get_process_list()
+std::vector<ProcessInfo> ProcessTracker::gather_processes()
 {
     //process count updates through signals if we already set it once before.
-    if(m_process_count != -1)
-        return ProcessTracker::get_winapi_process_list();
-
+    if(Q_LIKELY(m_process_count != 0))
+        return m_processes;
+    std::scoped_lock lck{proc_vec_mutex};
     std::vector<ProcessInfo> vec = ProcessTracker::get_winapi_process_list();
     if(!vec.empty())
         m_process_count = vec.size();
     return vec;
 }
-//returns -1 if failed
+
+//returns 0 if failed
 int ProcessTracker::get_process_count()
 {
-    if(m_process_count != -1)
+    if(Q_LIKELY(m_process_count != 0))
         return m_process_count;
     int count{};
     HANDLE hProcessSnap;
@@ -50,7 +62,7 @@ int ProcessTracker::get_process_count()
     if( hProcessSnap == INVALID_HANDLE_VALUE )
     {
         qDebug()<<"invalid hProcessSnap value";
-        return -1;
+        return 0;
     }
 
     // Set the size of the structure before using it.
@@ -62,7 +74,7 @@ int ProcessTracker::get_process_count()
     {
         qDebug()<<"Process32First failure";
         CloseHandle( hProcessSnap );
-        return -1;
+        return 0;
     }
 
     do
@@ -74,8 +86,16 @@ int ProcessTracker::get_process_count()
     m_process_count = count;
     return count;
 }
+
+void ProcessTracker::get_process_list(std::vector<ProcessInfo>& list_out) const
+{
+    std::scoped_lock lck{proc_vec_mutex};
+    list_out = m_processes;
+}
+
 std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
 {
+
     HANDLE hProcessSnap = INVALID_HANDLE_VALUE;
     PROCESSENTRY32 pe32;
     std::vector<ProcessInfo> result;
@@ -196,15 +216,35 @@ QString ProcessTracker::get_process_description(QStringView filepath)
 
 void ProcessTracker::process_deleted_recieved(const ProcessInfo &process)
 {
-    if(m_process_count != -1)
-        m_process_count--;
     emit process_deleted(process);
 }
 
 void ProcessTracker::process_created_recieved(const ProcessInfo& process)
 {
-    if(m_process_count != -1)
-        m_process_count++;
     emit process_created(process);
 }
+
+void ProcessTracker::process_created_handler(const ProcessInfo &process)
+{
+    std::scoped_lock lck{proc_vec_mutex};
+    m_process_count +=1;
+    auto it = std::upper_bound(m_processes.begin(), m_processes.end(), process,
+                               [](auto& value, auto& elem ) { return value.pid < elem.pid;});
+    m_processes.insert(it, process);
+}
+
+void ProcessTracker::process_deleted_handler(const ProcessInfo &process)
+{
+    std::scoped_lock lck{proc_vec_mutex};
+    m_process_count -=1;
+    auto it = std::lower_bound(m_processes.begin(),m_processes.end(),process,
+                               [](auto& value, auto& elem ) { return value.pid < elem.pid;});
+    if(it == m_processes.end())
+    {
+        qDebug()<<"process not found. PID: "<<process.pid;
+        return;
+    }
+    m_processes.erase(it);
+}
+
 }
