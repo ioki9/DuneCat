@@ -10,7 +10,13 @@ import TableModels
 ScrollView {
     id:scrollView
     property double scrollerWidth:ScrollBar.vertical.width
-
+    ScrollBar.vertical: ScrollBar{
+        parent:scrollView
+        anchors.topMargin: header.height
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.right:parent.right
+    }
     TableView {
         id:tableView
         anchors.fill:parent
