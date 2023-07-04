@@ -82,7 +82,7 @@ void WMIClient::handle_event(IWbemClassObject *obj)
             {
                 hr = obj->Get(L"TerminationDate",0,&vtVal,NULL,NULL);
                 if(SUCCEEDED(hr))
-                    proc_info.termination_date = fromBSTRToDateTime(vtVal.bstrVal);
+                    proc_info.termination_date = QDateTime::currentDateTime();
                 VariantClear(&vtVal);
                 emit process_deleted(proc_info);
             }

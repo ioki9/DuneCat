@@ -21,3 +21,4 @@
 #endif //Q_OS_WINDOWS
 #include <thread>
 #include <set>
+#include <functional>
