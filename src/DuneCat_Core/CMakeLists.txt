@@ -3,7 +3,6 @@ set(SOURCE_LIST
     processtracker.h processinfo.h
     tools.cpp tools.h
     dbmanager.h dbmanager.cpp
-    dbreader.h dbreader.cpp
 )
 if(WIN32)
     list(APPEND SOURCE_LIST windows/processtracker.cpp

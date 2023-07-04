@@ -1,7 +1,7 @@
 #pragma once
 #include "essentialheaders.h"
 #include "processinfo.h"
-
+#include <shared_mutex>
 namespace DuneCat{
 class ProcessTracker : public QObject
 {
@@ -15,6 +15,13 @@ public:
     }
     int get_process_count();
     void get_process_list(std::vector<ProcessInfo>& list_out) const;
+    void apply_to_every_elem(const std::function<void(const ProcessInfo&)> callback) const
+    {
+        std::shared_lock lck{proc_vec_mutex};
+        for(const auto& proc : m_processes)
+            callback(proc);
+
+    }
 
 private:
     explicit ProcessTracker(QObject *parent = nullptr);
@@ -23,7 +30,7 @@ private:
 
     std::atomic_uint64_t m_process_count{0};
     std::vector<ProcessInfo> m_processes{};
-    mutable std::mutex proc_vec_mutex;
+    mutable std::shared_mutex proc_vec_mutex;
 signals:
     void process_created(const ProcessInfo& process);
     void process_deleted(const ProcessInfo& process);

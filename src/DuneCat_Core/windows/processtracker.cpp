@@ -18,11 +18,12 @@ bool procinfo_less_pid_comp(const ProcessInfo& lhs,const ProcessInfo& rhs)
 ProcessTracker::ProcessTracker(QObject *parent)
     : QObject{parent}
 {
+
     m_processes = gather_processes();
     if(m_processes.empty())
     {
         qFatal()<<"Couldn't gather process list. Exiting...";
-        QCoreApplication::exit(-1);
+        QCoreApplication::quit();
     }
     std::sort(m_processes.begin(),m_processes.end(),procinfo_less_pid_comp);
     connect(this,&ProcessTracker::process_created,this,&ProcessTracker::process_created_handler);
@@ -45,7 +46,6 @@ std::vector<ProcessInfo> ProcessTracker::gather_processes()
     //process count updates through signals if we already set it once before.
     if(Q_LIKELY(m_process_count != 0))
         return m_processes;
-    std::scoped_lock lck{proc_vec_mutex};
     std::vector<ProcessInfo> vec = ProcessTracker::get_winapi_process_list();
     if(!vec.empty())
         m_process_count = vec.size();
@@ -92,7 +92,7 @@ int ProcessTracker::get_process_count()
 
 void ProcessTracker::get_process_list(std::vector<ProcessInfo>& list_out) const
 {
-    std::scoped_lock lck{proc_vec_mutex};
+    std::shared_lock lck{proc_vec_mutex};
     list_out = m_processes;
 }
 
@@ -229,7 +229,7 @@ void ProcessTracker::process_created_recieved(const ProcessInfo& process)
 
 void ProcessTracker::process_created_handler(const ProcessInfo &process)
 {
-    std::scoped_lock lck{proc_vec_mutex};
+    std::unique_lock lck{proc_vec_mutex};
     m_process_count +=1;
     auto it = std::upper_bound(m_processes.begin(), m_processes.end(), process,
                                [](auto& value, auto& elem ) { return value.pid < elem.pid;});
@@ -238,7 +238,7 @@ void ProcessTracker::process_created_handler(const ProcessInfo &process)
 
 void ProcessTracker::process_deleted_handler(const ProcessInfo &process)
 {
-    std::scoped_lock lck{proc_vec_mutex};
+    std::unique_lock lck{proc_vec_mutex};
     auto it = std::lower_bound(m_processes.begin(),m_processes.end(),process,
                                [](auto& value, auto& elem ) { return value.pid < elem.pid;});
     if(it == m_processes.end())
