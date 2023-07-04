@@ -11,8 +11,8 @@ struct ProcessInfo{
     QString owner_user;
     QString owner_domain;
     quint32 pid;
-    QDateTime termination_date;
-    QDateTime creation_date;
+    QDateTime termination_time;
+    QDateTime creation_time;
     QPixmap icon;
 };
 

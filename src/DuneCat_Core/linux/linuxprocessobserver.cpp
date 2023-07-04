@@ -122,6 +122,7 @@ int LinuxProcessObserver::handle_proc_ev(int nl_sock)
 
             qDebug()<<"process exited:"<<nlcn_msg.proc_ev.event_data.exit.process_pid;
             proc.pid = nlcn_msg.proc_ev.event_data.exit.process_pid;
+            proc.termination_time = QDateTime::currentDateTime();
             emit process_deleted(proc);
             break;
         }

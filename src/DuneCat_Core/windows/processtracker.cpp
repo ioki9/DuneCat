@@ -138,7 +138,7 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
             {
                 SYSTEMTIME sys_time;
                 FileTimeToSystemTime(&start,&sys_time);
-                info.creation_date = QDateTime(QDate(sys_time.wYear,sys_time.wMonth,sys_time.wDay),
+                info.creation_time = QDateTime(QDate(sys_time.wYear,sys_time.wMonth,sys_time.wDay),
                                                QTime(sys_time.wHour,sys_time.wMinute,sys_time.wSecond,sys_time.wMilliseconds),
                                                Qt::UTC,0).toLocalTime();
             }

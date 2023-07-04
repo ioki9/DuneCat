@@ -195,7 +195,7 @@ bool get_info_by_pid(quint32 pid, ProcessInfo& out)
     ssize_t nbytes = readlink(path_to_proc.data(),path,buff);
     if(nbytes != -1)
         out.file_path = QByteArray(path,nbytes);
-    out.creation_date = get_proc_start_time(dir);
+    out.creation_time = get_proc_start_time(dir);
     return true;
 }
 

@@ -82,7 +82,7 @@ void WMIClient::handle_event(IWbemClassObject *obj)
             {
                 hr = obj->Get(L"TerminationDate",0,&vtVal,NULL,NULL);
                 if(SUCCEEDED(hr))
-                    proc_info.termination_date = QDateTime::currentDateTime();
+                    proc_info.termination_time = QDateTime::currentDateTime();
                 VariantClear(&vtVal);
                 emit process_deleted(proc_info);
             }
@@ -240,7 +240,7 @@ ProcessInfo WMIClient::get_process_stats(IWbemClassObject *obj)
 
     hr = obj->Get(L"CreationDate",0,&vtVal,NULL,NULL);
     if(SUCCEEDED(hr))
-        proc_info.creation_date = fromBSTRToDateTime(vtVal.bstrVal);
+        proc_info.creation_time = fromBSTRToDateTime(vtVal.bstrVal);
     VariantClear(&vtVal);
 
     hr = obj->Get(L"ExecutablePath",0,&vtVal,NULL,NULL);
