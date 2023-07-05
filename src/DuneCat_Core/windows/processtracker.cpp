@@ -8,9 +8,11 @@
 #include <windows.h>
 #include <processthreadsapi.h>
 #pragma comment(lib,"Version.lib")
+#pragma comment(lib, "psapi.lib")
 
 namespace DuneCat
 {
+bool set_debug_privilege(bool enable);
 bool procinfo_less_pid_comp(const ProcessInfo& lhs,const ProcessInfo& rhs)
 {
     return lhs.pid < rhs.pid;
@@ -121,7 +123,8 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
         CloseHandle( hProcessSnap );
         return result;
     }
-
+    if(!set_debug_privilege(true))
+        qDebug()<<"failed";
     do
     {
         ProcessInfo info;
@@ -130,9 +133,11 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
         process_handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pe32.th32ProcessID);
         if (process_handle != NULL)
         {
-            if (GetModuleFileNameExW(process_handle, NULL, filename, MAX_PATH) != 0)
+            DWORD dwSize = sizeof(filename) / sizeof(*filename);
+            if (QueryFullProcessImageName(process_handle,NULL, filename, &dwSize) != 0)
                 info.file_path = QString::fromWCharArray(filename);
-
+            else
+                qDebug()<<GetLastError();
             FILETIME start,exit,kernel,user;
             if(GetProcessTimes(process_handle,&start,&exit,&kernel,&user) != 0)
             {
@@ -143,7 +148,7 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
                                                Qt::UTC,0).toLocalTime();
             }
             HANDLE token_handle = NULL;
-            if( OpenProcessToken( process_handle, TOKEN_QUERY, &token_handle ) != FALSE )
+            if( OpenProcessToken( process_handle, TOKEN_QUERY | TOKEN_QUERY_SOURCE , &token_handle ) != FALSE )
             {
                 BSTR bstr_user,bstr_domain;
                 if(WMIClient::get_logon_from_token(token_handle, bstr_user, bstr_domain) != FALSE)
@@ -154,6 +159,7 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
                     SysFreeString(bstr_domain);
                 }
             }
+
             CloseHandle( token_handle );
         }
         info.pid = pe32.th32ProcessID;
@@ -171,7 +177,8 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
         result.push_back(std::move(info));
         CloseHandle(process_handle);
     } while( Process32Next( hProcessSnap, &pe32 ) );
-
+    if(!set_debug_privilege(false))
+        qDebug()<<"failed";
     CloseHandle( hProcessSnap );
     return result;
 }
@@ -249,6 +256,42 @@ void ProcessTracker::process_deleted_handler(const ProcessInfo &process)
     m_processes.erase(it);
     m_process_count -=1;
 
+}
+bool set_debug_privilege(bool enable)
+{
+    HANDLE hToken;
+    TOKEN_PRIVILEGES token_privileges;
+    LUID luid;
+    DWORD priv_mode = enable ? SE_PRIVILEGE_ENABLED : SE_PRIVILEGE_REMOVED;
+    // Open the current process token
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
+    {
+        qDebug()<<"Failed to open process token";
+        return false;
+    }
+
+    // Lookup the LUID for the SeDebugPrivilege privilege
+    if (!LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid))
+    {
+        qDebug() << "Failed to lookup privilege value";
+        CloseHandle(hToken);
+        return false;
+    }
+
+    token_privileges.PrivilegeCount = 1;
+    token_privileges.Privileges[0].Luid = luid;
+    token_privileges.Privileges[0].Attributes = priv_mode;
+
+    // Enable the SeDebugPrivilege privilege
+    if (!AdjustTokenPrivileges(hToken, FALSE, &token_privileges, sizeof(TOKEN_PRIVILEGES), NULL, NULL))
+    {
+        qDebug() << "Failed to adjust token privileges";
+        CloseHandle(hToken);
+        return false;
+    }
+
+    CloseHandle(hToken);
+    return true;
 }
 
 }

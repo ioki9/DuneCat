@@ -282,7 +282,7 @@ bool WMIClient::subscribe_to_event(BSTR event_query)
     if (FAILED(hres))
     {
         qDebug()<<"Couldn't subscribe to event. ExecNotificationQueryAsync failed "
-                    "with error = 0x"<< hres <<'\n'<<"Event query:"<<QString::fromWCharArray(event_query);
+                    "with error = 0x"<< Qt::hex<<hres<<'\n'<<"Event query:"<<QString::fromWCharArray(event_query);
         m_pSvc->Release();
         m_pLoc->Release();
         m_pUnsecApp->Release();
@@ -357,7 +357,7 @@ BOOL WMIClient::get_logon_from_token(HANDLE hToken, BSTR& strUser, BSTR& strdoma
     if (!GetTokenInformation(
             hToken,         // handle to the access token
             TokenUser,    // get information about the token's groups
-            (LPVOID) ptu,   // pointer to PTOKEN_USER buffer
+            NULL,   // pointer to PTOKEN_USER buffer
             0,              // size of buffer
             &dwLength       // receives required buffer size
             ))
@@ -417,7 +417,7 @@ HRESULT WMIClient::get_user_from_process(const DWORD procId, BSTR& strUser, BSTR
     }
     HANDLE hToken = NULL;
 
-    if( !OpenProcessToken(hProcess, TOKEN_QUERY, &hToken ) )
+    if( !OpenProcessToken(hProcess, TOKEN_QUERY | TOKEN_QUERY_SOURCE, &hToken ) )
     {
         CloseHandle( hProcess );
         return E_FAIL;
