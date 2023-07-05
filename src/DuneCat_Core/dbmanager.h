@@ -22,6 +22,9 @@ public:
     void close();
 
     void set_database_name(const QString& name);
+    bool transaction();
+    bool commit();
+    bool rollback();
     [[nodiscard]] QString get_database_name() const;
     [[nodiscard]] bool is_valid() const;
     [[nodiscard]] bool is_open() const;
@@ -29,9 +32,7 @@ public:
     [[nodiscard]] QString get_connection_name() const;
     //returns -1 in case of error
     [[nodiscard]] int table_exists(const QString& table_name) const;
-
-protected:
-    void print_last_db_error(QLatin1StringView text);
+    void print_last_db_error(QStringView text);
 private:
     QSqlDatabase m_db;
     bool m_open;

@@ -57,7 +57,7 @@ bool DBManager::open()
 
     if(!m_db.isValid())
     {
-        print_last_db_error(QLatin1StringView("Failed to open the database. Error:"));
+        print_last_db_error(QStringLiteral("Failed to open the database. Error:"));
         return false;
     }
     if(m_db.isOpen())
@@ -67,7 +67,7 @@ bool DBManager::open()
     }
     else if(!m_db.open())
     {
-        print_last_db_error(QLatin1StringView("Failed to open the database. Error:"));
+        print_last_db_error(QStringLiteral("Failed to open the database. Error:"));
         return false;
     }
     std::scoped_lock lck{mutex};
@@ -91,6 +91,21 @@ void DBManager::close()
 void DBManager::set_database_name(const QString &name)
 {
     m_db.setDatabaseName(name);
+}
+
+bool DBManager::transaction()
+{
+    return m_db.transaction();
+}
+
+bool DBManager::rollback()
+{
+    return m_db.rollback();
+}
+
+bool DBManager::commit()
+{
+    return m_db.commit();
 }
 
 QSqlDatabase& DBManager::get_database()
@@ -139,7 +154,7 @@ int DBManager::table_exists(const QString &table_name) const
 }
 
 //TODO?: make it a template fucntion
-void DBManager::print_last_db_error(QLatin1StringView text)
+void DBManager::print_last_db_error(QStringView text)
 {
     qWarning()<<text<<m_db.lastError().text();
 }
@@ -156,7 +171,7 @@ bool DBManager::connect(const QString &connection_name,bool create_if_not_exist)
     if(m_db.isValid())
         return true;
 
-    print_last_db_error(QLatin1StringView("Database isn't valid. Failed with error:"));
+    print_last_db_error(QStringLiteral("Database isn't valid. Failed with error:"));
     return false;
 }
 
@@ -171,7 +186,7 @@ QSqlDatabase DBManager::create_connection(const QString& connection_name)
         return db;
     else
     {
-        print_last_db_error(QLatin1StringView("Database isn't valid. Failed with error:"));
+        print_last_db_error(QStringLiteral("Database isn't valid. Failed with error:"));
         return QSqlDatabase{};
     }
 }
