@@ -23,6 +23,19 @@ public:
 
     }
 
+    template <typename... T>
+    void apply_to_array(const std::function<void(const std::vector<ProcessInfo>& processes, T&&... args)> callback,T&&... args)
+    {
+        std::shared_lock lck{proc_vec_mutex};
+        callback(m_processes,std::forward<T>(args)...);
+    }
+
+    void apply_to_array(const std::function<void(const std::vector<ProcessInfo>& processes)> callback)
+    {
+        std::shared_lock lck{proc_vec_mutex};
+        callback(m_processes);
+    }
+
 private:
     explicit ProcessTracker(QObject *parent = nullptr);
     ~ProcessTracker() override;
