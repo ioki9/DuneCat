@@ -257,6 +257,7 @@ void ProcessTracker::process_deleted_handler(const ProcessInfo &process)
     m_process_count -=1;
 
 }
+
 bool set_debug_privilege(bool enable)
 {
     HANDLE hToken;

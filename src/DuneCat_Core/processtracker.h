@@ -15,12 +15,12 @@ public:
     }
     int get_process_count();
     void get_process_list(std::vector<ProcessInfo>& list_out) const;
+
     void apply_to_every_elem(const std::function<void(const ProcessInfo&)> callback) const
     {
         std::shared_lock lck{proc_vec_mutex};
         for(const auto& proc : m_processes)
             callback(proc);
-
     }
 
     template <typename... T>

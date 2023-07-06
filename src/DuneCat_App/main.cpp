@@ -107,10 +107,11 @@ bool init_connect_db()
         {
             for(const auto& proc : processes)
             {
+                qint64 creation_time = proc.creation_time.isValid() ? proc.creation_time.toSecsSinceEpoch() : 0;
                 query_create.bindValue(0,proc.name);
                 query_create.bindValue(1,proc.pid);
                 query_create.bindValue(2,proc.file_path);
-                query_create.bindValue(3,proc.creation_time.toSecsSinceEpoch());
+                query_create.bindValue(3,creation_time);
                 query_create.bindValue(4,QStringLiteral("NULL"));
                 query_create.bindValue(5,proc.description);
                 query_create.bindValue(6,proc.owner_user);
