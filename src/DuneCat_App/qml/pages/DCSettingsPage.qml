@@ -5,7 +5,7 @@ Rectangle {
 
     Switch{
         text: "Enable autostart"
-        checked:{checked = Settings.autoStart}
-        onPositionChanged: Settings.autoStart = position
+        checked:{checked = Settings.autostart}
+        onPositionChanged: Settings.autostart = position
     }
 }

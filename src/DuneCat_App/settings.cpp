@@ -6,17 +6,18 @@ namespace DuneCat
 Settings::Settings(QObject *parent)
     : QObject{parent}
 {
+
 }
 
-bool Settings::setAutoStart(bool isOn)
+bool Settings::set_autostart(bool isOn)
 {
-    emit autoStartChanged();
-    m_autoStart = isOn;
+    emit autostart_changed();
+    m_autostart = isOn;
     return bootUpStart(isOn);
 }
 
-bool Settings::isAutoStartOn() const
+bool Settings::is_autostart_on() const
 {
-    return m_autoStart;
+    return m_autostart;
 }
 }
