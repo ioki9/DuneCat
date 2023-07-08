@@ -26,9 +26,7 @@ std::vector<ProcessInfo> get_bsd_process_list()
         int st = proc_pidinfo(pids[i],PROC_PIDTBSDINFO,0,&proc,PROC_PIDTBSDINFO_SIZE);
         if(st == PROC_PIDTBSDINFO_SIZE)
         {
-            QDateTime timestamp;
-            timestamp.setSecsSinceEpoch(proc.pbi_start_tvsec);
-            proc_info.creation_time = timestamp;
+            proc_info.creation_time = QDateTime::fromSecsSinceEpoch(proc.pbi_start_tvsec);
             proc_info.pid = pids[i];
             struct passwd* pwd = getpwuid(proc.pbi_uid);
             proc_info.owner_user = pwd->pw_name;

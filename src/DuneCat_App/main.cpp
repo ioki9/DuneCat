@@ -15,7 +15,6 @@ bool init_connect_db();
 
 int main(int argc, char *argv[])
 {
-
     QGuiApplication app(argc, argv);
 
     QTranslator translator;

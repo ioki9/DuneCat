@@ -12,7 +12,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 enable_testing()
-
 message("Looking for Qt...")
 find_package(Qt6 COMPONENTS Core Quick Qml Network Test QuickControls2 Sql REQUIRED)
 if (${Qt6_FOUND})

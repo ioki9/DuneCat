@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include "linuxprocessobserver.h"
-
+#include <QStringTokenizer>
 namespace DuneCat
 {
 bool procinfo_less_pid_comp(const ProcessInfo& lhs,const ProcessInfo& rhs)
@@ -145,23 +145,26 @@ QString get_user(uid_t uid)
 
 QDateTime get_proc_start_time(const QFileInfo& proc_dir)
 {
-    QDateTime result{};
-    struct timeval tv;
-    unsigned long long uptime{};
-    QFile uptime_file("/proc/uptime");
-    static time_t boot_time;
-    if (!uptime_file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return result;
-    uptime = uptime_file.readLine().toULongLong();
-    gettimeofday(&tv, 0);
-    boot_time = tv.tv_sec - uptime;
+    QDateTime result;
+
+    static time_t boot_time{0};
+    if(Q_UNLIKELY(!boot_time))
+    {
+        QFile uptime_file("/proc/uptime");
+        if (!uptime_file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return result;
+        double uptime = QString(uptime_file.readLine()).split(' ')[0].toDouble();
+        boot_time = static_cast<double>(QDateTime::currentMSecsSinceEpoch())/1000 - uptime;
+    }
+
     if(!proc_dir.exists())
         return QDateTime{};
     std::vector<QString> stats = get_stat_params(proc_dir,{SP_starttime});
     if(stats.empty())
         return QDateTime{};
     unsigned long long start_stat = stats[0].toULongLong() / sysconf(_SC_CLK_TCK);
-    result.setSecsSinceEpoch(boot_time - start_stat);
+    result.setSecsSinceEpoch(boot_time + start_stat);
+    result.setTimeZone(QTimeZone::systemTimeZone());
     return result;
 }
 
