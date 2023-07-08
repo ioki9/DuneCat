@@ -9,7 +9,7 @@ Settings::Settings(QObject *parent)
     m_settings.setAtomicSyncRequired(true);
     m_last_alive_timer.start(3000);
     read_all_settings();
-    connect(&m_last_alive_timer,QTimer::timeout,this,&Settings::set_last_alive);
+    connect(&m_last_alive_timer,&QTimer::timeout,this,&Settings::set_last_alive);
 }
 
 void Settings::read_all_settings()
