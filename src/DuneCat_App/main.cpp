@@ -10,8 +10,8 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
     QTranslator translator;
-    QCoreApplication::setApplicationName(QStringLiteral("DuneCat"));
-
+    app.setApplicationName(QStringLiteral("DuneCat"));
+    app.setOrganizationName(QStringLiteral("DuneCat"));
     const QStringList uiLanguages = QLocale::system().uiLanguages();
     for (const QString &locale : uiLanguages) {
         const QString baseName = "DuneCat_" + QLocale(locale).name();
