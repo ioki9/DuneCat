@@ -5,9 +5,30 @@ import DCStyle
 
 DCMainWindow
 {
-    width:1024
-    height:480
     id: root
+    visibility: visibility = Settings.window_maximized ? Window.Maximized : Window.Windowed
+    width: width = Settings.window_width
+    height: height = Settings.window_height
+
+
+    Binding{
+        target: Settings
+        property: "window_height"
+        value: root.height
+    }
+
+    Binding{
+        target: Settings
+        property: "window_width"
+        value: root.width
+    }
+
+    Binding{
+        target: Settings
+        property: "window_maximized"
+        value: visibility === Window.Maximized
+    }
+
     property list<string> pageUrlList:[]
     function startupFunction()
     {
