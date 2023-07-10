@@ -82,6 +82,19 @@ bool init_connect_db()
         qFatal()<<"Couldn't create unique index. Error: "<<query_create.lastError().text();
         return false;
     }
+    QSettings settings;
+    QString last_alive = settings.value("LastAlive","").toString();
+    settings.setValue("LastAlive",QDateTime::currentSecsSinceEpoch());
+    if(!last_alive.isEmpty())
+    {
+        res = query_create.exec(QStringLiteral("UPDATE processes_history SET termination_time = '-" ) + last_alive
+                                + QStringLiteral("' WHERE termination_time IS NULL;"));
+        if(!res)
+        {
+            qFatal()<<"Couldn't update termination time from last active timestamp. Error: "<<query_create.lastError().text();
+            return false;
+        }
+    }
 
     res = query_create.prepare(QStringLiteral("INSERT OR IGNORE INTO "
                                               "processes_history(name, pid, path, creation_time, termination_time, description, user, domain, cmd) "
@@ -112,7 +125,7 @@ bool init_connect_db()
                 query_create.bindValue(1,proc.pid);
                 query_create.bindValue(2,proc.file_path);
                 query_create.bindValue(3,creation_time);
-                query_create.bindValue(4,QStringLiteral("NULL"));
+                query_create.bindValue(4,{});
                 query_create.bindValue(5,proc.description);
                 query_create.bindValue(6,proc.owner_user);
                 query_create.bindValue(7,proc.owner_domain);
@@ -136,7 +149,7 @@ bool init_connect_db()
         query_create.bindValue(1,proc.pid);
         query_create.bindValue(2,proc.file_path);
         query_create.bindValue(3,proc.creation_time.toSecsSinceEpoch());
-        query_create.bindValue(4,QStringLiteral("NULL"));
+        query_create.bindValue(4,{});
         query_create.bindValue(5,proc.description);
         query_create.bindValue(6,proc.owner_user);
         query_create.bindValue(7,proc.owner_domain);
