@@ -28,13 +28,15 @@ ProcessTracker::ProcessTracker(QObject *parent)
         QCoreApplication::quit();
     }
     std::sort(m_processes.begin(),m_processes.end(),procinfo_less_pid_comp);
-    connect(this,&ProcessTracker::process_created,this,&ProcessTracker::process_created_handler);
-    connect(this,&ProcessTracker::process_deleted,this,&ProcessTracker::process_deleted_handler);
+    connect(WMIClient::get_instance(),&WMIClient::new_process_created,this,
+            &ProcessTracker::process_created_handler);
+    connect(WMIClient::get_instance(),&WMIClient::process_deleted,this,
+            &ProcessTracker::process_deleted_handler);
 
     connect(WMIClient::get_instance(),&WMIClient::new_process_created,
-            this,&ProcessTracker::process_created_handler);
+            this,&ProcessTracker::process_created);
     connect(WMIClient::get_instance(),&WMIClient::process_deleted,
-            this,&ProcessTracker::process_deleted_handler);
+            this,&ProcessTracker::process_deleted);
 
 }
 
