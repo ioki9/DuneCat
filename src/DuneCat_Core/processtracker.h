@@ -55,7 +55,7 @@ private slots:
     friend class WMIClient;
     static std::vector<ProcessInfo> get_winapi_process_list();
     static QString get_process_description(QStringView filepath);
-#elif Q_OS_MAC
+#elif defined(Q_OS_MAC)
     friend class OSXProcessObserver;
 #endif // Q_OS_WIN
 };
