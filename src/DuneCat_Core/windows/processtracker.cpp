@@ -32,9 +32,9 @@ ProcessTracker::ProcessTracker(QObject *parent)
     connect(this,&ProcessTracker::process_deleted,this,&ProcessTracker::process_deleted_handler);
 
     connect(WMIClient::get_instance(),&WMIClient::new_process_created,
-            this,&ProcessTracker::process_created_recieved);
+            this,&ProcessTracker::process_created_handler);
     connect(WMIClient::get_instance(),&WMIClient::process_deleted,
-            this,&ProcessTracker::process_deleted_recieved);
+            this,&ProcessTracker::process_deleted_handler);
 
 }
 
@@ -224,16 +224,6 @@ QString ProcessTracker::get_process_description(QStringView filepath)
     return description;
 }
 
-void ProcessTracker::process_deleted_recieved(const ProcessInfo &process)
-{
-    emit process_deleted(process);
-}
-
-void ProcessTracker::process_created_recieved(const ProcessInfo& process)
-{
-    emit process_created(process);
-}
-
 void ProcessTracker::process_created_handler(const ProcessInfo &process)
 {
     std::unique_lock lck{proc_vec_mutex};
@@ -255,7 +245,7 @@ void ProcessTracker::process_deleted_handler(const ProcessInfo &process)
     }
     m_processes.erase(it);
     m_process_count -=1;
-
+    return proc;
 }
 
 bool set_debug_privilege(bool enable)

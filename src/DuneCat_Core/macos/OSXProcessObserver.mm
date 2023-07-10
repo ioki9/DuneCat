@@ -42,7 +42,7 @@ DuneCat::ProcessTracker* tracker;
     proc.name = QString::fromNSString([[note userInfo] objectForKey:@"NSApplicationName"]);
     proc.file_path = QString::fromNSString([[note userInfo] objectForKey:@"NSApplicationPath"]);
     proc.pid = [[[note userInfo] objectForKey:@"NSApplicationProcessIdentifier"] intValue];
-    emit tracker->process_created(proc);
+    tracker->process_created_handler(proc);
     // You've been notified!
 }
 
@@ -55,7 +55,7 @@ DuneCat::ProcessTracker* tracker;
     proc.file_path = QString::fromNSString([[note userInfo] objectForKey:@"NSApplicationPath"]);
     proc.pid = [[[note userInfo] objectForKey:@"NSApplicationProcessIdentifier"] intValue];
     proc.termination_time = QDateTime.currentDateTime();
-    emit tracker->process_deleted(proc);
+    tracker->process_deleted_handelr(proc);
     // You've been notified!
 }
 @end

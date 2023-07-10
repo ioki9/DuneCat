@@ -127,7 +127,7 @@ void CoreTests::test_dbmanager_copy()
 
 void CoreTests::test_dbmanager_table_exist()
 {
-    if(QFile::exists(QDir::currentPath() + "/test.db"));
+    if(QFile::exists(QDir::currentPath() + "/test.db"))
     {
         QFile file (QDir::currentPath()+ "/test.db");
         file.remove();
@@ -152,7 +152,7 @@ void CoreTests::test_tools_fromBSTRToDateTime()
 {
 #ifndef Q_OS_WIN
     QSKIP("windows only test");
-#endif
+#else
     BSTR test1 = SysAllocString(L"20250912231519.818644");
     QCOMPARE(QDateTime(), fromBSTRToDateTime(test1));
 
@@ -167,6 +167,7 @@ void CoreTests::test_tools_fromBSTRToDateTime()
     SysFreeString(test1);
     SysFreeString(test2);
 
+#endif
 }
 
 

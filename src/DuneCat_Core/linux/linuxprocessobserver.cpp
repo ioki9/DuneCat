@@ -94,14 +94,14 @@ int LinuxProcessObserver::handle_proc_ev(int nl_sock)
         ProcessInfo proc{};
         switch (nlcn_msg.proc_ev.what) {
         case proc_event::PROC_EVENT_NONE:
-            qDebug()<<"set mcast listen ok\n";
+            //qDebug()<<"set mcast listen ok\n";
             break;
         case proc_event::PROC_EVENT_FORK:
         {
-            qDebug()<<"fork: parent tid="<< nlcn_msg.proc_ev.event_data.fork.parent_pid<<
-                " pid= "<<nlcn_msg.proc_ev.event_data.fork.parent_tgid<<
-                "-> child tid="<< nlcn_msg.proc_ev.event_data.fork.child_tgid<<
-                " pid= "<<nlcn_msg.proc_ev.event_data.fork.child_pid;
+          //  qDebug()<<"fork: parent tid="<< nlcn_msg.proc_ev.event_data.fork.parent_pid<<
+          //      " pid= "<<nlcn_msg.proc_ev.event_data.fork.parent_tgid<<
+          //      "-> child tid="<< nlcn_msg.proc_ev.event_data.fork.child_tgid<<
+          //      " pid= "<<nlcn_msg.proc_ev.event_data.fork.child_pid;
 
             proc.pid = nlcn_msg.proc_ev.event_data.fork.child_pid;
             emit process_created(proc);
@@ -111,7 +111,7 @@ int LinuxProcessObserver::handle_proc_ev(int nl_sock)
         case proc_event::PROC_EVENT_EXEC:
         {
 
-            qDebug()<<"exec pid="<<nlcn_msg.proc_ev.event_data.exec.process_pid;
+            //qDebug()<<"exec pid="<<nlcn_msg.proc_ev.event_data.exec.process_pid;
             proc.pid = nlcn_msg.proc_ev.event_data.exec.process_pid;
             emit process_created(proc);
             break;
@@ -120,7 +120,7 @@ int LinuxProcessObserver::handle_proc_ev(int nl_sock)
         case proc_event::PROC_EVENT_EXIT:
         {
 
-            qDebug()<<"process exited:"<<nlcn_msg.proc_ev.event_data.exit.process_pid;
+            //qDebug()<<"process exited:"<<nlcn_msg.proc_ev.event_data.exit.process_pid;
             proc.pid = nlcn_msg.proc_ev.event_data.exit.process_pid;
             proc.termination_time = QDateTime::currentDateTime();
             emit process_deleted(proc);
@@ -128,7 +128,7 @@ int LinuxProcessObserver::handle_proc_ev(int nl_sock)
         }
         default:
         {
-            qDebug()<<"unhandled proc event\n";
+            //qDebug()<<"unhandled proc event\n";
             break;
         }
         }

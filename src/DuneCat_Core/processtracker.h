@@ -50,16 +50,13 @@ signals:
 private slots:
     void process_created_handler(const ProcessInfo& process);
     void process_deleted_handler(const ProcessInfo& process);
-#if !defined(Q_OS_MAC)
-    //slots for notifications on Linux and Windows
-    void process_deleted_recieved(const ProcessInfo& process);
-    void process_created_recieved(const ProcessInfo& process);
     //windows related functions
-    #ifdef Q_OS_WIN
-        friend class WMIClient;
-        static std::vector<ProcessInfo> get_winapi_process_list();
-        static QString get_process_description(QStringView filepath);
-    #endif // Q_OS_WIN
-#endif // !Q_OS_MAC
+#ifdef Q_OS_WIN
+    friend class WMIClient;
+    static std::vector<ProcessInfo> get_winapi_process_list();
+    static QString get_process_description(QStringView filepath);
+#elif Q_OS_MAC
+    friend class OSXProcessObserver;
+#endif // Q_OS_WIN
 };
 }
