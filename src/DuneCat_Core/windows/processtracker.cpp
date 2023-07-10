@@ -245,7 +245,6 @@ void ProcessTracker::process_deleted_handler(const ProcessInfo &process)
     }
     m_processes.erase(it);
     m_process_count -=1;
-    return proc;
 }
 
 bool set_debug_privilege(bool enable)
