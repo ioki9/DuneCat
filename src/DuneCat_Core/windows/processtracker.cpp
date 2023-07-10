@@ -8,17 +8,34 @@
 #include <windows.h>
 #include <processthreadsapi.h>
 #pragma comment(lib,"Version.lib")
+#pragma comment(lib, "psapi.lib")
 
 namespace DuneCat
 {
-
+bool set_debug_privilege(bool enable);
+bool procinfo_less_pid_comp(const ProcessInfo& lhs,const ProcessInfo& rhs)
+{
+    return lhs.pid < rhs.pid;
+}
 ProcessTracker::ProcessTracker(QObject *parent)
     : QObject{parent}
 {
+
+    m_processes = gather_processes();
+    if(m_processes.empty())
+    {
+        qFatal()<<"Couldn't gather process list. Exiting...";
+        QCoreApplication::quit();
+    }
+    std::sort(m_processes.begin(),m_processes.end(),procinfo_less_pid_comp);
+    connect(this,&ProcessTracker::process_created,this,&ProcessTracker::process_created_handler);
+    connect(this,&ProcessTracker::process_deleted,this,&ProcessTracker::process_deleted_handler);
+
     connect(WMIClient::get_instance(),&WMIClient::new_process_created,
-            this,&ProcessTracker::process_created_recieved);
+            this,&ProcessTracker::process_created_handler);
     connect(WMIClient::get_instance(),&WMIClient::process_deleted,
-            this,&ProcessTracker::process_deleted_recieved);
+            this,&ProcessTracker::process_deleted_handler);
+
 }
 
 ProcessTracker::~ProcessTracker()
@@ -26,21 +43,21 @@ ProcessTracker::~ProcessTracker()
 }
 
 // returns empty vector if failed
-std::vector<ProcessInfo> ProcessTracker::get_process_list()
+std::vector<ProcessInfo> ProcessTracker::gather_processes()
 {
     //process count updates through signals if we already set it once before.
-    if(m_process_count != -1)
-        return ProcessTracker::get_winapi_process_list();
-
+    if(Q_LIKELY(m_process_count != 0))
+        return m_processes;
     std::vector<ProcessInfo> vec = ProcessTracker::get_winapi_process_list();
     if(!vec.empty())
         m_process_count = vec.size();
     return vec;
 }
-//returns -1 if failed
+
+//returns 0 if failed
 int ProcessTracker::get_process_count()
 {
-    if(m_process_count != -1)
+    if(Q_LIKELY(m_process_count != 0))
         return m_process_count;
     int count{};
     HANDLE hProcessSnap;
@@ -50,7 +67,7 @@ int ProcessTracker::get_process_count()
     if( hProcessSnap == INVALID_HANDLE_VALUE )
     {
         qDebug()<<"invalid hProcessSnap value";
-        return -1;
+        return 0;
     }
 
     // Set the size of the structure before using it.
@@ -62,7 +79,7 @@ int ProcessTracker::get_process_count()
     {
         qDebug()<<"Process32First failure";
         CloseHandle( hProcessSnap );
-        return -1;
+        return 0;
     }
 
     do
@@ -74,8 +91,16 @@ int ProcessTracker::get_process_count()
     m_process_count = count;
     return count;
 }
+
+void ProcessTracker::get_process_list(std::vector<ProcessInfo>& list_out) const
+{
+    std::shared_lock lck{proc_vec_mutex};
+    list_out = m_processes;
+}
+
 std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
 {
+
     HANDLE hProcessSnap = INVALID_HANDLE_VALUE;
     PROCESSENTRY32 pe32;
     std::vector<ProcessInfo> result;
@@ -98,7 +123,8 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
         CloseHandle( hProcessSnap );
         return result;
     }
-
+    if(!set_debug_privilege(true))
+        qDebug()<<"failed";
     do
     {
         ProcessInfo info;
@@ -107,20 +133,22 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
         process_handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pe32.th32ProcessID);
         if (process_handle != NULL)
         {
-            if (GetModuleFileNameExW(process_handle, NULL, filename, MAX_PATH) != 0)
+            DWORD dwSize = sizeof(filename) / sizeof(*filename);
+            if (QueryFullProcessImageName(process_handle,NULL, filename, &dwSize) != 0)
                 info.file_path = QString::fromWCharArray(filename);
-
+            else
+                qDebug()<<GetLastError();
             FILETIME start,exit,kernel,user;
             if(GetProcessTimes(process_handle,&start,&exit,&kernel,&user) != 0)
             {
                 SYSTEMTIME sys_time;
                 FileTimeToSystemTime(&start,&sys_time);
-                info.creation_date = QDateTime(QDate(sys_time.wYear,sys_time.wMonth,sys_time.wDay),
+                info.creation_time = QDateTime(QDate(sys_time.wYear,sys_time.wMonth,sys_time.wDay),
                                                QTime(sys_time.wHour,sys_time.wMinute,sys_time.wSecond,sys_time.wMilliseconds),
                                                Qt::UTC,0).toLocalTime();
             }
             HANDLE token_handle = NULL;
-            if( OpenProcessToken( process_handle, TOKEN_QUERY, &token_handle ) != FALSE )
+            if( OpenProcessToken( process_handle, TOKEN_QUERY | TOKEN_QUERY_SOURCE , &token_handle ) != FALSE )
             {
                 BSTR bstr_user,bstr_domain;
                 if(WMIClient::get_logon_from_token(token_handle, bstr_user, bstr_domain) != FALSE)
@@ -131,6 +159,7 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
                     SysFreeString(bstr_domain);
                 }
             }
+
             CloseHandle( token_handle );
         }
         info.pid = pe32.th32ProcessID;
@@ -148,7 +177,8 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
         result.push_back(std::move(info));
         CloseHandle(process_handle);
     } while( Process32Next( hProcessSnap, &pe32 ) );
-
+    if(!set_debug_privilege(false))
+        qDebug()<<"failed";
     CloseHandle( hProcessSnap );
     return result;
 }
@@ -164,7 +194,7 @@ QString ProcessTracker::get_process_description(QStringView filepath)
         return "";
 
     std::unique_ptr<BYTE[]> sKey = std::make_unique<BYTE[]>(dwLen);
-    if(!GetFileVersionInfo(filename.get(), NULL, dwLen, sKey.get()))
+    if(!GetFileVersionInfo(filename.get(), 0, dwLen, sKey.get()))
         return "";
 
     struct LANGANDCODEPAGE {
@@ -194,17 +224,65 @@ QString ProcessTracker::get_process_description(QStringView filepath)
     return description;
 }
 
-void ProcessTracker::process_deleted_recieved(const ProcessInfo &process)
+void ProcessTracker::process_created_handler(const ProcessInfo &process)
 {
-    if(m_process_count != -1)
-        m_process_count--;
-    emit process_deleted(process);
+    std::unique_lock lck{proc_vec_mutex};
+    m_process_count +=1;
+    auto it = std::upper_bound(m_processes.begin(), m_processes.end(), process,
+                               [](auto& value, auto& elem ) { return value.pid < elem.pid;});
+    m_processes.insert(it, process);
 }
 
-void ProcessTracker::process_created_recieved(const ProcessInfo& process)
+void ProcessTracker::process_deleted_handler(const ProcessInfo &process)
 {
-    if(m_process_count != -1)
-        m_process_count++;
-    emit process_created(process);
+    std::unique_lock lck{proc_vec_mutex};
+    auto it = std::lower_bound(m_processes.begin(),m_processes.end(),process,
+                               [](auto& value, auto& elem ) { return value.pid < elem.pid;});
+    if(it == m_processes.end())
+    {
+        qDebug()<<"process not found. PID: "<<process.pid;
+        return;
+    }
+    m_processes.erase(it);
+    m_process_count -=1;
+    return proc;
 }
+
+bool set_debug_privilege(bool enable)
+{
+    HANDLE hToken;
+    TOKEN_PRIVILEGES token_privileges;
+    LUID luid;
+    DWORD priv_mode = enable ? SE_PRIVILEGE_ENABLED : SE_PRIVILEGE_REMOVED;
+    // Open the current process token
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
+    {
+        qDebug()<<"Failed to open process token";
+        return false;
+    }
+
+    // Lookup the LUID for the SeDebugPrivilege privilege
+    if (!LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid))
+    {
+        qDebug() << "Failed to lookup privilege value";
+        CloseHandle(hToken);
+        return false;
+    }
+
+    token_privileges.PrivilegeCount = 1;
+    token_privileges.Privileges[0].Luid = luid;
+    token_privileges.Privileges[0].Attributes = priv_mode;
+
+    // Enable the SeDebugPrivilege privilege
+    if (!AdjustTokenPrivileges(hToken, FALSE, &token_privileges, sizeof(TOKEN_PRIVILEGES), NULL, NULL))
+    {
+        qDebug() << "Failed to adjust token privileges";
+        CloseHandle(hToken);
+        return false;
+    }
+
+    CloseHandle(hToken);
+    return true;
+}
+
 }

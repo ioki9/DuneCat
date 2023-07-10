@@ -26,6 +26,7 @@ ScrollView {
         boundsBehavior: Flickable.StopAtBounds
         selectionBehavior: TableView.SelectRows
         selectionModel: ism
+
         columnWidthProvider:function(column) {
             return Math.min(200,model.columnWidth(column,10))
         }

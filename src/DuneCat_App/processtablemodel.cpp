@@ -8,12 +8,9 @@ ProcessTableModel::ProcessTableModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
     m_column_widths = std::vector<int>(m_column_count,0);
-    m_proc_tracker = new ProcessTracker(this);
-    auto start = std::chrono::steady_clock::now();
-    m_processes = m_proc_tracker->get_process_list();
-    auto end = std::chrono::steady_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end-start;
-    qDebug()<<elapsed_seconds.count();
+
+    m_proc_tracker = ProcessTracker::get_instance();
+    m_proc_tracker->get_process_list(m_processes);
     connect(m_proc_tracker,&ProcessTracker::process_created,this,&ProcessTableModel::add_new_process);
     connect(m_proc_tracker,&ProcessTracker::process_deleted,this,&ProcessTableModel::remove_process);
 }
@@ -113,11 +110,9 @@ QHash<int, QByteArray> ProcessTableModel::roleNames() const
 
 void ProcessTableModel::add_new_process(const ProcessInfo& proc)
 {
-    mutex.lock();
     beginInsertRows(QModelIndex(), rowCount(),rowCount());
     m_processes.push_back(proc);
     endInsertRows();
-    mutex.unlock();
 }
 
 void ProcessTableModel::remove_process(const ProcessInfo& proc)
@@ -126,13 +121,10 @@ void ProcessTableModel::remove_process(const ProcessInfo& proc)
                            [&proc](const ProcessInfo& srch){return srch.pid == proc.pid;});
     if(it == std::end(m_processes))
         return;
-
-    mutex.lock();
     int row = it - m_processes.begin();
     beginRemoveRows(QModelIndex(), row,row);
     m_processes.erase(it);
     endRemoveRows();
-    mutex.unlock();
 }
 
 }

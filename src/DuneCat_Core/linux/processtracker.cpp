@@ -7,9 +7,14 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include "linuxprocessobserver.h"
-
+#include <QStringTokenizer>
 namespace DuneCat
 {
+bool procinfo_less_pid_comp(const ProcessInfo& lhs,const ProcessInfo& rhs)
+{
+    return lhs.pid < rhs.pid;
+}
+
 //see: https://man7.org/linux/man-pages/man5/proc.5.html
 // or  https://kb.novaordis.com/index.php//proc/pid/stat#Field_2_-_Executable_File_Name
 enum StatParams : uint8_t
@@ -80,7 +85,7 @@ std::vector<QString> get_stat_params(const QFileInfo& dir_info,const std::vector
     QByteArray pid{dir_info.baseName().toUtf8()};
     QByteArray name{""};
     QByteArray line = stat.readLine();
-    if(line.size() == 0)
+    if(line.isEmpty())
         return std::vector<QString>{};
     size_t name_pid_offset{0};
 
@@ -140,23 +145,26 @@ QString get_user(uid_t uid)
 
 QDateTime get_proc_start_time(const QFileInfo& proc_dir)
 {
-    QDateTime result{};
-    struct timeval tv;
-    unsigned long long uptime{};
-    QFile uptime_file("/proc/uptime");
-    static time_t boot_time;
-    if (!uptime_file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return result;
-    uptime = uptime_file.readLine().toULongLong();
-    gettimeofday(&tv, 0);
-    boot_time = tv.tv_sec - uptime;
+    QDateTime result;
+
+    static time_t boot_time{0};
+    if(Q_UNLIKELY(!boot_time))
+    {
+        QFile uptime_file("/proc/uptime");
+        if (!uptime_file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return result;
+        double uptime = QString(uptime_file.readLine()).split(' ')[0].toDouble();
+        boot_time = static_cast<double>(QDateTime::currentMSecsSinceEpoch())/1000 - uptime;
+    }
+
     if(!proc_dir.exists())
         return QDateTime{};
     std::vector<QString> stats = get_stat_params(proc_dir,{SP_starttime});
     if(stats.empty())
         return QDateTime{};
     unsigned long long start_stat = stats[0].toULongLong() / sysconf(_SC_CLK_TCK);
-    result.setSecsSinceEpoch(boot_time - start_stat);
+    result.setSecsSinceEpoch(boot_time + start_stat);
+    result.setTimeZone(QTimeZone::systemTimeZone());
     return result;
 }
 
@@ -190,17 +198,25 @@ bool get_info_by_pid(quint32 pid, ProcessInfo& out)
     ssize_t nbytes = readlink(path_to_proc.data(),path,buff);
     if(nbytes != -1)
         out.file_path = QByteArray(path,nbytes);
-    out.creation_date = get_proc_start_time(dir);
+    out.creation_time = get_proc_start_time(dir);
     return true;
 }
 
 LinuxProcessObserver* observer;
 ProcessTracker::ProcessTracker(QObject *parent) : QObject(parent)
 {
+    m_processes = gather_processes();
+    if(m_processes.empty())
+    {
+        qFatal()<<"Couldn't gather process list. Exiting...";
+        QCoreApplication::exit(-1);
+    }
+    std::sort(m_processes.begin(),m_processes.end(),procinfo_less_pid_comp);
+
     observer = new LinuxProcessObserver(this);
     connect(observer, &DuneCat::LinuxProcessObserver::finished, observer, &QObject::deleteLater);
-    connect(observer,&DuneCat::LinuxProcessObserver::process_created,this,&DuneCat::ProcessTracker::process_created_recieved);
-    connect(observer,&DuneCat::LinuxProcessObserver::process_deleted,this,&DuneCat::ProcessTracker::process_deleted_recieved);
+    connect(observer,&DuneCat::LinuxProcessObserver::process_created,this,&DuneCat::ProcessTracker::process_created_handler);
+    connect(observer,&DuneCat::LinuxProcessObserver::process_deleted,this,&DuneCat::ProcessTracker::process_deleted_handler);
 
     observer->start();
 }
@@ -212,8 +228,10 @@ ProcessTracker::~ProcessTracker()
     observer->wait();
 }
 
-std::vector<ProcessInfo> ProcessTracker::get_process_list()
+std::vector<ProcessInfo> ProcessTracker::gather_processes()
 {
+    if(Q_LIKELY(m_process_count != 0))
+        return m_processes;
     std::vector<ProcessInfo> proc_list{};
     const QDir proc_dir(QString("/proc"));
     if(!proc_dir.exists())
@@ -234,9 +252,15 @@ std::vector<ProcessInfo> ProcessTracker::get_process_list()
     return proc_list;
 }
 
+void ProcessTracker::get_process_list(std::vector<ProcessInfo>& list_out) const
+{
+    std::shared_lock lck{proc_vec_mutex};
+    list_out = m_processes;
+}
+
 int ProcessTracker::get_process_count()
 {
-    if(m_process_count != -1)
+    if(Q_LIKELY(m_process_count != 0))
         return m_process_count;
     const QDir proc_dir(QString("/proc"));
     if(!proc_dir.exists())
@@ -253,21 +277,37 @@ int ProcessTracker::get_process_count()
     return m_process_count;
 }
 
-void ProcessTracker::process_deleted_recieved(const ProcessInfo &process)
-{
-    if(m_process_count != -1)
-        m_process_count--;
-    emit process_deleted(process);
-}
 
-void ProcessTracker::process_created_recieved(const ProcessInfo& process)
+void ProcessTracker::process_created_handler(const ProcessInfo &process)
 {
+    std::unique_lock lck{proc_vec_mutex};
+    m_process_count +=1;
+    auto it = std::upper_bound(m_processes.begin(), m_processes.end(), process,
+                               [](auto& value, auto& elem ) { return value.pid < elem.pid;});
     ProcessInfo proc = process;
     if(!get_info_by_pid(process.pid,proc))
         return;
-    if(m_process_count != -1)
-        m_process_count++;
-
+    m_processes.insert(it, proc);
     emit process_created(proc);
+
 }
+
+void ProcessTracker::process_deleted_handler(const ProcessInfo &process)
+{
+    std::unique_lock lck{proc_vec_mutex};
+    auto it = std::lower_bound(m_processes.begin(),m_processes.end(),process,
+                               [](auto& value, auto& elem ) { return value.pid < elem.pid;});
+    if(it == m_processes.end())
+    {
+        qDebug()<<"process not found. PID: "<<process.pid;
+        return;
+    }
+
+    ProcessInfo proc = process;
+    proc.creation_time = it->creation_time;
+    m_process_count -=1;
+    m_processes.erase(it);
+    emit process_deleted(proc);
+}
+
 }

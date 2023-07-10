@@ -19,3 +19,6 @@
 #pragma comment(lib, "advapi32.lib")
 #pragma comment(lib, "wbemuuid.lib")
 #endif //Q_OS_WINDOWS
+#include <thread>
+#include <set>
+#include <functional>

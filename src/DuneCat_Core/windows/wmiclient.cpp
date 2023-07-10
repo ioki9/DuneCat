@@ -71,8 +71,10 @@ void WMIClient::handle_event(IWbemClassObject *obj)
                 {
                     proc_info.owner_user = QString::fromWCharArray(str_user);
                     proc_info.owner_domain = QString::fromWCharArray(str_domain);
-                    SysFreeString(str_user);
-                    SysFreeString(str_domain);
+                    if(str_user)
+                        SysFreeString(str_user);
+                    if(str_domain)
+                        SysFreeString(str_domain);
                 }
                 emit new_process_created(proc_info);
             }
@@ -80,7 +82,7 @@ void WMIClient::handle_event(IWbemClassObject *obj)
             {
                 hr = obj->Get(L"TerminationDate",0,&vtVal,NULL,NULL);
                 if(SUCCEEDED(hr))
-                    proc_info.termination_date = fromBSTRToDateTime(vtVal.bstrVal);
+                    proc_info.termination_time = QDateTime::currentDateTime();
                 VariantClear(&vtVal);
                 emit process_deleted(proc_info);
             }
@@ -152,7 +154,7 @@ bool WMIClient::initialize()
         NULL,
         NULL,
         0,
-        NULL,
+        0,
         0,
         0,
         &m_pSvc
@@ -203,8 +205,8 @@ bool WMIClient::initialize()
                                         "WHERE TargetInstance ISA 'Win32_Process'" );
     if(!subscribe_to_event(creationQuery))
     {
-        return false;
         SysFreeString(creationQuery);
+        return false;
     }
     SysFreeString(creationQuery);
 
@@ -213,8 +215,8 @@ bool WMIClient::initialize()
                                         "WHERE TargetInstance ISA 'Win32_Process'"  );
     if(!subscribe_to_event(deletionQuery))
     {
-        return false;
         SysFreeString(deletionQuery);
+        return false;
     }
     SysFreeString(deletionQuery);
     is_initialized = true;
@@ -238,7 +240,7 @@ ProcessInfo WMIClient::get_process_stats(IWbemClassObject *obj)
 
     hr = obj->Get(L"CreationDate",0,&vtVal,NULL,NULL);
     if(SUCCEEDED(hr))
-        proc_info.creation_date = fromBSTRToDateTime(vtVal.bstrVal);
+        proc_info.creation_time = fromBSTRToDateTime(vtVal.bstrVal);
     VariantClear(&vtVal);
 
     hr = obj->Get(L"ExecutablePath",0,&vtVal,NULL,NULL);
@@ -280,7 +282,7 @@ bool WMIClient::subscribe_to_event(BSTR event_query)
     if (FAILED(hres))
     {
         qDebug()<<"Couldn't subscribe to event. ExecNotificationQueryAsync failed "
-                    "with error = 0x"<< hres <<'\n'<<"Event query:"<<QString::fromWCharArray(event_query);
+                    "with error = 0x"<< Qt::hex<<hres<<'\n'<<"Event query:"<<QString::fromWCharArray(event_query);
         m_pSvc->Release();
         m_pLoc->Release();
         m_pUnsecApp->Release();
@@ -336,8 +338,6 @@ std::vector<ProcessInfo> WMIClient::get_process_list()
             SysFreeString(str_domain);
         }
         proc_info.description = ProcessTracker::get_process_description(proc_info.file_path);
-        SysFreeString(str_user);
-        SysFreeString(str_domain);
         process_list.push_back(proc_info);
     }
 
@@ -357,7 +357,7 @@ BOOL WMIClient::get_logon_from_token(HANDLE hToken, BSTR& strUser, BSTR& strdoma
     if (!GetTokenInformation(
             hToken,         // handle to the access token
             TokenUser,    // get information about the token's groups
-            (LPVOID) ptu,   // pointer to PTOKEN_USER buffer
+            NULL,   // pointer to PTOKEN_USER buffer
             0,              // size of buffer
             &dwLength       // receives required buffer size
             ))
@@ -408,7 +408,7 @@ BOOL WMIClient::get_logon_from_token(HANDLE hToken, BSTR& strUser, BSTR& strdoma
     return bSuccess;
 }
 
-HRESULT WMIClient::get_user_from_process(const DWORD procId,  BSTR strUser, BSTR strdomain)
+HRESULT WMIClient::get_user_from_process(const DWORD procId, BSTR& strUser, BSTR& strdomain)
 {
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ ,FALSE,procId);
     if(hProcess == NULL)
@@ -417,7 +417,7 @@ HRESULT WMIClient::get_user_from_process(const DWORD procId,  BSTR strUser, BSTR
     }
     HANDLE hToken = NULL;
 
-    if( !OpenProcessToken(hProcess, TOKEN_QUERY, &hToken ) )
+    if( !OpenProcessToken(hProcess, TOKEN_QUERY | TOKEN_QUERY_SOURCE, &hToken ) )
     {
         CloseHandle( hProcess );
         return E_FAIL;

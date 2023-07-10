@@ -12,7 +12,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 enable_testing()
-
 message("Looking for Qt...")
 find_package(Qt6 COMPONENTS Core Quick Qml Network Test QuickControls2 Sql REQUIRED)
 if (${Qt6_FOUND})
@@ -33,7 +32,7 @@ add_dependencies(qt_libs Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui Qt6::Sql)
 add_subdirectory(src/DuneCat_App)
 add_subdirectory(src/DuneCat_Network)
 add_subdirectory(src/DuneCat_Core)
-#add_subdirectory(tests/core)
+add_subdirectory(tests/core)
 #add_subdirectory(tests/networking)
 
 install(TARGETS DuneCat
