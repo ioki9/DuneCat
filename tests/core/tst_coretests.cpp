@@ -69,7 +69,7 @@ void CoreTests::test_dbmanager_open_close()
     std::unique_ptr<DBManager> db2 = std::make_unique<DBManager>("test_dbmanager_open_close2","test.db");
     QSqlDatabase global = QSqlDatabase::database("test_dbmanager_open_close");
 
-    db->open();
+    QVERIFY(db->open());
     QVERIFY(db->is_open());
     QVERIFY(global.isOpen());
     db->close();
