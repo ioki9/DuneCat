@@ -62,8 +62,13 @@ bool DBManager::open()
     }
     if(m_db.isOpen())
     {
-        //Counting every open connection
-        return true;
+        if(!m_open)
+        {
+            std::scoped_lock lck{mutex};
+            m_open_connections_count[m_db.connectionName()] += 1;   
+            m_open = true;
+        }
+        return m_open;
     }
     else if(!m_db.open())
     {
@@ -72,7 +77,8 @@ bool DBManager::open()
     }
     std::scoped_lock lck{mutex};
     m_open_connections_count[m_db.connectionName()] += 1;
-    return m_open = true;
+    m_open = true;
+    return m_open;
 }
 
 void DBManager::close()
