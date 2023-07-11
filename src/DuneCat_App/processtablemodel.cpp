@@ -8,7 +8,6 @@ ProcessTableModel::ProcessTableModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
     m_column_widths = std::vector<int>(m_column_count,0);
-
     m_proc_tracker = ProcessTracker::get_instance();
     m_proc_tracker->get_process_list(m_processes);
     connect(m_proc_tracker,&ProcessTracker::process_created,this,&ProcessTableModel::add_new_process);

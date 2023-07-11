@@ -1,11 +1,9 @@
 #include "essentialheaders.h"
-#include "settings.h"
 #include "processtablemodel.h"
 #include "sortfilterprocessmodel.h"
 #include <QQuickStyle>
 #include "dbmanager.h"
 #include "processinfo.h"
-#include <chrono>
 
 using namespace DuneCat;
 
@@ -15,7 +13,7 @@ bool init_connect_db();
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
     QTranslator translator;
     app.setApplicationName(QStringLiteral("DuneCat"));
     app.setOrganizationName(QStringLiteral("DuneCat"));

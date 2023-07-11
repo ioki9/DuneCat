@@ -9,8 +9,27 @@ DCMainWindow
     visibility: visibility = Settings.window_maximized ? Window.Maximized : Window.Windowed
     width: width = Settings.window_width
     height: height = Settings.window_height
+    Connections {
+          target: SystemTray
+          // Сигнал - показать окно
+          function onShow() {
+              root.show();
+          }
 
+          // The signal - close the application by ignoring the check-box
+          function onQuit() {
+              close();
+          }
 
+          // Minimize / maximize the window by clicking on the default system tray
+          function onIcon_activated() {
+               if(root.visibility === Window.Hidden) {
+                   root.show()
+               } else {
+                   root.hide()
+               }
+          }
+      }
     Binding{
         target: Settings
         property: "window_height"
@@ -54,16 +73,11 @@ DCMainWindow
         anchors.bottom: parent.bottom
         anchors.top: parent.top
         anchors.right: parent.right
-        DCMainPage{
-        visible: adminPanel.activePage === DCAdminPanel.Home ? true : false
-        anchors.fill:parent
-        }
         Loader{
             id:pageLoader
-            source: adminPanel.activePage === DCAdminPanel.Home ? "" : root.pageUrlList[adminPanel.activePage]
+            source: root.pageUrlList[adminPanel.activePage]
             anchors.fill: parent
         }
     }
-
 }
 

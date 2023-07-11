@@ -30,7 +30,8 @@ qt_add_qml_module(${PROJECT_NAME}
     SOURCES
         "sortfilterprocessmodel.h" "sortfilterprocessmodel.cpp"
         "processtablemodel.h" "processtablemodel.cpp"
-        "settings.h" "settings.cpp"
+        "settings.h" "settings.cpp" "systemtray.h" "systemtray.cpp"
+
     RESOURCES
         "icons/20x20/desktop.png"
         "icons/20x20/circle_indicator.png"

@@ -1,4 +1,4 @@
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QObject>
 #include <QtQml/qqmlregistration.h>
@@ -22,3 +22,4 @@
 #include <thread>
 #include <set>
 #include <functional>
+#include <chrono>
