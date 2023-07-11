@@ -41,7 +41,7 @@ DBManager::DBManager(const DBManager& other)
 
 DBManager& DBManager::operator=(const DBManager& other)
 {
-    m_open = other.m_open;
+    m_open = other.m_open.load();
     m_db = other.m_db;
 
     if(m_open)
