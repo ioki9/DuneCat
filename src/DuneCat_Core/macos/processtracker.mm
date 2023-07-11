@@ -78,7 +78,7 @@ ProcessTracker::~ProcessTracker()
     observer = nil;
 }
 
-void ProcessTracker::get_process_list(std::vector<ProcessInfo>& list_out)
+void ProcessTracker::get_process_list(std::vector<ProcessInfo>& list_out) const
 {
     std::shared_lock lck{proc_vec_mutex};
     list_out = m_processes;
