@@ -82,6 +82,7 @@ void CoreTests::test_dbmanager_open_close()
     db2->open();
     db->open();
     std::thread t1{&DBManager::close,db2.get()};
+    t1.join();
     QVERIFY(db->is_open());
     QVERIFY(!db2->is_open());
     QVERIFY(global.isOpen());
@@ -97,7 +98,6 @@ void CoreTests::test_dbmanager_open_close()
     QVERIFY(!db2->is_open());
     QVERIFY(!global.isOpen());
 
-    t1.join();
 }
 
 void CoreTests::test_dbmanager_copy()
