@@ -10,44 +10,45 @@ SystemTray::SystemTray(QObject *parent) : QObject(parent)
 
     QAction* view_window = new QAction(QStringLiteral("Open DuneCat"), this);
     QAction* quit_action = new QAction(QStringLiteral("Exit"), this);
-    /* to connect the signals clicks on menu items to the appropriate signals for QML.
-     * */
-    connect(view_window, &QAction::triggered, this, &SystemTray::show);
-    connect(quit_action, &QAction::triggered, this, &SystemTray::quit);
 
     tray_icon_menu->addAction(view_window);
     tray_icon_menu->addAction(quit_action);
 
-    /* Initialize the tray icon, icon set, and specify the tooltip
-     * */
-    QIcon icon("qrc:/DuneCat/imports/img/LaunchButton.png");
-    qDebug()<<"Called";
+    connect(view_window, &QAction::triggered, this, &SystemTray::show);
+    connect(quit_action, &QAction::triggered, this, &SystemTray::quit);
+
+    QIcon icon = QIcon::fromTheme(QStringLiteral("desktop"));
     m_tray_icon = new QSystemTrayIcon(icon,this);
     m_tray_icon->setContextMenu(tray_icon_menu);
     m_tray_icon->show();
-    m_tray_icon->setToolTip("Tray Program" "\n"
-                         "Work with winimizing program to tray");
+    m_tray_icon->setToolTip(QStringLiteral("DuneCat"));
 
 
     connect(m_tray_icon,&QSystemTrayIcon::activated,
             this, &SystemTray::icon_activated_handler);
 }
 
-/* The method that handles click on the application icon in the system tray
- * */
+
+SystemTray *SystemTray::create(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
+{
+    SystemTray* result = new SystemTray();
+    return result;
+}
+
 void SystemTray::icon_activated_handler(QSystemTrayIcon::ActivationReason reason)
 {
+#ifndef Q_OS_MAC
     switch (reason){
-    case QSystemTrayIcon::Trigger:
-        // In the case of pressing the signal on the icon tray in the call signal QML layer
-        emit icon_activated();
+    case QSystemTrayIcon::DoubleClick:
+        emit show();
         break;
     default:
         break;
     }
+#endif
 }
 
-void SystemTray::hide_tray_icon()
+void SystemTray::set_visible(bool visible)
 {
-   m_tray_icon->hide();
+    m_tray_icon->setVisible(visible);
 }

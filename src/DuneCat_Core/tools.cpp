@@ -32,13 +32,13 @@ bool bootUpStart(bool isOn)
                 QString autorunContent("[Desktop Entry]\n"
                                        "Type=Application\n"
                                        "Exec=" + QCoreApplication::applicationFilePath() + "\n"
-                                                                                   "Hidden=flase\n"
-                                                                                   "NoDisplay=false\n"
-                                                                                   "X-GNOME-Autostart-enabled=true\n"
-                                                                                   "Name[en_GB]=DuneCat\n"
-                                                                                   "Name=DuneCat\n"
-                                                                                   "Comment[en_GB]=DuneCat\n"
-                                                                                   "Comment=DuneCat\n");
+                                       "Hidden=true\n"
+                                       "NoDisplay=false\n"
+                                       "X-GNOME-Autostart-enabled=true\n"
+                                       "Name[en_GB]=DuneCat\n"
+                                       "Name=DuneCat\n"
+                                       "Comment[en_GB]=DuneCat\n"
+                                       "Comment=DuneCat\n");
                 QTextStream outStream(&autorunFile);
                 outStream << autorunContent;
                 // Set access rights, including on the performance of the file, otherwise the autorun does not work
@@ -71,7 +71,7 @@ bool bootUpStart(bool isOn)
     if ( isOn )
     {
         QStringList args;
-        args << ("-e tell application \"System Events\" to make login item at end with properties {path:\"" + macOSXAppBundlePath() + "\", hidden:false}");
+        args << ("-e tell application \"System Events\" to make login item at end with properties {path:\"" + macOSXAppBundlePath() + "\", hidden:true}");
 
         QProcess::execute("osascript", args);
         return true;
@@ -79,7 +79,9 @@ bool bootUpStart(bool isOn)
 #elif defined(Q_OS_WIN)
     QSettings bootUpSettings(QStringLiteral("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"), QSettings::NativeFormat);
     if (isOn) {
-        bootUpSettings.setValue(PROJECT_NAME, QDir::toNativeSeparators(QCoreApplication::applicationFilePath()));
+        bootUpSettings.setValue(PROJECT_NAME,"\"" +
+                                QDir::toNativeSeparators(QCoreApplication::applicationFilePath() + "\""
+                                                         + QStringLiteral(" --hidden")));
         bootUpSettings.sync();
         return true;
     }

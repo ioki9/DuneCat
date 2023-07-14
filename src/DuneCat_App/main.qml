@@ -6,30 +6,20 @@ import DCStyle
 DCMainWindow
 {
     id: root
-    visibility: visibility = Settings.window_maximized ? Window.Maximized : Window.Windowed
     width: width = Settings.window_width
     height: height = Settings.window_height
+
     Connections {
-          target: SystemTray
-          // Сигнал - показать окно
-          function onShow() {
-              root.show();
-          }
+        target: root
+        function onClosing(close) {
+            if(root.visibility !== Window.Hidden)
+            {
+                close.accepted = false
+                root.visibility = Window.Hidden
+            }
+        }
+    }
 
-          // The signal - close the application by ignoring the check-box
-          function onQuit() {
-              close();
-          }
-
-          // Minimize / maximize the window by clicking on the default system tray
-          function onIcon_activated() {
-               if(root.visibility === Window.Hidden) {
-                   root.show()
-               } else {
-                   root.hide()
-               }
-          }
-      }
     Binding{
         target: Settings
         property: "window_height"
@@ -49,10 +39,17 @@ DCMainWindow
     }
 
     property list<string> pageUrlList:[]
-    function startupFunction()
-    {
+    function startupFunction(){
         pageUrlList[DCAdminPanel.Home] = "qrc:/DuneCat/imports/qml/pages/DCMainPage.qml";
         pageUrlList[DCAdminPanel.Settings] = "qrc:/DuneCat/imports/qml/pages/DCSettingsPage.qml";
+
+        if(Qt.application.arguments[1] === "--hidden")
+           root.visibility = Window.Hidden
+        else if(Settings.window_maximized)
+            root.visibility = Window.Maximized
+        else
+            root.visibility = Window.Windowed
+
     }
 
     Component.onCompleted:{
@@ -67,6 +64,7 @@ DCMainWindow
         anchors.left: parent.left
         anchors.top: parent.top
     }
+
     Rectangle{
         id:page
         anchors.left: adminPanel.right
@@ -75,9 +73,12 @@ DCMainWindow
         anchors.right: parent.right
         Loader{
             id:pageLoader
+            active: root.visibility === Window.Hidden ? false : true
             source: root.pageUrlList[adminPanel.activePage]
             anchors.fill: parent
         }
     }
+
+
 }
 

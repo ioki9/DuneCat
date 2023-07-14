@@ -12,7 +12,7 @@ class SystemTray : public QObject
     QML_SINGLETON
 public:
     explicit SystemTray(QObject *parent = nullptr);
-
+    static SystemTray* create(QQmlEngine *qmlEngine, QJSEngine *jsEngine);
 signals:
     void icon_activated();
     void show();
@@ -24,7 +24,7 @@ private slots:
     void icon_activated_handler(QSystemTrayIcon::ActivationReason reason);
 
 public slots:
-    void hide_tray_icon();
+    Q_INVOKABLE void set_visible(bool visible);
 
 private:
     /* Declare the object of future applications for the tray icon*/
