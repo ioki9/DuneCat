@@ -53,8 +53,9 @@ int main(int argc, char *argv[])
 bool init_connect_db()
 {
     ProcessTracker* tracker = ProcessTracker::get_instance();
-    static DBManager db{"processes_conn","data.db"};
-    db.open();
+    static DBManager db {"proc_history_conn"};
+    if(!db.open())
+        return false;
 
     static QSqlQuery query_create{db.get_database()};
     static QSqlQuery query_delete{db.get_database()};
@@ -113,7 +114,7 @@ bool init_connect_db()
 
 
     auto start = std::chrono::steady_clock::now();
-    tracker->apply_to_array([](const std::vector<ProcessInfo>& processes){
+    tracker->apply_to_array([&out](const std::vector<ProcessInfo>& processes){
         if(db.transaction())
         {
             for(const auto& proc : processes)
@@ -130,13 +131,13 @@ bool init_connect_db()
                 query_create.bindValue(8,proc.command_line);
                 if(!query_create.exec())
                     qWarning()<<"Couldn't insert new process into history_processes table. Error: "
-                               <<query_create.lastError().text();
+                               <<query_create.lastError().text(); 
             }
             if(!db.commit())
                 db.print_last_db_error(QStringLiteral("Couldn't commit changes to history_processes table. Error: "));
         }
         else
-            db.print_last_db_error(QStringLiteral("Couldn't start a trancastion to history_processes table. Error: "));
+            db.print_last_db_error(QStringLiteral("Couldn't start a transaction for initial query to process_history. Error:");
 
     });
     auto end = std::chrono::steady_clock::now();
