@@ -8,7 +8,25 @@ DCMainWindow
     id: root
     width: width = Settings.window_width
     height: height = Settings.window_height
-
+    Connections {
+        target: SystemTray
+        function onShow() {
+            root.requestActivate()
+            root.show()
+            root.raise()
+            if(!page.loader.active)
+            {
+                adminPanelLoader.active = true
+                pageLoader.active = true
+            }
+        }
+        function onQuit() {
+            Settings.window_height = root.height
+            Settings.window_width = root.width
+            Settings.window_maximized = root.visibility === Window.Maximized
+            Qt.quit()
+        }
+    }
     Connections {
         target: root
         function onClosing(close) {
@@ -16,26 +34,10 @@ DCMainWindow
             {
                 close.accepted = false
                 root.visibility = Window.Hidden
+                pageLoader.active = false
+                adminPanelLoader.active = false
             }
         }
-    }
-
-    Binding{
-        target: Settings
-        property: "window_height"
-        value: root.height
-    }
-
-    Binding{
-        target: Settings
-        property: "window_width"
-        value: root.width
-    }
-
-    Binding{
-        target: Settings
-        property: "window_maximized"
-        value: visibility === Window.Maximized
     }
 
     property list<string> pageUrlList:[]
@@ -55,26 +57,45 @@ DCMainWindow
     Component.onCompleted:{
         startupFunction()
     }
-    DCAdminPanel{
+
+
+    Item{
         id:adminPanel
+        property alias adminLoaderItem: adminPanelLoader.item
         width: 180
-        listSpacing: 5
         z:5
         height: parent.height
         anchors.left: parent.left
         anchors.top: parent.top
+
+        Loader{
+            id: adminPanelLoader
+            active:true
+            anchors.fill: parent
+            sourceComponent: adminPanelComp
+        }
+        Component{
+            id:adminPanelComp
+            DCAdminPanel{
+
+                listSpacing: 5
+                anchors.fill: parent
+            }
+        }
+
     }
+
 
     Rectangle{
         id:page
+        property alias loader: pageLoader
         anchors.left: adminPanel.right
         anchors.bottom: parent.bottom
         anchors.top: parent.top
         anchors.right: parent.right
         Loader{
             id:pageLoader
-            active: root.visibility === Window.Hidden ? false : true
-            source: root.pageUrlList[adminPanel.activePage]
+            source: root.pageUrlList[adminPanel.adminLoaderItem.activePage]
             anchors.fill: parent
         }
     }
