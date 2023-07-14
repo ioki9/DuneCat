@@ -289,7 +289,6 @@ void ProcessTracker::process_created_handler(const ProcessInfo &process)
         return;
     m_processes.insert(it, proc);
     emit process_created(proc);
-
 }
 
 void ProcessTracker::process_deleted_handler(const ProcessInfo &process)
