@@ -137,7 +137,7 @@ bool init_connect_db()
                 db.print_last_db_error(QStringLiteral("Couldn't commit changes to history_processes table. Error: "));
         }
         else
-            db.print_last_db_error(QStringLiteral("Couldn't start a transaction for initial query to process_history. Error:");
+            db.print_last_db_error(QStringLiteral("Couldn't start a transaction for initial query to process_history. Error:"));
 
     });
     auto end = std::chrono::steady_clock::now();
