@@ -44,7 +44,8 @@ void CoreTests::test_processtracker_get_process_list()
 
 void CoreTests::test_dbmanager_connection()
 {
-    DBManager db{"test_dbmanager_connection","test.db"};
+    DBManager db{"test_dbmanager_connection"};
+    db.set_database_name("test.db");
     QVERIFY(db.is_valid());
     QCOMPARE(db.get_connection_name(),QString{"test_dbmanager_connection"});
     QCOMPARE(db.get_database_name(),QString{"test.db"});
@@ -65,8 +66,11 @@ void CoreTests::test_dbmanager_connection()
 
 void CoreTests::test_dbmanager_open_close()
 {
-    std::unique_ptr<DBManager> db = std::make_unique<DBManager>("test_dbmanager_open_close","test.db");
-    std::unique_ptr<DBManager> db2 = std::make_unique<DBManager>("test_dbmanager_open_close2","test.db");
+    std::unique_ptr<DBManager> db = std::make_unique<DBManager>("test_dbmanager_open_close");
+    std::unique_ptr<DBManager> db2 = std::make_unique<DBManager>("test_dbmanager_open_close2");
+    db->set_database_name("test.db");
+    db2->set_database_name("test.db");
+
     QSqlDatabase global = QSqlDatabase::database("test_dbmanager_open_close");
 
     QVERIFY(db->open());
@@ -102,7 +106,8 @@ void CoreTests::test_dbmanager_open_close()
 
 void CoreTests::test_dbmanager_copy()
 {
-    DBManager db{"test_dbmanager_copy", "test.db"};
+    DBManager db{"test_dbmanager_copy"};
+    db.set_database_name("test.db");
     db.open();
     DBManager db2(db);
     QCOMPARE(db2.get_connection_name(),QString{"test_dbmanager_copy"});
@@ -132,7 +137,8 @@ void CoreTests::test_dbmanager_table_exist()
         QFile file (QDir::currentPath()+ "/test.db");
         file.remove();
     }
-    DBManager db{"test_dbmanager_table_exist","test.db"};
+    DBManager db{"test_dbmanager_table_exist"};
+    db.set_database_name("test.db");
     db.open();
     QSqlQuery query(db.get_database());
 

@@ -7,7 +7,8 @@ namespace DuneCat
 class DBManager
 {
 public:
-    DBManager(const QString& connection_name, const QString &database_name = QStringLiteral(""));
+    //constructor with default database file name
+    DBManager(const QString& connection_name);
     DBManager();
     virtual ~DBManager();
     DBManager(DBManager&&) = delete;

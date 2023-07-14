@@ -5,11 +5,11 @@ namespace DuneCat
 std::map<QString,std::atomic_int8_t> DBManager::m_open_connections_count{};
 const QString DBManager::m_driver_name {QStringLiteral("QSQLITE")};
 
-DBManager::DBManager(const QString& connection_name,const QString& database_name)
+DBManager::DBManager(const QString& connection_name)
 {
     m_db = create_connection(connection_name);
-    if(m_db.isValid() && !database_name.isEmpty())
-        m_db.setDatabaseName(database_name);
+    if(m_db.isValid())
+        m_db.setDatabaseName(QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/data.db"));
 }
 
 DBManager::DBManager() : m_db{}
@@ -185,7 +185,7 @@ QSqlDatabase DBManager::create_connection(const QString& connection_name)
 {
     QSqlDatabase db;
     if(QSqlDatabase::contains(connection_name))
-        return db = QSqlDatabase::database(connection_name);
+        return QSqlDatabase::database(connection_name);
 
     db = QSqlDatabase::addDatabase(m_driver_name,connection_name);
     if(db.isValid())
