@@ -114,7 +114,7 @@ bool init_connect_db()
 
 
     auto start = std::chrono::steady_clock::now();
-    tracker->apply_to_array([&out](const std::vector<ProcessInfo>& processes){
+    tracker->apply_to_array([](const std::vector<ProcessInfo>& processes){
         if(db.transaction())
         {
             for(const auto& proc : processes)
