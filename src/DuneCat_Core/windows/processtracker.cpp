@@ -139,7 +139,7 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
             if (QueryFullProcessImageName(process_handle,NULL, filename, &dwSize) != 0)
                 info.file_path = QString::fromWCharArray(filename);
             else
-                qDebug()<<GetLastError();
+                qDebug()<<"couldn't get process path. Error:"<<GetLastError();
             FILETIME start,exit,kernel,user;
             if(GetProcessTimes(process_handle,&start,&exit,&kernel,&user) != 0)
             {
@@ -149,6 +149,7 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
                                                QTime(sys_time.wHour,sys_time.wMinute,sys_time.wSecond,sys_time.wMilliseconds),
                                                Qt::UTC,0).toLocalTime();
             }
+
             HANDLE token_handle = NULL;
             if( OpenProcessToken( process_handle, TOKEN_QUERY | TOKEN_QUERY_SOURCE , &token_handle ) != FALSE )
             {
@@ -167,6 +168,8 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
         info.pid = pe32.th32ProcessID;
         info.name = QString::fromWCharArray(pe32.szExeFile);
         info.description = ProcessTracker::get_process_description(info.file_path);
+        if(!info.creation_time.isValid())
+            info.creation_time = WMIClient::get_instance()->get_sys_boot_time();
 
 //        if(!info.file_path.isEmpty())
 //        {
