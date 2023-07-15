@@ -8,6 +8,8 @@ DCMainWindow
     id: root
     width: width = Settings.window_width
     height: height = Settings.window_height
+    property list<string> pageUrlList:[]
+
     Connections {
         target: SystemTray
         function onShow() {
@@ -40,7 +42,6 @@ DCMainWindow
         }
     }
 
-    property list<string> pageUrlList:[]
     function startupFunction(){
         pageUrlList[DCAdminPanel.Home] = "qrc:/DuneCat/imports/qml/pages/DCMainPage.qml";
         pageUrlList[DCAdminPanel.Settings] = "qrc:/DuneCat/imports/qml/pages/DCSettingsPage.qml";
@@ -51,7 +52,6 @@ DCMainWindow
             root.visibility = Window.Maximized
         else
             root.visibility = Window.Windowed
-
     }
 
     Component.onCompleted:{
@@ -82,9 +82,7 @@ DCMainWindow
                 anchors.fill: parent
             }
         }
-
     }
-
 
     Rectangle{
         id:page
