@@ -22,7 +22,7 @@ public:
     }
     std::vector<ProcessInfo> get_process_list();
     static BOOL get_logon_from_token(HANDLE hToken, BSTR &strUser, BSTR &strdomain);
-
+    QDateTime get_sys_boot_time();
 private:
     explicit WMIClient(QObject* parent = nullptr);
     ~WMIClient() override;
@@ -39,8 +39,9 @@ private:
     std::pair<QString,QString> get_process_user_domain(IWbemClassObject* obj);
     void handle_process_deletion(IWbemClassObject* obj);
     bool initialize();
+    QDateTime m_boot_time;
     ProcessInfo get_process_stats(IWbemClassObject* obj);
-    HRESULT get_user_from_process(const DWORD procId, BSTR strUser, BSTR strdomain);
+    HRESULT get_user_from_process(const DWORD procId, BSTR &strUser, BSTR &strdomain);
 signals:
     void process_deleted(const ProcessInfo& process);
     void new_process_created(const ProcessInfo& new_process);

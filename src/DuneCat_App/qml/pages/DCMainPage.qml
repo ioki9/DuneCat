@@ -6,7 +6,9 @@ import "qrc:/DuneCat/imports/qml/controls"
 Rectangle {
 
     radius:DCStyle.radius
+    property alias procTableScrollPos: procTable.scrollBarPos
     DCProcessTable{
+        id:procTable
         anchors.fill:parent
     }
 

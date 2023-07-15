@@ -28,7 +28,6 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
 private:
-    QMutex mutex;
     std::vector<int> m_column_widths;
     std::vector<ProcessInfo> m_processes;
     ProcessTracker *m_proc_tracker = nullptr;

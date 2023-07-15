@@ -10,12 +10,15 @@ import TableModels
 ScrollView {
     id:scrollView
     property double scrollerWidth:ScrollBar.vertical.width
+    property double scrollBarPos: 0.0
     ScrollBar.vertical: ScrollBar{
+        id:scrollBar
         parent:scrollView
         anchors.topMargin: header.height
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.right:parent.right
+        Component.onCompleted: position = scrollBarPos
     }
     TableView {
         id:tableView

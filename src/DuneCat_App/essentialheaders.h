@@ -1,4 +1,4 @@
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QObject>
 #include <QtQml/qqmlregistration.h>
@@ -19,3 +19,7 @@
 #pragma comment(lib, "advapi32.lib")
 #pragma comment(lib, "wbemuuid.lib")
 #endif //Q_OS_WINDOWS
+#include <thread>
+#include <set>
+#include <functional>
+#include <chrono>

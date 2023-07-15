@@ -12,9 +12,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 enable_testing()
-
 message("Looking for Qt...")
-find_package(Qt6 COMPONENTS Core Quick Qml Network Test QuickControls2 Sql REQUIRED)
+find_package(Qt6 COMPONENTS Core Quick Qml Network Test QuickControls2 Sql Widgets REQUIRED)
 if (${Qt6_FOUND})
     message("Found Qt " ${Qt6_VERSION})
 else()
@@ -26,14 +25,14 @@ set (QT_QML_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/qml)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_library(qt_libs)
-target_link_libraries(qt_libs PUBLIC Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui Qt6::Sql)
-add_dependencies(qt_libs Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui Qt6::Sql)
+target_link_libraries(qt_libs PUBLIC Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui Qt6::Sql Qt6::Widgets)
+add_dependencies(qt_libs Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui Qt6::Sql Qt6::Widgets)
 
 
 add_subdirectory(src/DuneCat_App)
 add_subdirectory(src/DuneCat_Network)
 add_subdirectory(src/DuneCat_Core)
-#add_subdirectory(tests/core)
+add_subdirectory(tests/core)
 #add_subdirectory(tests/networking)
 
 install(TARGETS DuneCat
