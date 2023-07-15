@@ -41,7 +41,6 @@ DCMainWindow
             }
         }
     }
-
     function startupFunction(){
         pageUrlList[DCAdminPanel.Home] = "qrc:/DuneCat/imports/qml/pages/DCMainPage.qml";
         pageUrlList[DCAdminPanel.Settings] = "qrc:/DuneCat/imports/qml/pages/DCSettingsPage.qml";
