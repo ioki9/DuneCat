@@ -191,6 +191,36 @@ bool WMIClient::initialize()
         CoUninitialize();
         return false;
     }
+    //Get boot time
+    BSTR bstrWql = SysAllocString(L"WQL" );
+    BSTR bootQuery = SysAllocString(L"SELECT * FROM Win32_OperatingSystem");
+    IEnumWbemClassObject* pEnumerator = NULL;
+    hres = m_pSvc->ExecQuery(bstrWql,
+                             bootQuery,
+                             WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
+                             NULL,
+                             &pEnumerator);
+    SysFreeString(bstrWql);
+    SysFreeString(bootQuery);
+    IWbemClassObject *pclsObj = NULL;
+    ULONG uReturn = 0;
+
+    while (pEnumerator)
+    {
+        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1,
+                                       &pclsObj, &uReturn);
+        if(0 == uReturn)
+        {
+            break;
+        }
+        VARIANT vtProp;
+        VariantInit(&vtProp);
+        //Get the value
+        hr = pclsObj->Get(L"LastBootUpTime", 0, &vtProp, 0, 0);
+        m_boot_time = fromBSTRToDateTime(vtProp.bstrVal);
+        VariantClear(&vtProp);
+        pclsObj->Release();
+    }
 
     // Receive event notifications -----------------------------
     // Use an unsecured apartment for security
@@ -406,6 +436,11 @@ BOOL WMIClient::get_logon_from_token(HANDLE hToken, BSTR& strUser, BSTR& strdoma
     if (ptu != NULL)
         HeapFree(GetProcessHeap(), 0, (LPVOID)ptu);
     return bSuccess;
+}
+
+QDateTime WMIClient::get_sys_boot_time()
+{
+    return m_boot_time;
 }
 
 HRESULT WMIClient::get_user_from_process(const DWORD procId, BSTR& strUser, BSTR& strdomain)
