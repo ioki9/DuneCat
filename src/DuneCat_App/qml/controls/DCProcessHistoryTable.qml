@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import DCStyle
 import "qrc:/DuneCat/imports/qml/components"
-import TableModels
+
 
 ScrollView {
     id:scrollView
@@ -16,6 +16,7 @@ ScrollView {
         anchors.bottom: parent.bottom
         anchors.right:parent.right
         }
+
     TableView
     {
         id:tableView
@@ -25,26 +26,27 @@ ScrollView {
         boundsBehavior: Flickable.StopAtBounds
         selectionBehavior: TableView.SelectRows
         selectionModel: ism
-        model: SortFilterProcessModel{}
+        model: ProcessHistoryModel
         columnWidthProvider:function(column) {
             return Math.min(200,model.columnWidth(column,10))
         }
         property bool headerBinded: false
+    }
 
-        Connections{
-            target: header
-            function onPositioningComplete() {
-                if(!tableView.headerBinded)
-                {
-                    tableView.columnWidthProvider = function(column){return header.repeater.itemAt(column).width}
-                    tableView.forceLayout()
-                    tableView.headerBinded = true
-                }
-                else
-                    tableView.forceLayout()
+    Connections{
+        target: header
+        function onPositioningComplete() {
+            if(!tableView.headerBinded)
+            {
+                tableView.columnWidthProvider = function(column){return header.repeater.itemAt(column).width}
+                tableView.forceLayout()
+                tableView.headerBinded = true
             }
+            else
+                tableView.forceLayout()
         }
     }
+
     Rectangle
     {
         parent:scrollView
@@ -57,8 +59,6 @@ ScrollView {
         width:parent.width
         z:10
     }
-
-
 
     Row{
         id:header
@@ -79,9 +79,9 @@ ScrollView {
                     for(var i = 0; i < colRepeater.model; i++)
                         if(i !== index)
                             colRepeater.itemAt(i).stopSorting()
-
+                    console.log("called sort in qml");
                     tableView.model.sort(index, state === "up" ? Qt.AscendingOrder : Qt.DescendingOrder)
-
+                    console.log("sorted in qml")
                 }
             }
         }
@@ -110,7 +110,12 @@ ScrollView {
                 id: textDel
                 z: 3
                 width:parent.width
-                text:display
+                text:display/*{
+                    if(column === 23 || column === 24)
+                        return displayDate.toLocaleString(Locale.ShortFormat)
+                    else
+                        return display
+                }*/
                 font.pointSize: 10
                 anchors.left: parent.left
                 anchors.leftMargin: 5

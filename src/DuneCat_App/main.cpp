@@ -1,9 +1,12 @@
 #include "essentialheaders.h"
 #include "processtablemodel.h"
 #include "sortfilterprocessmodel.h"
+#include "sqlsortfiltermodel.h"
 #include <QQuickStyle>
+#include <QQmlContext>
 #include "dbmanager.h"
 #include "processinfo.h"
+#include "sqltablemodel.h"
 
 using namespace DuneCat;
 
@@ -28,6 +31,7 @@ int main(int argc, char *argv[])
     if(!init_connect_db())
         app.exit(-1);
     qputenv("QT_QUICK_CONTROLS_CONF",":/DuneCat/imports/qtquickcontrols2.conf");
+
     qRegisterMetaType<ProcessInfo>("ProcessInfo");
     qmlRegisterType<ProcessTableModel>("TableModels",1,0,"ProcessTableModel");
     qmlRegisterType<SortFilterProcessModel>("TableModels",1,0,"SortFilterProcessModel");
@@ -35,6 +39,23 @@ int main(int argc, char *argv[])
     QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << QStringLiteral(":/DuneCat/imports/icons"));
     QIcon::setThemeName(QStringLiteral("Default"));
     QQmlApplicationEngine engine;
+    DBManager db{"proc_history_conn"};
+    db.open();
+    QSqlQuery query{db.get_database()};
+    query.prepare(QStringLiteral("SELECT name,pid,creation_time,termination_time,description FROM processes_history"));
+    SqlTableModel* proc_history_model = new SqlTableModel(db.get_database(),&app);
+    ProcessTracker* tracker = ProcessTracker::get_instance();
+    query.exec(QStringLiteral("SELECT name,pid,creation_time,termination_time,description FROM processes_history"));
+    qDebug()<<"size:"<<query.size();
+    proc_history_model->setQuery(QStringLiteral("SELECT name,pid,creation_time,termination_time,description FROM processes_history"),db.get_database());
+    proc_history_model->refresh();
+    //    QObject::connect(tracker,&ProcessTracker::process_created,
+//            [proc_history_model,&db,&query](const ProcessInfo& proc){
+//                         proc_history_model->setQuery(QStringLiteral("SELECT name,pid,creation_time,termination_time,description FROM processes_history"),db.get_database());});
+    SqlSortFilterModel* proc_history_sort_model = new SqlSortFilterModel(db.get_database(),&app);
+    proc_history_sort_model->setSourceModel(proc_history_model);
+    qDebug()<<proc_history_sort_model->columnCount();
+    engine.rootContext()->setContextProperty("ProcessHistoryModel",proc_history_sort_model);
     engine.addImportPath(QStringLiteral(":/DuneCat/imports/qml"));
     engine.addImportPath(QStringLiteral(":/DuneCat/imports/qml/controls"));
     engine.addImportPath(QStringLiteral(":/DuneCat/imports/qml/pages"));
@@ -87,7 +108,7 @@ bool init_connect_db()
     if(!last_alive.isEmpty())
     {
         res = query_create.exec(QStringLiteral("UPDATE processes_history SET termination_time = '-" ) + last_alive
-                                + QStringLiteral("' WHERE termination_time IS NULL;"));
+                                + QStringLiteral("' WHERE termination_time = 0;"));
         if(!res)
         {
             qFatal()<<"Couldn't update termination time from last active timestamp. Error: "<<query_create.lastError().text();
@@ -124,7 +145,7 @@ bool init_connect_db()
                 query_create.bindValue(1,proc.pid);
                 query_create.bindValue(2,proc.file_path);
                 query_create.bindValue(3,creation_time);
-                query_create.bindValue(4,{});
+                query_create.bindValue(4,{0});
                 query_create.bindValue(5,proc.description);
                 query_create.bindValue(6,proc.owner_user);
                 query_create.bindValue(7,proc.owner_domain);
@@ -148,7 +169,7 @@ bool init_connect_db()
         query_create.bindValue(1,proc.pid);
         query_create.bindValue(2,proc.file_path);
         query_create.bindValue(3,proc.creation_time.toSecsSinceEpoch());
-        query_create.bindValue(4,{});
+        query_create.bindValue(4,{0});
         query_create.bindValue(5,proc.description);
         query_create.bindValue(6,proc.owner_user);
         query_create.bindValue(7,proc.owner_domain);
