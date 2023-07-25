@@ -24,23 +24,28 @@ int SqlSortFilterModel::columnCount(const QModelIndex &parent) const
     return m_model->columnCount(QModelIndex());
 }
 
-int SqlSortFilterModel::columnWidth(int c, const QFont *font)
+int SqlSortFilterModel::columnWidth(int c,int role, const QFont *font)
 {
     if(c < 0|| c >= m_model->columnCount(QModelIndex()))
         return 0;
-    return m_model->columnWidth(c,font);
+    return m_model->columnWidth(c,role,font);
 }
 
-int SqlSortFilterModel::columnWidth(int c, int pointSize)
+int SqlSortFilterModel::columnWidth(int c,int role, int pointSize)
 {
     if(c < 0|| c >= m_model->columnCount(QModelIndex()))
         return 0;
-    return m_model->columnWidth(c,pointSize);
+    return m_model->columnWidth(c,role,pointSize);
 }
 
 QVariant SqlSortFilterModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     return m_model->headerData(section,orientation,role);
+}
+
+void SqlSortFilterModel::refresh()
+{
+    m_model->refresh();
 }
 
 void SqlSortFilterModel::setSourceModel(QAbstractItemModel *sourceModel)

@@ -13,6 +13,7 @@ using namespace DuneCat;
 //Creates db connection with all the necessary db table stuff.
 //Connects process creation/termination signals to store them in a database.
 bool init_connect_db();
+SqlSortFilterModel* create_proc_history_model();
 
 int main(int argc, char *argv[])
 {
@@ -39,23 +40,8 @@ int main(int argc, char *argv[])
     QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << QStringLiteral(":/DuneCat/imports/icons"));
     QIcon::setThemeName(QStringLiteral("Default"));
     QQmlApplicationEngine engine;
-    DBManager db{"proc_history_conn"};
-    db.open();
-    QSqlQuery query{db.get_database()};
-    query.prepare(QStringLiteral("SELECT name,pid,creation_time,termination_time,description FROM processes_history"));
-    SqlTableModel* proc_history_model = new SqlTableModel(db.get_database(),&app);
-    ProcessTracker* tracker = ProcessTracker::get_instance();
-    query.exec(QStringLiteral("SELECT name,pid,creation_time,termination_time,description FROM processes_history"));
-    qDebug()<<"size:"<<query.size();
-    proc_history_model->setQuery(QStringLiteral("SELECT name,pid,creation_time,termination_time,description FROM processes_history"),db.get_database());
-    proc_history_model->refresh();
-    //    QObject::connect(tracker,&ProcessTracker::process_created,
-//            [proc_history_model,&db,&query](const ProcessInfo& proc){
-//                         proc_history_model->setQuery(QStringLiteral("SELECT name,pid,creation_time,termination_time,description FROM processes_history"),db.get_database());});
-    SqlSortFilterModel* proc_history_sort_model = new SqlSortFilterModel(db.get_database(),&app);
-    proc_history_sort_model->setSourceModel(proc_history_model);
-    qDebug()<<proc_history_sort_model->columnCount();
-    engine.rootContext()->setContextProperty("ProcessHistoryModel",proc_history_sort_model);
+
+    engine.rootContext()->setContextProperty("ProcessHistoryModel",create_proc_history_model());
     engine.addImportPath(QStringLiteral(":/DuneCat/imports/qml"));
     engine.addImportPath(QStringLiteral(":/DuneCat/imports/qml/controls"));
     engine.addImportPath(QStringLiteral(":/DuneCat/imports/qml/pages"));
@@ -74,13 +60,19 @@ int main(int argc, char *argv[])
 bool init_connect_db()
 {
     ProcessTracker* tracker = ProcessTracker::get_instance();
-    static DBManager db {"proc_history_conn"};
+    static DBManager db {"proc_history_write"};
     if(!db.open())
         return false;
 
     static QSqlQuery query_create{db.get_database()};
     static QSqlQuery query_delete{db.get_database()};
-    bool res = query_create.exec(QStringLiteral("CREATE TABLE if NOT EXISTS processes_history "
+    bool res = query_create.exec(QStringLiteral("PRAGMA journal_mode=WAL;"));
+    if(!res)
+    {
+        qFatal()<<"Couldn't make db WAL";
+        return false;
+    }
+    res = query_create.exec(QStringLiteral("CREATE TABLE if NOT EXISTS processes_history "
                                                 "(name TEXT NOT NULL,"
                                                 " pid INTEGER NOT NULL,"
                                                 " path TEXT,"
@@ -152,7 +144,7 @@ bool init_connect_db()
                 query_create.bindValue(8,proc.command_line);
                 if(!query_create.exec())
                     qWarning()<<"Couldn't insert new process into history_processes table. Error: "
-                               <<query_create.lastError().text(); 
+                               <<query_create.lastError().text();
             }
             if(!db.commit())
                 db.print_last_db_error(QStringLiteral("Couldn't commit changes to history_processes table. Error: "));
@@ -165,6 +157,7 @@ bool init_connect_db()
     std::chrono::duration<double> elapsed_seconds = end - start;
     qDebug()<<elapsed_seconds.count();
     QObject::connect(tracker,&ProcessTracker::process_created,[](const ProcessInfo& proc){
+      //  db.transaction();
         query_create.bindValue(0,proc.name);
         query_create.bindValue(1,proc.pid);
         query_create.bindValue(2,proc.file_path);
@@ -176,13 +169,58 @@ bool init_connect_db()
         query_create.bindValue(8,proc.command_line);
         if(!query_create.exec())
             qWarning()<<"Couldn't insert new process into history_processes table. Error: "<<query_create.lastError().text();
+     //   else
+     //       db.commit();
     });
     QObject::connect(tracker,&ProcessTracker::process_deleted,[](const ProcessInfo& proc){
+        //db.transaction();
         query_delete.bindValue(QStringLiteral(":termination_time"),proc.termination_time.toSecsSinceEpoch());
         query_delete.bindValue(QStringLiteral(":creation_time"),proc.creation_time.toSecsSinceEpoch());
         query_delete.bindValue(QStringLiteral(":pid"),proc.pid);
         if(!query_delete.exec())
             qWarning()<<"Couldn't update termination date. Error: "<<query_delete.lastError().text();
+//        else
+//            db.commit();
     });
     return true;
+}
+
+SqlSortFilterModel* create_proc_history_model()
+{
+    static DBManager db{"proc_history_read"};
+    db.open();
+
+    SqlTableModel* proc_history_model = new SqlTableModel(db,QApplication::instance());
+    proc_history_model->setQuery(QStringLiteral("SELECT name,pid,creation_time,termination_time,description FROM processes_history"));
+    proc_history_model->setHeaderData({"name","pid","creation time","termination time", "description"});
+
+//    QObject::connect(ProcessTracker::get_instance(),&ProcessTracker::process_created,proc_history_model,
+//                     [proc_history_model](const ProcessInfo& proc){
+//                        if(proc_history_model->sinceLastModelReset() > 1000)
+//                            proc_history_model->refresh();});
+
+//    QObject::connect(ProcessTracker::get_instance(),&ProcessTracker::process_deleted,proc_history_model,
+//                     [proc_history_model](const ProcessInfo& proc){
+//                        if(proc_history_model->sinceLastModelReset() > 1000)
+//                            proc_history_model->refresh();});
+
+    QObject::connect(ProcessTracker::get_instance(),&ProcessTracker::process_deleted,proc_history_model,
+                    [proc_history_model](const ProcessInfo& proc)
+                     {
+                        QSqlQuery query{db.get_database()};
+                        query.prepare(QStringLiteral("SELECT rowid FROM processes_history WHERE creation_time = :creation_time AND pid = :pid"));
+                        query.bindValue(QStringLiteral(":creation_time"),proc.creation_time.toSecsSinceEpoch());
+                        query.bindValue(QStringLiteral(":pid"),proc.pid);
+                        if(!query.exec())
+                        {
+                            qWarning()<<"Couldn't update termination date. Error: "<<query.lastError().text();
+                            return;
+                        }
+                        if(query.first())
+                             proc_history_model->rwoChanged(proc_history_model->index(query.value(0).toInt(),3));
+                     });
+
+    SqlSortFilterModel* proc_history_sort_model = new SqlSortFilterModel(db.get_database(),QApplication::instance());
+    proc_history_sort_model->setSourceModel(proc_history_model);
+    return proc_history_sort_model;
 }

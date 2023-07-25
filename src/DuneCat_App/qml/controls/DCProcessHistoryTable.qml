@@ -16,6 +16,14 @@ ScrollView {
         anchors.bottom: parent.bottom
         anchors.right:parent.right
         }
+//    Button{
+//        onPressed: tableView.model.refresh()
+//        width: 100
+//        z:5
+//        height: 60
+//        anchors.top: parent.top
+
+//    }
 
     TableView
     {
@@ -27,10 +35,16 @@ ScrollView {
         selectionBehavior: TableView.SelectRows
         selectionModel: ism
         model: ProcessHistoryModel
-        columnWidthProvider:function(column) {
-            return Math.min(200,model.columnWidth(column,10))
-        }
+        columnWidthProvider: function(column) {
+            var role
+            if(index === 2 || index === 3)
+                role = Qt.UserRole
+            else
+                role = Qt.DisplayRole
+            return Math.min(200,model.columnWidth(column,role,10))
+            }
         property bool headerBinded: false
+
     }
 
     Connections{
@@ -73,49 +87,44 @@ ScrollView {
                 id:col
                 height:parent.height
                 fontPointSize: 10
-                width:Math.min(200,tableView.model.columnWidth(index,10))
+                width:{
+                    var role
+                    if(index === 2 || index === 3)
+                        role = Qt.UserRole
+                    else
+                        role = Qt.DisplayRole
+                    return Math.min(200,tableView.model.columnWidth(index,role,10))
+                }
                 label:tableView.model.headerData(index,Qt.Horizontal,Qt.DisplayRole)
                 onSorting: {
                     for(var i = 0; i < colRepeater.model; i++)
                         if(i !== index)
                             colRepeater.itemAt(i).stopSorting()
-                    console.log("called sort in qml");
                     tableView.model.sort(index, state === "up" ? Qt.AscendingOrder : Qt.DescendingOrder)
-                    console.log("sorted in qml")
                 }
             }
         }
     }
 
-
     Component {
         id: viewDelegate
-        DCSideRoundedRect {
+        Rectangle {
             id:wrapper
             property alias textDelegate: textDel
             implicitHeight: textDel.implicitHeight+15
-            recColor: selected ? "lightblue" : "white"
-            recRadius: DCStyle.radius
-            recRadiusSide:{
-                if(column === 0)
-                   return DCSideRoundedRect.RectangleSide.Left
-                else if(column === (tableView.model.columnCount() - 1))
-                    return DCSideRoundedRect.RectangleSide.Right
-                else
-                    return DCSideRoundedRect.RectangleSide.None
-            }
+            color: "white"
             required property bool selected
             required property bool current
             Text{
                 id: textDel
                 z: 3
                 width:parent.width
-                text:display/*{
-                    if(column === 23 || column === 24)
-                        return displayDate.toLocaleString(Locale.ShortFormat)
+                text:{
+                    if(column === 2 || column === 3)
+                        return displayDate
                     else
                         return display
-                }*/
+                }
                 font.pointSize: 10
                 anchors.left: parent.left
                 anchors.leftMargin: 5
@@ -133,8 +142,53 @@ ScrollView {
                     }
                 }
             }
+            Loader{
+                width: parent.width
+                height: parent.height
+                sourceComponent: {
+                    if(column === 0)
+                        return roundedLeftRec
+                    else if(column === tableView.model.columnCount() -1)
+                        return roundedRightRec
+                    return midRec
+                }
+                active: selected
+            }
+
         }
     }
+    Component
+    {
+        id: roundedLeftRec
+        DCSideRoundedRect{
+            z:2
+            recColor: "lightblue"
+            opacity: 0.8
+            recRadius: DCStyle.radius
+            recRoundSide:DCSideRoundedRect.RectangleSide.Left
+        }
+    }
+    Component
+    {
+        id: roundedRightRec
+        DCSideRoundedRect{
+            z:2
+            recColor: "lightblue"
+            opacity: 0.8
+            recRadius: DCStyle.radius
+            recRoundSide:DCSideRoundedRect.RectangleSide.Right
+        }
+    }
+    Component
+    {
+        id: midRec
+        Rectangle{
+            z:2
+            color: "lightblue"
+            opacity: 0.8
+        }
+    }
+
     ItemSelectionModel{
         id:ism
         model:tableView.model
