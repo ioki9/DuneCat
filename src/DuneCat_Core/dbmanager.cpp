@@ -94,6 +94,11 @@ void DBManager::close()
         m_db.close();
 }
 
+QSqlDriver *DBManager::driver() const
+{
+    return m_db.driver();
+}
+
 void DBManager::set_database_name(const QString &name)
 {
     m_db.setDatabaseName(name);

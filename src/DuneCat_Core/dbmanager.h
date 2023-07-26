@@ -21,7 +21,7 @@ public:
     bool remove_connection(const QString& connection_name);
     bool open();
     void close();
-
+    QSqlDriver *driver() const;
     void set_database_name(const QString& name);
     bool transaction();
     bool commit();

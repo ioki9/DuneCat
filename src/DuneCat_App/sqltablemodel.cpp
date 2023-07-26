@@ -4,11 +4,13 @@
 #include <QSqlField>
 #include <QFontMetrics>
 #include "processtracker.h"
+
 namespace DuneCat
 {
 SqlTableModel::SqlTableModel(const DBManager& db,QObject *parent)
     : QAbstractTableModel{parent},m_db{db}
 {
+
     m_reset_timer.start();
     if(!m_db.is_open())
         m_db.open();
@@ -19,7 +21,6 @@ SqlTableModel::SqlTableModel(const DBManager& db,QObject *parent)
         m_row_count = count_query.value(0).toInt();
     else
         qWarning()<<"can't get row count of sql database. Error: "<<count_query.lastError().text();
-    connect(this,&SqlTableModel::rwoChanged,this,&SqlTableModel::rowChangedHandler);
 }
 
 SqlTableModel::~SqlTableModel()
@@ -40,6 +41,7 @@ void SqlTableModel::setQuery(const QString &query)
     else
         qWarning()<<"Couldn't execute query in SqlTableModel. Error:"<<m_query->lastError().text()
             <<". Query:"<<m_query->lastQuery();
+
     m_column_widths = std::vector<int>(this->columnCount(QModelIndex()),0);
 }
 
@@ -118,16 +120,6 @@ qint64 SqlTableModel::sinceLastModelReset() const
     return m_reset_timer.elapsed();
 }
 
-void SqlTableModel::rowChangedHandler(const QModelIndex &row)
-{
-    qDebug()<<"Called";
-    m_query->finish();
-    if(!m_query->exec())
-        qWarning()<<"Couldn't refresh SqlTableModel. Query exec error. Error:"<<m_query->lastError().text()
-                   <<". Query:"<<m_query->lastQuery();
-    emit dataChanged(row,row);
-}
-
 int SqlTableModel::columnWidth(int c,int role, const QFont *font)
 {
     if(!m_column_widths[c])
@@ -159,7 +151,6 @@ int SqlTableModel::columnWidth(int c,int role, int pointSize)
 
 void SqlTableModel::refresh()
 {
-    beginResetModel();
     QSqlQuery count_query(m_db.get_database());
     count_query.exec(QStringLiteral("SELECT COUNT(*) FROM processes_history"));
     if(count_query.next())
@@ -173,9 +164,8 @@ void SqlTableModel::refresh()
         qWarning()<<"Couldn't refresh SqlTableModel. Query exec error. Error:"<<m_query->lastError().text()
                    <<". Query:"<<m_query->lastQuery();
 
-    endResetModel();
+    emit dataChanged(index(0,0),index(rowCount()-1,columnCount()-1));
     m_reset_timer.restart();
-
 }
 
 }

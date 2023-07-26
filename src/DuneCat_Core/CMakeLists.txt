@@ -22,6 +22,7 @@ qt_add_qml_module(DCCore
     )
 target_include_directories(DCCore PUBLIC
     ${CMAKE_SOURCE_DIR}/src/DuneCat_App
+    ${CMAKE_SOURCE_DIR}/3rdparty
     "${PROJECT_BINARY_DIR}")
 target_precompile_headers(DCCore
     PUBLIC ${CMAKE_SOURCE_DIR}/src/DuneCat_App/essentialheaders.h)

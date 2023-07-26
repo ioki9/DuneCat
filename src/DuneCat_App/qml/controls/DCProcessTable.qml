@@ -58,8 +58,6 @@ ScrollView {
         z:10
     }
 
-
-
     Row{
         id:header
         parent:scrollView
@@ -87,23 +85,13 @@ ScrollView {
         }
     }
 
-
     Component {
         id: viewDelegate
-        DCSideRoundedRect {
+        Rectangle {
             id:wrapper
             property alias textDelegate: textDel
             implicitHeight: textDel.implicitHeight+15
-            recColor: selected ? "lightblue" : "white"
-            recRadius: DCStyle.radius
-            recRadiusSide:{
-                if(column === 0)
-                   return DCSideRoundedRect.RectangleSide.Left
-                else if(column === (tableView.model.columnCount() - 1))
-                    return DCSideRoundedRect.RectangleSide.Right
-                else
-                    return DCSideRoundedRect.RectangleSide.None
-            }
+            color: selected ? "lightblue" : "white"
             required property bool selected
             required property bool current
             Text{
@@ -133,6 +121,34 @@ ScrollView {
     ItemSelectionModel{
         id:ism
         model:tableView.model
+    }
+    Component
+    {
+        id:selectionLeftRoundedRec
+        DCSideRoundedRect{
+            z:2
+            opacity: 0.8
+            recRadius: DCStyle.radius
+            recRadiusSide:DCSideRoundedRect.RectangleSide.Left
+        }
+    }
+    Component
+    {
+        id:selectionRightRoundedRec
+        DCSideRoundedRect{
+            z:3
+            opacity: 0.8
+            recRadius: DCStyle.radius
+            recRadiusSide:DCSideRoundedRect.RectangleSide.Right
+        }
+    }
+    Component
+    {
+        id:seletionMidRec
+        Rectangle{
+            z:2
+            opacity: 0.8
+        }
     }
 }
 

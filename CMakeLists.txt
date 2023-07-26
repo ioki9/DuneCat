@@ -41,6 +41,8 @@ install(TARGETS DuneCat
 
 configure_file(DuneCatConfig.h.in DuneCatConfig.h)
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/3rdparty)
+
 set (
     QML_IMPORT_PATH
     ${CMAKE_BINARY_DIR}/qml

@@ -29,6 +29,7 @@ ScrollView {
     {
         id:tableView
         anchors.fill:parent
+        property int lastSelected
         topMargin: header.height
         delegate:viewDelegate
         boundsBehavior: Flickable.StopAtBounds
@@ -44,6 +45,22 @@ ScrollView {
             return Math.min(200,model.columnWidth(column,role,10))
             }
         property bool headerBinded: false
+        Connections{
+            target: model
+            function onModelAboutToBeReset(){
+                var temp = ism.selectedRows(0)[0]
+                tableView.lastSelected = temp.row
+                console.log("on model about to be reset. Index = ",tableView.lastSelected)
+
+            }
+            function onModelReset(){
+                console.log("on model reset. Index = ", tableView.lastSelected)
+
+                if(tableView.lastSelected)
+                    ism.select(tableView.model.index(tableView.lastSelected,0),
+                                ItemSelectionModel.SelectCurrent )
+            }
+        }
 
     }
 
@@ -112,8 +129,9 @@ ScrollView {
             id:wrapper
             property alias textDelegate: textDel
             implicitHeight: textDel.implicitHeight+15
-            color: "white"
+            color: selected ? "blue" : "white"
             required property bool selected
+            required property int row
             required property bool current
             Text{
                 id: textDel
@@ -188,10 +206,12 @@ ScrollView {
             opacity: 0.8
         }
     }
-
     ItemSelectionModel{
         id:ism
         model:tableView.model
+        onSelectionChanged: console.log("selection changed")
+
     }
+
 }
 

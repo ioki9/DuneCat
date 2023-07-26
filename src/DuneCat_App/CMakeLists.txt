@@ -33,6 +33,7 @@ qt_add_qml_module(${PROJECT_NAME}
         "settings.h" "settings.cpp" "systemtray.h" "systemtray.cpp"
         "sqltablemodel.h" "sqltablemodel.cpp"
         "sqlsortfiltermodel.h" "sqlsortfiltermodel.cpp"
+
     RESOURCES
         "icons/20x20/desktop.png"
         "icons/20x20/circle_indicator.png"
