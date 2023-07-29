@@ -18,6 +18,7 @@ SqlSortFilterModel* create_proc_history_model();
 int sqlite_callback(void* param,sqlite3* handle,const char* db_name,int pages )
 {
     qDebug()<<"Checkpoint";
+    return SQLITE_OK;
 }
 
 int main(int argc, char *argv[])
@@ -69,17 +70,18 @@ bool init_connect_db()
     if(!db.open())
         return false;
     QVariant v = db.driver()->handle();
-    if (!v.isValid() || qstrcmp(v.typeName(), "sqlite3*") != 0) {
+    if (!v.isValid() && (qstrcmp(v.typeName(), "sqlite3*") == 0)) {
         qWarning()<<"Cannot get a sqlite3 handle to the driver.";
         return false;
     }
-
     // Create a handler and attach functions.
     sqlite3* handler = *static_cast<sqlite3**>(v.data());
     if (!handler) {
         qWarning()<<"Cannot get a sqlite3 handler.";
         return false;
     }
+    qDebug()<<sqlite3_compileoption_get(1);
+
     sqlite3_wal_hook(handler,&sqlite_callback,nullptr);
     static QSqlQuery query_create{db.get_database()};
     static QSqlQuery query_delete{db.get_database()};
@@ -185,7 +187,8 @@ bool init_connect_db()
         query_create.bindValue(7,proc.owner_domain);
         query_create.bindValue(8,proc.command_line);
         if(!query_create.exec())
-            qWarning()<<"Couldn't insert new process into history_processes table. Error: "<<query_create.lastError().text();
+            qWarning()<<"Couldn't insert new process into history_processes table. Error: "<<query_create.lastError().text()
+                       <<". Values are pid:"<<proc.pid<<" creation time:" << proc.creation_time.toSecsSinceEpoch();;
      //   else
      //       db.commit();
     });
@@ -195,7 +198,8 @@ bool init_connect_db()
         query_delete.bindValue(QStringLiteral(":creation_time"),proc.creation_time.toSecsSinceEpoch());
         query_delete.bindValue(QStringLiteral(":pid"),proc.pid);
         if(!query_delete.exec())
-            qWarning()<<"Couldn't update termination date. Error: "<<query_delete.lastError().text();
+            qWarning()<<"Couldn't update termination date. Error: "<<query_delete.lastError().text()
+                       <<". Values are pid:"<<proc.pid<<" creation time:" << proc.creation_time.toSecsSinceEpoch();
 //        else
 //            db.commit();
     });
