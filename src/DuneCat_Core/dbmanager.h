@@ -4,6 +4,17 @@
 #include <atomic>
 namespace DuneCat
 {
+enum class JournalMode
+{
+    OFF,
+    WAL,
+    MEMORY,
+    PERSIST,
+    TRUNCATE,
+    DEL,
+    MAX
+};
+
 class DBManager
 {
 public:
@@ -19,6 +30,7 @@ public:
     bool connect(const QString& connection_name, bool create_if_not_exist = true);
     QSqlDatabase create_connection(const QString& connection_name);
     bool remove_connection(const QString& connection_name);
+    bool set_journal_mode(JournalMode mode);
     bool open();
     void close();
     QSqlDriver *driver() const;
@@ -35,6 +47,7 @@ public:
     [[nodiscard]] int table_exists(const QString& table_name) const;
     void print_last_db_error(QStringView text);
 private:
+    QString journal_mode_to_string(JournalMode mode);
     QSqlDatabase m_db;
     std::atomic_bool m_open;
     static std::map<QString,std::atomic_int8_t> m_open_connections_count;
