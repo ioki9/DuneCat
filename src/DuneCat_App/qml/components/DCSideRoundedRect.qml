@@ -12,24 +12,20 @@ Item {
     required property int recRoundSide
     property color recColor: "white"
 
-
     Rectangle {
         id: leftRect
-        radius: {
-}
         color: recColor
-        width:{
-            }
         Component.onCompleted: {
             if(recRoundSide === DCSideRoundedRect.RectangleSide.Left)
-                width = parent.width
-            else
-                width = recRadius
-            if(recRoundSide === DCSideRoundedRect.RectangleSide.Left)
+            {
                 radius = recRadius
+                width = parent.width
+            }
             else
+            {
                 radius = 0
-
+                width = recRadius
+            }
         }
         height:parent.height
         anchors.left: parent.left
@@ -41,13 +37,16 @@ Item {
         height: parent.height
         Component.onCompleted: {
             if(recRoundSide === DCSideRoundedRect.RectangleSide.Right)
-                width = parent.width
-            else
-                width = recRadius
-            if(recRoundSide === DCSideRoundedRect.RectangleSide.Right)
+            {
                 radius = recRadius
+                width = parent.width
+            }
             else
+            {
                 radius = 0
+                width = recRadius
+            }
+
         }
 
         anchors.right : parent.right
