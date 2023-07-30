@@ -154,10 +154,17 @@ void SqlTableModel::refresh()
     QSqlQuery count_query(m_db.get_database());
     count_query.exec(QStringLiteral("SELECT COUNT(*) FROM processes_history"));
     if(count_query.next())
-        m_row_count = count_query.value(0).toInt();
+    {
+        int rows{count_query.value(0).toInt()};
+        if(m_row_count != rows)
+        {
+            beginInsertRows({},m_row_count,rows);
+            m_row_count = rows;
+            endInsertRows();
+        }
+    }
     else
         qWarning()<<"can't get row count of sql database. Error: "<<count_query.lastError().text();
-    qDebug()<<"called";
     count_query.finish();
     m_query->finish();
     if(!m_query->exec())
