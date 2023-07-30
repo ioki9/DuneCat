@@ -4,6 +4,8 @@ set(DCNET_DIR ${CMAKE_SOURCE_DIR}/src/DuneCat_Network)
 set(SOURCE_LIST tst_coretests.cpp
     ${DCCORE_DIR}/processtracker.h ${DCCORE_DIR}/tools.h ${DCCORE_DIR}/tools.cpp
     ${DCCORE_DIR}/dbmanager.h ${DCCORE_DIR}/dbmanager.cpp
+    ${DCCORE_DIR}/globalsignalemitter.h ${DCCORE_DIR}/globalsignalemitter.cpp
+
 )
 if(WIN32)
     list(APPEND SOURCE_LIST ${DCCORE_DIR}/windows/processtracker.cpp
