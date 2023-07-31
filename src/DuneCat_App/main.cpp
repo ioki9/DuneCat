@@ -16,11 +16,6 @@ using namespace DuneCat;
 //Connects process creation/termination signals to store them in a database.
 bool init_connect_db();
 SqlSortFilterModel* create_proc_history_model();
-int sqlite_callback(void* param,sqlite3* handle,const char* db_name,int pages )
-{
-    qDebug()<<"Checkpoint";
-    return SQLITE_OK;
-}
 
 int main(int argc, char *argv[])
 {
@@ -74,6 +69,11 @@ bool init_connect_db()
     static QSqlQuery query_create{db.get_database()};
     static QSqlQuery query_delete{db.get_database()};
     bool res = db.set_journal_mode(JournalMode::WAL);
+    if(!res)
+    {
+        qFatal()<<"Couldn't set database journal mode to WAL";
+        return false;
+    }
     res = query_create.exec(QStringLiteral("CREATE TABLE if NOT EXISTS processes_history "
                                                 "(name TEXT NOT NULL,"
                                                 " pid INTEGER NOT NULL,"

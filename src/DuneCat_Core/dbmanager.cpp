@@ -2,6 +2,7 @@
 #include <mutex>
 #include "sqlite3/sqlite3.h"
 #include "globalsignalemitter.h"
+
 namespace DuneCat
 {
 std::map<QString,std::atomic_int8_t> DBManager::m_open_connections_count{};
@@ -12,10 +13,24 @@ DBManager::DBManager(const QString& connection_name)
     m_db = create_connection(connection_name);
     if(m_db.isValid())
         m_db.setDatabaseName(QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/data.db"));
+    constexpr int msec = 3 * 60 * 60 * 1000;
+    m_timer.start(msec);
+    QObject::connect(&m_timer,&QTimer::timeout,QCoreApplication::instance(),[this](){
+        QSqlQuery query{m_db};
+        if(!query.exec(QStringLiteral("PRAGMA optimize;")))
+            qWarning()<<"Failed to run PRAGMA optimize.";
+    });
 }
 
 DBManager::DBManager() : m_db{}
 {
+    constexpr int msec = 3 * 60 * 60 * 1000;
+    m_timer.start(msec);
+    QObject::connect(&m_timer,&QTimer::timeout,QCoreApplication::instance(),[this](){
+        QSqlQuery query{m_db};
+        if(!query.exec(QStringLiteral("PRAGMA optimize;")))
+            qWarning()<<"Failed to run PRAGMA optimize.";
+    });
 }
 
 DBManager::~DBManager()
@@ -89,6 +104,9 @@ void DBManager::close()
     mutex.lock();
     int8_t count = (m_open_connections_count[m_db.connectionName()] -= 1);
     mutex.unlock();
+    QSqlQuery query(m_db);
+    if(!query.exec(QStringLiteral("PRAGMA optimize;")))
+        qWarning()<<"Failed to run PRAGMA optimize on database close.";
     //Close only if this is was the last open connection.
     m_open = false;
     if(count <= 0)
@@ -248,13 +266,15 @@ bool DBManager::set_journal_mode(JournalMode mode)
     {
         QVariant v = m_db.driver()->handle();
         if (!v.isValid() && (qstrcmp(v.typeName(), "sqlite3*") == 0)) {
-            qWarning()<<"Cannot get a sqlite3 handle to the driver.";
+            qWarning()<<"Cannot get a sqlite3 handle to the driver."
+                          "Db will not emit checkpoint signal.";
             return false;
         }
         // Create a handler and attach functions.
         sqlite3* handle = *static_cast<sqlite3**>(v.data());
         if (!handle) {
-            qWarning()<<"Cannot get a sqlite3 handle.";
+            qWarning()<<"Cannot get a sqlite3 handle in DBManager::set_journal_mode. "
+                          "Db will not emit checkpoint signal.";
             return false;
         }
 

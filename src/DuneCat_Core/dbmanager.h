@@ -53,5 +53,6 @@ private:
     static std::map<QString,std::atomic_int8_t> m_open_connections_count;
     static const QString m_driver_name;
     std::mutex mutex;
+    QTimer m_timer;
 };
 }
