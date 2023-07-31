@@ -129,7 +129,7 @@ ScrollView {
             id:wrapper
             property alias textDelegate: textDel
             implicitHeight: textDel.implicitHeight+15
-            color: selected ? "blue" : "white"
+            color: selected ? "lightblue" : "white"
             required property bool selected
             required property int row
             required property bool current
@@ -160,18 +160,19 @@ ScrollView {
                     }
                 }
             }
-            Loader{
-                width: parent.width
-                height: parent.height
-                sourceComponent: {
-                    if(column === 0)
-                        return roundedLeftRec
-                    else if(column === tableView.model.columnCount() -1)
-                        return roundedRightRec
-                    return midRec
-                }
-                active: selected
-            }
+
+//            Loader{
+//                width: parent.width
+//                height: parent.height
+//                sourceComponent: {
+//                    if(column === 0)
+//                        return roundedLeftRec
+//                    else if(column === tableView.model.columnCount() -1)
+//                        return roundedRightRec
+//                    return midRec
+//                }
+//                active: selected
+//            }
 
         }
     }
@@ -206,11 +207,10 @@ ScrollView {
             opacity: 0.8
         }
     }
+
     ItemSelectionModel{
         id:ism
         model:tableView.model
-        onSelectionChanged: console.log("selection changed")
-
     }
 
 }
