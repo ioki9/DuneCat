@@ -12,6 +12,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 enable_testing()
+#find Qt library
 message("Looking for Qt...")
 find_package(Qt6 COMPONENTS Core Quick Qml Network Test QuickControls2 Sql Widgets REQUIRED)
 if (${Qt6_FOUND})
@@ -27,13 +28,26 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_library(qt_libs)
 target_link_libraries(qt_libs PUBLIC Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui Qt6::Sql Qt6::Widgets)
 add_dependencies(qt_libs Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui Qt6::Sql Qt6::Widgets)
-link_directories(3rdparty/sqlite3)
+
 add_subdirectory(3rdparty/sqlite3)
 add_subdirectory(src/DuneCat_App)
 add_subdirectory(src/DuneCat_Network)
 add_subdirectory(src/DuneCat_Core)
 add_subdirectory(tests/core)
 #add_subdirectory(tests/networking)
+
+#find SQLite3 library
+# Set the library name
+set(SQLite3_LIB_NAME libsqlite3.so)
+set(SQLite3_LIB_PATH ${CMAKE_SOURCE_DIR}/3rdparty/sqlite3)
+
+# Search for your library in the directory specified above
+find_library(SQLite3 ${SQLite3_LIB_NAME} PATHS ${SQLite3_LIB_PATH} NO_DEFAULT_PATH)
+
+# Check if the library was found
+if(NOT SQLite3)
+    message(FATAL_ERROR "Could not find SQLite3 library")
+endif()
 
 install(TARGETS DuneCat
     BUNDLE DESTINATION .
