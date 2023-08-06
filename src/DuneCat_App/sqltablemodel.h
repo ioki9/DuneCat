@@ -27,7 +27,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     void setHeaderData(const std::vector<QVariant>& data);
     QVariant data(const QModelIndex &index, int role) const override;
-    QHash<int, QByteArray> roleNames() const;
+    QHash<int, QByteArray> roleNames() const override;
     qint64 sinceLastModelReset() const;
 private:
     QHash<int, QByteArray> generate_roles_from_fields();
