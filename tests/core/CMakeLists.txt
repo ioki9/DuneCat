@@ -26,7 +26,7 @@ target_include_directories(core_tests PUBLIC "${PROJECT_BINARY_DIR}")
 target_include_directories(core_tests PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_include_directories(core_tests PUBLIC ${DCAPP_DIR})
 target_include_directories(core_tests PUBLIC ${DCCORE_DIR})
-target_link_libraries(core_tests PRIVATE qt_libs Qt6::Test DCCore)
+target_link_libraries(core_tests PRIVATE qt_libs Qt6::Test DCCore SQLite3)
 
 install(TARGETS core_tests
     RUNTIME DESTINATION "tests"
