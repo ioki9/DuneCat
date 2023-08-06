@@ -37,10 +37,16 @@ add_subdirectory(tests/core)
 #add_subdirectory(tests/networking)
 
 #find SQLite3 library
-# Set the library name
-set(SQLite3_LIB_NAME libsqlite3.so)
+# Set the library nam
+if(APPLE)
+    set(SQLite3_LIB_NAME libsqlite3_dc.dylib)
+elseif(UNIX)
+    set(SQLite3_LIB_NAME libsqlite3.so)
+elseif(WIN32)
+    set(SQLite3_LIB_NAME sqlite3.lib)
+endif()
 set(SQLite3_LIB_PATH ${CMAKE_SOURCE_DIR}/3rdparty/sqlite3)
-
+message(${SQLite3_LIB_NAME})
 # Search for your library in the directory specified above
 find_library(SQLite3 ${SQLite3_LIB_NAME} PATHS ${SQLite3_LIB_PATH} NO_DEFAULT_PATH)
 
