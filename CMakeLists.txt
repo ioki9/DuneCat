@@ -29,7 +29,6 @@ add_library(qt_libs)
 target_link_libraries(qt_libs PUBLIC Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui Qt6::Sql Qt6::Widgets)
 add_dependencies(qt_libs Qt6::Qml Qt6::Quick Qt6::Network Qt6::Gui Qt6::Sql Qt6::Widgets)
 
-link_directories(3rdparty/sqlite3)
 add_subdirectory(3rdparty/sqlite3)
 add_subdirectory(src/DuneCat_App)
 add_subdirectory(src/DuneCat_Network)

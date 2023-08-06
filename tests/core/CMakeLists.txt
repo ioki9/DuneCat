@@ -18,7 +18,6 @@ elseif(UNIX)
     list(APPEND SOURCE_LIST ${DCCORE_DIR}/linux/processtracker.cpp ${DCCORE_DIR}/linux/linuxprocessobserver.cpp
         ${DCCORE_DIR}/linux/linuxprocessobserver.h)
 endif()
-link_directories(${CMAKE_SOURCE_DIR}/3rdparty/sqlite3)
 add_executable(core_tests ${SOURCE_LIST})
 add_test(NAME core_tests COMMAND $<TARGET_FILE:core_tests>)
 

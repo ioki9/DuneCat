@@ -1,19 +1,19 @@
 set(SQLITE_REQUIRE_COMPILATION FALSE)
 
 if(APPLE)
-    set(SQLITE_IMPLIB ${CMAKE_CURRENT_SOURCE_DIR}/libsqlite3_dc.dylib)
+    set(SQLITE_IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/libsqlite3_dc.dylib)
     if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libsqlite3_dc.dylib")
         set(SQLITE_REQUIRE_COMPILATION TRUE)
         set(COMPILE_COMMAND "gcc -o libsqlite3_dc.dylib sqlite3.c -dynamiclib")
     endif()
 elseif(UNIX)
-    set(SQLITE_IMPLIB "")
+    set(SQLITE_IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/libsqlite3.so)
     if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libsqlite3.so")
         set(SQLITE_REQUIRE_COMPILATION TRUE)
         set(COMPILE_COMMAND "gcc sqlite3.c -ldl -lm -fPIC -lpthread -shared -o libsqlite3.so")
     endif()
 elseif(WIN32)
-    set(SQLITE_IMPLIB ${CMAKE_CURRENT_SOURCE_DIR}/sqlit3.lib)
+    set(SQLITE_IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/sqlite3.dll)
 endif()
 if(SQLITE_REQUIRE_COMPILATION)
     file(TOUCH build.sh)
@@ -28,14 +28,14 @@ if(SQLITE_REQUIRE_COMPILATION)
         ERROR_VARIABLE EXECUTE_ERROR
     )
 endif()
-add_library(SQLite3 SHARED IMPORTED)
-if(UNIX AND NOT APPLE)
+add_library(SQLite3 SHARED IMPORTED GLOBAL)
+if(WIN32)
     set_target_properties(SQLite3 PROPERTIES
-        IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}
+        IMPORTED_LOCATION ${SQLITE_IMPORTED_LOCATION}
+        IMPORTED_IMPLIB ${CMAKE_CURRENT_SOURCE_DIR}/sqlite3.lib
     )
 else()
-    set_target_properties(SQLite3 PROPERTIES
-        IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}
-        IMPORTED_IMPLIB ${SQLITE_IMPLIB}
-        )
+set_target_properties(SQLite3 PROPERTIES
+    IMPORTED_LOCATION ${SQLITE_IMPORTED_LOCATION}
+)
 endif()
