@@ -1,16 +1,13 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQml.Models
-import "../components"
 import DCStyle
+import "qrc:/DuneCat/imports/qml/components"
 import TableModels
-
 
 ScrollView {
     id:scrollView
-    property double scrollerWidth:ScrollBar.vertical.width
-    property double scrollBarPos: 0.0
+    property alias model : tableView.model
     ScrollBar.vertical: ScrollBar{
         id:scrollBar
         parent:scrollView
@@ -18,17 +15,17 @@ ScrollView {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.right:parent.right
-        Component.onCompleted: position = scrollBarPos
-    }
-    TableView {
+        }
+    TableView
+    {
         id:tableView
         anchors.fill:parent
         topMargin: header.height
-        model: SortFilterProcessModel{ }
         delegate:viewDelegate
         boundsBehavior: Flickable.StopAtBounds
         selectionBehavior: TableView.SelectRows
         selectionModel: ism
+        model: SortFilterProcessModel{}
         columnWidthProvider:function(column) {
             return Math.min(200,model.columnWidth(column,10))
         }
@@ -47,6 +44,18 @@ ScrollView {
                     tableView.forceLayout()
             }
         }
+    }
+    Rectangle
+    {
+        parent:scrollView
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.topMargin: header.height
+        color: "darkgrey"
+        height: 1
+        width:parent.width
+        z:10
     }
 
     Row{
@@ -70,6 +79,7 @@ ScrollView {
                             colRepeater.itemAt(i).stopSorting()
 
                     tableView.model.sort(index, state === "up" ? Qt.AscendingOrder : Qt.DescendingOrder)
+
                 }
             }
         }
@@ -79,15 +89,16 @@ ScrollView {
         id: viewDelegate
         Rectangle {
             id:wrapper
+            property alias textDelegate: textDel
             implicitHeight: textDel.implicitHeight+15
-            color: "white"
+            color: selected ? "lightblue" : "white"
             required property bool selected
             required property bool current
             Text{
                 id: textDel
                 z: 3
                 width:parent.width
-                text:model.display
+                text:display
                 font.pointSize: 10
                 anchors.left: parent.left
                 anchors.leftMargin: 5
@@ -105,44 +116,39 @@ ScrollView {
                     }
                 }
             }
-
-            DCSideRoundedRect
-            {
-                height:parent.height
-                width: parent.width
-                z:2
-                recColor: selected ? "lightblue" : "white"
-                opacity: selected ? 0.8 : 0
-                recRadius: DCStyle.radius
-                recRadiusSide:{
-                    if(column === 0)
-                        return DCSideRoundedRect.RectangleSide.Left
-                    else if(column === (tableView.model.columnCount() - 1))
-                        return DCSideRoundedRect.RectangleSide.Right
-                    else
-                        return DCSideRoundedRect.RectangleSide.None
-                }
-            }
         }
     }
     ItemSelectionModel{
         id:ism
         model:tableView.model
     }
-
-    Component{
-       id: listHighlight
-       Rectangle{
-
-           width: tableView.width - scrollerWidth; height: 40
-           color: Material.primaryColor; radius: 15; opacity:0.7
-           y: tableView.currentItem.y
-           Behavior on y {
-               SpringAnimation {
-                   spring: 3
-                   damping: 0.2
-               }
-           }
-       }
+    Component
+    {
+        id:selectionLeftRoundedRec
+        DCSideRoundedRect{
+            z:2
+            opacity: 0.8
+            recRadius: DCStyle.radius
+            recRadiusSide:DCSideRoundedRect.RectangleSide.Left
+        }
+    }
+    Component
+    {
+        id:selectionRightRoundedRec
+        DCSideRoundedRect{
+            z:3
+            opacity: 0.8
+            recRadius: DCStyle.radius
+            recRadiusSide:DCSideRoundedRect.RectangleSide.Right
+        }
+    }
+    Component
+    {
+        id:seletionMidRec
+        Rectangle{
+            z:2
+            opacity: 0.8
+        }
     }
 }
+
