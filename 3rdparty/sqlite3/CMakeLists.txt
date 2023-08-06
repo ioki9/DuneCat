@@ -29,7 +29,13 @@ if(SQLITE_REQUIRE_COMPILATION)
     )
 endif()
 add_library(SQLite3 SHARED IMPORTED)
-set_target_properties(SQLite3 PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}
-    IMPORTED_IMPLIB ${SQLITE_IMPLIB}
+if(UNIX AND NOT APPLE)
+    set_target_properties(SQLite3 PROPERTIES
+        IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}
     )
+else()
+    set_target_properties(SQLite3 PROPERTIES
+        IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}
+        IMPORTED_IMPLIB ${SQLITE_IMPLIB}
+        )
+endif()
