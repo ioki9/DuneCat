@@ -51,8 +51,6 @@ int ProcessTableModel::columnWidth(int c, const QFont *font)
 {
     if(!m_column_widths[c])
     {
-        if(font == nullptr)
-            qDebug()<<"nullptr";
         QFontMetrics default_metrics = QFontMetrics(QGuiApplication::font());
         QFontMetrics fm = (font ? QFontMetrics(*font) : default_metrics);
         int ret = fm.horizontalAdvance(headerData(c,Qt::Horizontal,Qt::DisplayRole).toString()

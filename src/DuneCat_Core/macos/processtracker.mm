@@ -4,6 +4,9 @@
 #include <sys/kauth.h>
 #import "OSXProcessObserver.h"
 #import <Cocoa/Cocoa.h>
+#include <sys/sysctl.h>
+#include <sys/types.h>
+
 
 namespace DuneCat
 {
@@ -43,13 +46,19 @@ std::vector<ProcessInfo> get_gui_process_list()
     std::vector<ProcessInfo> result;
     for (NSRunningApplication *app in
            [[NSWorkspace sharedWorkspace] runningApplications])
-      {
-        ProcessInfo proc;
-        proc.name = QString::fromNSString([app localizedName]);
-        proc.pid = [app processIdentifier];
-        proc.file_path =  QString::fromNSString([[app executableURL] absoluteString]);
-        result.push_back(proc);
-      }
+    {
+      ProcessInfo proc;
+      proc.name = QString::fromNSString([app localizedName]);
+      proc.pid = [app processIdentifier];
+      proc.file_path =  QString::fromNSString([[app executableURL] absoluteString]);
+      const int pid = proc.pid;
+      int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, pid };
+      struct kinfo_proc proc_info;
+      size_t size = sizeof(proc_info);
+      sysctl(mib, 4, &proc_info, &size, NULL, 0);
+      proc.creation_time = QDateTime::fromSecsSinceEpoch(proc_info.kp_proc.p_starttime.tv_sec);
+      result.push_back(proc);
+    }
     return result;
 }
 

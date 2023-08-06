@@ -39,10 +39,11 @@ private slots:
     void set_last_alive();
 private:
 
-    bool m_autostart;
-    bool m_window_maximized;
+    std::atomic_bool m_autostart;
+    std::atomic_bool m_window_maximized;
     qint64 m_last_alive;
-    QSize m_window_size;
+    std::atomic_int m_window_width;
+    std::atomic_int m_window_height;
     QTimer m_last_alive_timer;
     QSettings m_settings;
 };

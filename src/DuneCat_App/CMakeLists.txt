@@ -20,17 +20,19 @@ qt_add_qml_module(${PROJECT_NAME}
         "qml/components/DCSideRoundedRect.qml"
         "qml/controls/DCTableHeaderColumn.qml"
         "qml/controls/DCDeviceTable.qml"
-        "qml/controls/DCLaunchButton.qml"
         "qml/pages/DCSettingsPage.qml"
         "qml/pages/DCMainPage.qml"
         "qml/DCStyle.qml"
         "qml/DCMainWindow.qml"
         "qml/DCAdminPanel.qml"
         "qml/controls/DCProcessTable.qml"
+        "qml/controls/DCProcessHistoryTable.qml"
     SOURCES
         "sortfilterprocessmodel.h" "sortfilterprocessmodel.cpp"
         "processtablemodel.h" "processtablemodel.cpp"
         "settings.h" "settings.cpp" "systemtray.h" "systemtray.cpp"
+        "sqltablemodel.h" "sqltablemodel.cpp"
+        "sqlsortfiltermodel.h" "sqlsortfiltermodel.cpp"
 
     RESOURCES
         "icons/20x20/desktop.png"
