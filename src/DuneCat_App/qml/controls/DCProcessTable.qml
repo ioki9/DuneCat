@@ -7,6 +7,7 @@ import TableModels
 
 ScrollView {
     id:scrollView
+    anchors.fill: parent
     property alias model : tableView.model
     ScrollBar.vertical: ScrollBar{
         id:scrollBar
@@ -19,8 +20,7 @@ ScrollView {
     TableView
     {
         id:tableView
-        anchors.fill:parent
-        topMargin: header.height
+        anchors.top:header.bottom
         delegate:viewDelegate
         boundsBehavior: Flickable.StopAtBounds
         selectionBehavior: TableView.SelectRows
@@ -55,13 +55,14 @@ ScrollView {
         color: "darkgrey"
         height: 1
         width:parent.width
-        z:10
     }
 
     Row{
         id:header
         parent:scrollView
         height: 30
+        width:parent.width
+        anchors.top:parent.top
         property alias repeater: colRepeater
         Repeater
         {
@@ -69,7 +70,8 @@ ScrollView {
             model:tableView.model.columnCount()
             DCTableHeaderColumn{
                 id:col
-                height:parent.height
+                height:header.height
+                anchors.top: header.top
                 fontPointSize: 10
                 width:Math.min(200,tableView.model.columnWidth(index,10))
                 label:tableView.model.headerData(index,Qt.Horizontal,Qt.DisplayRole)
@@ -96,7 +98,7 @@ ScrollView {
             required property bool current
             Text{
                 id: textDel
-                z: 3
+                //z: 1
                 width:parent.width
                 text:display
                 font.pointSize: 10
@@ -122,33 +124,33 @@ ScrollView {
         id:ism
         model:tableView.model
     }
-    Component
-    {
-        id:selectionLeftRoundedRec
-        DCSideRoundedRect{
-            z:2
-            opacity: 0.8
-            recRadius: DCStyle.radius
-            recRadiusSide:DCSideRoundedRect.RectangleSide.Left
-        }
-    }
-    Component
-    {
-        id:selectionRightRoundedRec
-        DCSideRoundedRect{
-            z:3
-            opacity: 0.8
-            recRadius: DCStyle.radius
-            recRadiusSide:DCSideRoundedRect.RectangleSide.Right
-        }
-    }
-    Component
-    {
-        id:seletionMidRec
-        Rectangle{
-            z:2
-            opacity: 0.8
-        }
-    }
+//    Component
+//    {
+//        id:selectionLeftRoundedRec
+//        DCSideRoundedRect{
+//            z:2
+//            opacity: 0.8
+//            recRadius: DCStyle.radius
+//            recRadiusSide:DCSideRoundedRect.RectangleSide.Left
+//        }
+//    }
+//    Component
+//    {
+//        id:selectionRightRoundedRec
+//        DCSideRoundedRect{
+//            z:3
+//            opacity: 0.8
+//            recRadius: DCStyle.radius
+//            recRadiusSide:DCSideRoundedRect.RectangleSide.Right
+//        }
+//    }
+//    Component
+//    {
+//        id:seletionMidRec
+//        Rectangle{
+//            z:2
+//            opacity: 0.8
+//        }
+//    }
 }
 

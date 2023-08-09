@@ -28,9 +28,8 @@ ScrollView {
     TableView
     {
         id:tableView
-        anchors.fill:parent
         property int lastSelected
-        topMargin: header.height
+        anchors.top:header.bottom
         delegate:viewDelegate
         boundsBehavior: Flickable.StopAtBounds
         selectionBehavior: TableView.SelectRows
