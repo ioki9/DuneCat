@@ -27,6 +27,7 @@ qt_add_qml_module(${PROJECT_NAME}
         "qml/DCAdminPanel.qml"
         "qml/controls/DCProcessTable.qml"
         "qml/controls/DCProcessHistoryTable.qml"
+        "qml/controls/DCSwitchSelector.qml"
     SOURCES
         "sortfilterprocessmodel.h" "sortfilterprocessmodel.cpp"
         "processtablemodel.h" "processtablemodel.cpp"
