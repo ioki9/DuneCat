@@ -180,10 +180,10 @@ ScrollView {
         id: roundedLeftRec
         DCSideRoundedRect{
             z:2
-            recColor: "lightblue"
+            color: "lightblue"
             opacity: 0.8
             recRadius: DCStyle.radius
-            recRoundSide:DCSideRoundedRect.RectangleSide.Left
+            recRoundSide:DCSideRoundedRect.RoundedSide.Left
         }
     }
     Component
@@ -191,10 +191,10 @@ ScrollView {
         id: roundedRightRec
         DCSideRoundedRect{
             z:2
-            recColor: "lightblue"
+            color: "lightblue"
             opacity: 0.8
             recRadius: DCStyle.radius
-            recRoundSide:DCSideRoundedRect.RectangleSide.Right
+            recRoundSide:DCSideRoundedRect.RoundedSide.Right
         }
     }
     Component

@@ -1,69 +1,108 @@
 import QtQuick
 import DCStyle
 import QtQuick.Controls
-Switch {
-    id:cSwitch
+import "qrc:/DuneCat/imports/qml/components"
+Item {
+    id:root
     property color textDefaultColor: "white"
-    property alias textLeft : internIndecator.internTextLeft
-    property alias textRight: internIndecator.internTextRight
-    property alias backgroundColor: internIndecator.color
-    property alias selectionColor: internIndecator.internSelectionRectColor
-    readonly property  bool selectedRight: cSwitch.checked
+    property alias textLeft : internLeftButton.internTextLeft
+    property color switchColor : DCStyle.primaryColor
+    property alias textRight: internRightButton.internTextRight
+//    property alias backgroundColor: internIndecator.color
+//    property alias selectionColor: internIndecator.internSelectionRectColor
+    property int selectedId: 0
+    signal buttonClicked(emitter: int)
 
-    indicator: Rectangle{
-        id:internIndecator
-        radius: DCStyle.radius
-        height: cSwitch.height
-        width: cSwitch.width
-        border.color: "grey"
-        border.width: 1
+    DCSideRoundedRect{
+        id:internLeftButton
+        x:0
+        height: root.height
+        width: root.width/2
+        color: checked ? switchColor : "white"
+        borderColor:checked ? switchColor : "grey"
+        borderWidth: 1
+        recOpacity:0.2
+        recRadius: DCStyle.radius
+        recRoundSide:DCSideRoundedRect.RoundedSide.Left
+        property bool checked: true
         property alias internTextLeft : internLeftText
-        property alias internTextRight: internRightText
-        property alias internSelectionRectColor: selectionRect.color
-        Text{
-            id:internLeftText
-            z:32
-            x: ((parent.width/2) - contentWidth)/2
-            y: (parent.height-contentHeight)/2
-            color:cSwitch.checked ? "grey" : selectionRect.color
-            font.bold: cSwitch.checked ? false : true
+        Connections {
+             target: root
+             function onButtonClicked(emitter: int) {
+                 if(emitter !== 0)
+                     internLeftButton.checked = false;
+             }
+        }
 
-        }
-        Text{
-            id:internRightText
-            z:2
-            x: (3*parent.width-2*contentWidth)/4 //parent.width - contentWidth - ((parent.width/2) - contentWidth)/2
-            y: (parent.height-contentHeight)/2
-            color:cSwitch.checked ? selectionRect.color : "grey"
-            font.bold: cSwitch.checked
-
-        }
-        Rectangle{
-            id: selectionRect
-            x: cSwitch.checked ? parent.width - width : 0
-            width: parent.width/2
-            height: parent.height
-            radius: DCStyle.radius
-            color: DCStyle.primaryColor
-            opacity: 0.4
-            Behavior on x {
-                enabled: !cSwitch.down
-                SmoothedAnimation { velocity: 200 }
-            }
-        }
-        Rectangle{
-            id: border
-            x: cSwitch.checked ? parent.width - width : 0
-            z:2
-            width: parent.width/2
-            height: parent.height
-            radius: DCStyle.radius
-            color: "transparent"
-            border.color: DCStyle.primaryColor
-            Behavior on x {
-                enabled: !cSwitch.down
-                SmoothedAnimation { velocity: 200 }
-            }
+        MouseArea{
+            anchors.fill: parent
+            onClicked: {
+                if(parent.checked === true)
+                    return;
+                parent.checked = true;
+                buttonClicked(0);
+                root.selectedId = 0}
         }
     }
+    Text{
+        id:internLeftText
+        z:3
+        x: (internLeftButton.width - contentWidth)/2
+        y: (internLeftButton.height-contentHeight)/2
+        color:internLeftButton.checked ? switchColor : "grey"
+        font.bold: internLeftButton.checked ? true : false
+    }
+
+    DCSideRoundedRect{
+        id:internRightButton
+        recRadius: DCStyle.radius
+        x: root.width/2 -1
+        height: root.height
+        width: root.width/2
+        recOpacity:0.2
+        color: checked ? switchColor : "white"
+        borderColor:checked ? switchColor : "grey"
+        borderWidth: 1
+        recRoundSide:DCSideRoundedRect.RoundedSide.Right
+        property bool checked: false
+        property alias internTextRight: internRightText
+        Connections {
+             target: root
+             function onButtonClicked(emitter: int) {
+                 if(emitter !== 1)
+                     internRightButton.checked = false;
+             }
+        }
+
+        MouseArea{
+            anchors.fill: parent
+            onClicked: {
+                if(parent.checked === true)
+                    return;
+                parent.checked = true;
+                buttonClicked(1);
+                root.selectedId = 1}
+        }
+    }
+    Text{
+        id:internRightText
+        z:2
+        y: (internRightButton.height - contentHeight)/2
+        anchors.left: internRightButton.left
+        anchors.leftMargin: (internRightButton.width - contentWidth)/2
+        opacity:1.0
+        color:internRightButton.checked ? switchColor : "grey"
+        font.bold: internRightButton.checked ? true : false
+
+    }
+
+    Rectangle{
+        id: border
+        z:2
+        width: 1
+        height: parent.height
+        color: switchColor
+        anchors.centerIn: parent
+    }
+
 }

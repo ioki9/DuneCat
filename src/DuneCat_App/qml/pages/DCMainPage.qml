@@ -25,8 +25,8 @@ Item {
             textLeft.font.pointSize: 10
             textRight.text: qsTr("History")
             textRight.font.pointSize: 10
-            backgroundColor:  "white"
-            selectionColor: DCStyle.primaryColor
+            //backgroundColor:  "white"
+            //selectionColor: DCStyle.primaryColor
         }
     }
 
@@ -46,7 +46,7 @@ Item {
         anchors.bottom:parent.bottom
         height: parent.height
         width: parent.width
-        source:header.tableSelector.selectedRight ? tableUrlList[1] : tableUrlList[0]
+        source: tableUrlList[header.tableSelector.selectedId]
     }
 
 }

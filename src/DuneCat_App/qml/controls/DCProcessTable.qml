@@ -131,7 +131,7 @@ ScrollView {
 //            z:2
 //            opacity: 0.8
 //            recRadius: DCStyle.radius
-//            recRadiusSide:DCSideRoundedRect.RectangleSide.Left
+//            recRadiusSide:DCSideRoundedRect.RoundedSide.Left
 //        }
 //    }
 //    Component
@@ -141,7 +141,7 @@ ScrollView {
 //            z:3
 //            opacity: 0.8
 //            recRadius: DCStyle.radius
-//            recRadiusSide:DCSideRoundedRect.RectangleSide.Right
+//            recRadiusSide:DCSideRoundedRect.RoundedSide.Right
 //        }
 //    }
 //    Component
