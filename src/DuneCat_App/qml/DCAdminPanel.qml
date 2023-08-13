@@ -23,6 +23,7 @@ Rectangle {
         anchors.topMargin: 70
         anchors.fill: parent
         property int activePage:DCAdminPanel.DCMenuButton.Home
+        highlight: highlight
 
         delegate: ItemDelegate {
             id: itemDelegate
@@ -40,21 +41,30 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
             }
             background:Rectangle{
+                id:bgDelegate
                 anchors.fill: itemDelegate
-                anchors.leftMargin: 10
-                color: itemDelegate.highlighted ? "white" : "transparent"
+                anchors.leftMargin: 3
+                anchors.rightMargin: 3
+                color: itemDelegate.hovered ? Qt.rgba(255,255,255,0.2) : "transparent"
                 radius: DCStyle.radius
             }
-
-            highlighted: hovered || listView.currentIndex === index
+            highlighted: listView.currentIndex === index
             onClicked: {
                 listView.currentIndex = index
                 listView.activePage = model.enumeration
             }
         }
+        Component {
+            id: highlight
+            Rectangle {
+                width: 30;
+                x:3
+                color: "white"; radius: DCStyle.radius
+            }
+        }
         model:ListModel {
-            ListElement { title: "Home"; enumeration: DCAdminPanel.DCMenuButton.Home; icon:"drawer" }
-            ListElement { title: "Settings"; enumeration: DCAdminPanel.DCMenuButton.Settings; icon:"menu" }
+            ListElement { title: "Tables"; enumeration: DCAdminPanel.DCMenuButton.Home; icon:"table_view" }
+            ListElement { title: "Settings"; enumeration: DCAdminPanel.DCMenuButton.Settings; icon:"settings" }
             ListElement { title: "Devices"; enumeration: DCAdminPanel.DCMenuButton.Devices; icon:"menu" }
             ListElement { title: "About"; enumeration: DCAdminPanel.DCMenuButton.About; icon:"menu" }
 

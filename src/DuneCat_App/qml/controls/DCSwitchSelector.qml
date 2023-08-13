@@ -4,7 +4,6 @@ import QtQuick.Controls
 import "qrc:/DuneCat/imports/qml/components"
 Item {
     id:root
-    property color textDefaultColor: "white"
     property alias textLeft : internLeftButton.internTextLeft
     property color switchColor : DCStyle.primaryColor
     property alias textRight: internRightButton.internTextRight
