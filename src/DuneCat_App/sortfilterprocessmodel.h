@@ -16,6 +16,8 @@ public:
     Q_INVOKABLE int columnWidth(int c,const QFont *font = nullptr);
     Q_INVOKABLE int columnWidth(int c, int pointSize);
     Q_INVOKABLE QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    Q_INVOKABLE void refresh();
+
 private:
     ProcessTableModel m_model;
 };

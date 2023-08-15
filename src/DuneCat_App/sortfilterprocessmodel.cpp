@@ -38,4 +38,9 @@ QVariant SortFilterProcessModel::headerData(int section, Qt::Orientation orienta
 {
     return m_model.headerData(section,orientation,role);
 }
+
+void SortFilterProcessModel::refresh()
+{
+
+}
 }

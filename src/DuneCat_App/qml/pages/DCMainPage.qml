@@ -31,12 +31,11 @@ Rectangle {
     }
     RoundButton{
         id:refreshButton
-     //   radius: DCStyle.radius
         icon.name: "refresh"
         anchors.verticalCenter: header.verticalCenter
         anchors.right:header.right
         anchors.rightMargin: 10
-        //Material.background:Material.primary
+        onPressed:tableLoader.item.model.refresh()
     }
 
     DCSearchTextField

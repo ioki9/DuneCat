@@ -15,7 +15,8 @@ public:
         description,
         pid,
         user_name,
-        domain_name
+        domain_name,
+        creation_time
     };
     explicit ProcessTableModel(QObject *parent = nullptr);
     // Basic functionality:
@@ -26,12 +27,14 @@ public:
     Q_INVOKABLE int columnWidth(int c, int pointSize);
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
+    Q_INVOKABLE void refresh();
+
 
 private:
     std::vector<int> m_column_widths;
     std::vector<ProcessInfo> m_processes;
     ProcessTracker *m_proc_tracker = nullptr;
-    int m_column_count{5};
+    int m_column_count{6};
 private slots:
     void add_new_process(const ProcessInfo &proc);
     void remove_process(const ProcessInfo& proc);

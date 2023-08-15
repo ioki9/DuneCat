@@ -43,6 +43,8 @@ QVariant ProcessTableModel::headerData(int section, Qt::Orientation orientation,
         return {QStringLiteral("User name")};
     case static_cast<int>(EColumns::domain_name):
         return {QStringLiteral("Domain name")};
+    case static_cast<int>(EColumns::creation_time):
+        return {QStringLiteral("Creation time")};
     }
     return {};
 }
@@ -93,6 +95,8 @@ QVariant ProcessTableModel::data(const QModelIndex &index, int role) const
         return {m_processes[index.row()].owner_user};
     case static_cast<int>(EColumns::domain_name):
         return {m_processes[index.row()].owner_domain};
+    case static_cast<int>(EColumns::creation_time):
+        return {m_processes[index.row()].creation_time};
     }
     return {};
 }
@@ -123,5 +127,8 @@ void ProcessTableModel::remove_process(const ProcessInfo& proc)
     m_processes.erase(it);
     endRemoveRows();
 }
+void ProcessTableModel::refresh()
+{
 
+}
 }
