@@ -28,6 +28,11 @@ Rectangle {
         delegate: ItemDelegate {
             id: itemDelegate
             width: listView.width
+            anchors.left: parent.left
+            anchors.leftMargin: 3
+            anchors.right: parent.right
+            anchors.rightMargin: 3
+
             icon.name: model.icon
             icon.color: itemDelegate.highlighted ? Material.primary : "white";
 
@@ -43,8 +48,6 @@ Rectangle {
             background:Rectangle{
                 id:bgDelegate
                 anchors.fill: itemDelegate
-                anchors.leftMargin: 3
-                anchors.rightMargin: 3
                 color: itemDelegate.hovered ? Qt.rgba(255,255,255,0.2) : "transparent"
                 radius: DCStyle.radius
             }
@@ -57,8 +60,10 @@ Rectangle {
         Component {
             id: highlight
             Rectangle {
-                width: 30;
-                x:3
+                anchors.left: parent.left
+                anchors.leftMargin: 3
+                anchors.right: parent.right
+                anchors.rightMargin: 3
                 color: "white"; radius: DCStyle.radius
             }
         }
