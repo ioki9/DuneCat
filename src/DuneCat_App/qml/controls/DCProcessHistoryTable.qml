@@ -35,14 +35,7 @@ ScrollView {
         selectionBehavior: TableView.SelectRows
         selectionModel: ism
         model: ProcessHistoryModel
-        columnWidthProvider: function(column) {
-            var role
-            if(index === 2 || index === 3)
-                role = Qt.UserRole
-            else
-                role = Qt.DisplayRole
-            return Math.min(200,model.columnWidth(column,role,10))
-            }
+        columnWidthProvider: function(column) {return header.repeater.itemAt(column).width}
         property bool headerBinded: false
         Connections{
             target: model
@@ -66,13 +59,6 @@ ScrollView {
     Connections{
         target: header
         function onPositioningComplete() {
-            if(!tableView.headerBinded)
-            {
-                tableView.columnWidthProvider = function(column){return header.repeater.itemAt(column).width}
-                tableView.forceLayout()
-                tableView.headerBinded = true
-            }
-            else
                 tableView.forceLayout()
         }
     }

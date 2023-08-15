@@ -27,21 +27,16 @@ ScrollView {
         selectionModel: ism
         model: SortFilterProcessModel{}
         columnWidthProvider:function(column) {
-            return Math.min(200,model.columnWidth(column,10))
+            return header.repeater.itemAt(column).width
         }
         property bool headerBinded: false
+        Component.onCompleted: {
+        }
 
         Connections{
             target: header
             function onPositioningComplete() {
-                if(!tableView.headerBinded)
-                {
-                    tableView.columnWidthProvider = function(column){return header.repeater.itemAt(column).width}
-                    tableView.forceLayout()
-                    tableView.headerBinded = true
-                }
-                else
-                    tableView.forceLayout()
+                tableView.forceLayout()
             }
         }
     }
@@ -73,7 +68,15 @@ ScrollView {
                 height:header.height
                 anchors.top: header.top
                 fontPointSize: 10
-                width:Math.min(200,tableView.model.columnWidth(index,10))
+                width:
+                {
+                    if(Qt.platform.os === "linux")
+                    {
+                        if(index === 1 || index === 4)
+                            return 0
+                    }
+                    return Math.min(200,tableView.model.columnWidth(index,10))
+                }
                 label:tableView.model.headerData(index,Qt.Horizontal,Qt.DisplayRole)
                 onSorting: {
                     for(var i = 0; i < colRepeater.model; i++)
@@ -100,7 +103,11 @@ ScrollView {
                 id: textDel
                 //z: 1
                 width:parent.width
-                text:display
+                text:{
+                    if(column === 5)
+                        return display.toLocaleString(Locale.ShortFormat)
+                    return display
+                }
                 font.pointSize: 10
                 anchors.left: parent.left
                 anchors.leftMargin: 5
@@ -124,33 +131,6 @@ ScrollView {
         id:ism
         model:tableView.model
     }
-//    Component
-//    {
-//        id:selectionLeftRoundedRec
-//        DCSideRoundedRect{
-//            z:2
-//            opacity: 0.8
-//            recRadius: DCStyle.radius
-//            recRadiusSide:DCSideRoundedRect.RoundedSide.Left
-//        }
-//    }
-//    Component
-//    {
-//        id:selectionRightRoundedRec
-//        DCSideRoundedRect{
-//            z:3
-//            opacity: 0.8
-//            recRadius: DCStyle.radius
-//            recRadiusSide:DCSideRoundedRect.RoundedSide.Right
-//        }
-//    }
-//    Component
-//    {
-//        id:seletionMidRec
-//        Rectangle{
-//            z:2
-//            opacity: 0.8
-//        }
-//    }
+
 }
 
