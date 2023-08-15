@@ -35,12 +35,33 @@ Item {
 
         MouseArea{
             anchors.fill: parent
+            hoverEnabled: true
             onClicked: {
                 if(parent.checked === true)
                     return;
                 parent.checked = true;
                 buttonClicked(0);
-                root.selectedId = 0}
+                root.selectedId = 0
+            }
+            onHoveredChanged: {
+                if(containsMouse && !parent.checked)
+                {
+                    parent.borderColor = parent.borderColor.darker(1.5)
+                    internLeftText.color = internLeftText.color.darker(1.5)
+                    parent.color = "lightgrey"
+                }
+                else
+                {
+                    parent.borderColor = Qt.binding(function() { return parent.checked ? root.switchColor : "grey"})
+                    parent.color = Qt.binding(function() { return  parent.checked ? switchColor : "white"})
+                    internLeftText.color = Qt.binding(function() { return internLeftButton.checked ? switchColor : "grey"})
+                }
+            }
+            onPressed: {
+                parent.borderColor = Qt.binding(function() { return parent.checked ? root.switchColor : "grey"})
+                parent.color = Qt.binding(function() { return  parent.checked ? switchColor : "white"})
+                internLeftText.color = Qt.binding(function() { return internLeftButton.checked ? switchColor : "grey"})
+            }
         }
     }
     Text{
@@ -75,12 +96,34 @@ Item {
 
         MouseArea{
             anchors.fill: parent
+            hoverEnabled: true
             onClicked: {
                 if(parent.checked === true)
                     return;
                 parent.checked = true;
                 buttonClicked(1);
-                root.selectedId = 1}
+                root.selectedId = 1
+            }
+            onHoveredChanged: {
+                if(containsMouse && !parent.checked)
+                {
+                    parent.borderColor = parent.borderColor.darker(1.5)
+                    internRightText.color = internRightText.color.darker(1.5)
+                    parent.color = "lightgrey"
+                }
+                else
+                {
+                    parent.borderColor = Qt.binding(function() { return parent.checked ? root.switchColor : "grey"})
+                    internRightText.color = Qt.binding(function() { return internRightButton.checked ? switchColor : "grey"})
+                    parent.color = Qt.binding(function() { return  parent.checked ? switchColor : "white"})
+                }
+            }
+            onPressed: {
+                parent.borderColor = Qt.binding(function() { return parent.checked ? root.switchColor : "grey"})
+                internRightText.color = Qt.binding(function() { return internRightButton.checked ? switchColor : "grey"})
+                parent.color = Qt.binding(function() { return  parent.checked ? switchColor : "white"})
+
+            }
         }
     }
     Text{
