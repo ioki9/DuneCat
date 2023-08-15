@@ -28,6 +28,8 @@ qt_add_qml_module(${PROJECT_NAME}
         "qml/controls/DCProcessTable.qml"
         "qml/controls/DCProcessHistoryTable.qml"
         "qml/controls/DCSwitchSelector.qml"
+        "qml/controls/DCSearchTextField.qml"
+
     SOURCES
         "sortfilterprocessmodel.h" "sortfilterprocessmodel.cpp"
         "processtablemodel.h" "processtablemodel.cpp"
@@ -44,6 +46,9 @@ qt_add_qml_module(${PROJECT_NAME}
         "icons/20x20/menu.png"
         "icons/20x20/table_view.png"
         "icons/20x20/settings.png"
+        "icons/20x20/expand_more.png"
+        "icons/20x20/expand_less.png"
+        "icons/20x20/refresh.png"
         "icons/20x20@2/desktop.png"
         "icons/20x20@2/back.png"
         "icons/20x20@2/drawer.png"
@@ -51,6 +56,9 @@ qt_add_qml_module(${PROJECT_NAME}
         "icons/20x20@2/menu.png"
         "icons/20x20@2/table_view.png"
         "icons/20x20@2/settings.png"
+        "icons/20x20@2/expand_more.png"
+        "icons/20x20@2/expand_less.png"
+        "icons/20x20@2/refresh.png"
         "icons/20x20@3/back.png"
         "icons/20x20@3/drawer.png"
         "icons/20x20@3/menu.png"
@@ -58,7 +66,6 @@ qt_add_qml_module(${PROJECT_NAME}
         "icons/20x20@4/drawer.png"
         "icons/20x20@4/menu.png"
         "icons/index.theme"
-        "img/LaunchButton.png"
         "qtquickcontrols2.conf"
 )
 

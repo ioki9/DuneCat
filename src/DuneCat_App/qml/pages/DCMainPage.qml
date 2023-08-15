@@ -3,20 +3,21 @@ import QtQuick.Controls
 import DCBase
 import DCStyle
 import "qrc:/DuneCat/imports/qml/controls"
-Item {
+Rectangle {
+    id:root
     property list<string> tableUrlList:["qrc:/DuneCat/imports/qml/controls/DCProcessTable.qml",
                                         "qrc:/DuneCat/imports/qml/controls/DCProcessHistoryTable.qml"]
     Material.accent: DCStyle.primaryColor
-
+    color: "white"
     Row{
         id:header
         height: 50
         width:parent.width
         anchors.left:parent.left
-        anchors.leftMargin: 5
+        anchors.leftMargin: 7
         spacing: 2
         property alias tableSelector: internTableSelector
-
+        property bool hidden:false
         DCSwitchSelector{
             id:internTableSelector
             height:30            
@@ -28,31 +29,25 @@ Item {
             textRight.font.pointSize: 10
         }
     }
-    Image{
-        source:"qrc:/DuneCat/imports/icons/20x20@2/search.png"
-        width:25
-        height:25
-        anchors.right:searchTextField.left
-        anchors.rightMargin: 5
-        anchors.verticalCenter: searchTextField.verticalCenter
+    RoundButton{
+        id:refreshButton
+     //   radius: DCStyle.radius
+        icon.name: "refresh"
+        anchors.verticalCenter: header.verticalCenter
+        anchors.right:header.right
+        anchors.rightMargin: 10
+        //Material.background:Material.primary
     }
 
-    TextField{
-        id:searchTextField
-        anchors.verticalCenter: header.verticalCenter
-        anchors.right: header.right
-        anchors.rightMargin: 10
-        //anchors.bottom: header.bottom
-        //anchors.bottomMargin: 20
+    DCSearchTextField
+    {
         width:200
         height:30
-        placeholderText: qsTr("Type text to search")
-//        placeholderTextColor: searchTextField.focus ? "black" : "lightgrey"
-//        background:Rectangle{
-//            radius: 5
-//            color: "transparent"
-//            border.color: searchTextField.focus ? DCStyle.primaryColor : "grey"
-//        }
+        anchors.verticalCenter: header.verticalCenter
+        anchors.right: refreshButton.left
+        anchors.rightMargin: 10
+        placeholderText: qsTr("Search...")
+
     }
 
     Rectangle{
