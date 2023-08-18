@@ -195,8 +195,17 @@ SqlSortFilterModel* create_proc_history_model()
     db.open();
 
     SqlTableModel* proc_history_model = new SqlTableModel(db,QApplication::instance());
-    proc_history_model->setQuery(QStringLiteral("SELECT name,pid,creation_time,termination_time,description FROM processes_history"));
-    proc_history_model->setHeaderData({"name","pid","creation time","termination time", "description"});
+    QString query;
+    std::vector<QVariant> header;
+    #ifndef Q_OS_LINUX
+        query = QStringLiteral("SELECT name,pid,description,creation_time,termination_time FROM processes_history");
+        header = {"Name", "PID", "Description" , "Creation time", "Termination time"};
+    #else
+        query = QStringLiteral("SELECT name,pid,creation_time,termination_time FROM processes_history");
+        header = {"Name", "PID", "Creation time", "Termination time"};
+    #endif
+    proc_history_model->setQuery(query);
+    proc_history_model->setHeaderData(header);
 
     QObject::connect(GlobalSignalEmitter::get_instance(),&GlobalSignalEmitter::db_wal_checkpoint,proc_history_model,
                      [proc_history_model](){proc_history_model->refresh();});

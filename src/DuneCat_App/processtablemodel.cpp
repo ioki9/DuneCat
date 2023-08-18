@@ -36,7 +36,7 @@ QVariant ProcessTableModel::headerData(int section, Qt::Orientation orientation,
     case static_cast<int>(EColumns::process_name):
         return {QStringLiteral("Process name")};
     case static_cast<int>(EColumns::description):
-        return {QStringLiteral("Name")};
+        return {QStringLiteral("Description")};
     case static_cast<int>(EColumns::pid):
         return {QStringLiteral("PID")};
     case static_cast<int>(EColumns::user_name):

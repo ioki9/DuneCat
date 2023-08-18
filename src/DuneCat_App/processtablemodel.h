@@ -12,8 +12,8 @@ public:
     enum class EColumns
     {
         process_name,
-        description,
         pid,
+        description,
         user_name,
         domain_name,
         creation_time

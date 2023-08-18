@@ -123,7 +123,7 @@ ScrollView {
                 z: 3
                 width:parent.width
                 text:{
-                    if(column === 2 || column === 3)
+                    if(column === 3 || column === 4)
                         return displayDate
                     else
                         return display
