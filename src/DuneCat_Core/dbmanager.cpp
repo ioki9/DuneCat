@@ -266,7 +266,7 @@ bool DBManager::wal_checkpoint() const
                       "Wal checkpoint failed.";
         return false;
     }
-    int status = sqlite3_wal_checkpoint_v2(handle,"main",SQLITE_CHECKPOINT_FULL,0,0);
+    int status = sqlite3_wal_checkpoint_v2(handle,"main",SQLITE_CHECKPOINT_TRUNCATE,0,0);
 
     if (status == SQLITE_OK )
         return true;
