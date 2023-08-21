@@ -120,6 +120,14 @@ qint64 SqlTableModel::sinceLastModelReset() const
     return m_reset_timer.elapsed();
 }
 
+bool SqlTableModel::checkpoint_refresh()
+{
+    m_query->finish();
+    if(!m_db.wal_checkpoint())
+        return false;
+    return refresh();
+}
+
 int SqlTableModel::columnWidth(int c,int role, const QFont *font)
 {
     if(!m_column_widths[c])
@@ -149,7 +157,7 @@ int SqlTableModel::columnWidth(int c,int role, int pointSize)
     return m_column_widths[c];
 }
 
-void SqlTableModel::refresh()
+bool SqlTableModel::refresh()
 {
     QSqlQuery count_query(m_db.get_database());
     count_query.exec(QStringLiteral("SELECT COUNT(*) FROM processes_history"));
@@ -164,15 +172,22 @@ void SqlTableModel::refresh()
         }
     }
     else
+    {
         qWarning()<<"can't get row count of sql database. Error: "<<count_query.lastError().text();
+        return false;
+    }
     count_query.finish();
     m_query->finish();
     if(!m_query->exec())
+    {
         qWarning()<<"Couldn't refresh SqlTableModel. Query exec error. Error:"<<m_query->lastError().text()
                    <<". Query:"<<m_query->lastQuery();
+        return false;
+    }
 
     emit dataChanged(index(0,0),index(rowCount()-1,columnCount()-1));
     m_reset_timer.restart();
+    return true;
 }
 
 }

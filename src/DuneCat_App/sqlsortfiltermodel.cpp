@@ -45,7 +45,8 @@ QVariant SqlSortFilterModel::headerData(int section, Qt::Orientation orientation
 
 void SqlSortFilterModel::refresh()
 {
-    m_model->refresh();
+
+    m_model->checkpoint_refresh();
 }
 
 void SqlSortFilterModel::setSourceModel(QAbstractItemModel *sourceModel)

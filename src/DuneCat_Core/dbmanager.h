@@ -38,6 +38,7 @@ public:
     bool transaction();
     bool commit();
     bool rollback();
+    bool wal_checkpoint() const;
     [[nodiscard]] QString get_database_name() const;
     [[nodiscard]] bool is_valid() const;
     [[nodiscard]] bool is_open() const;

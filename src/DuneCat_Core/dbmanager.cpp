@@ -252,6 +252,39 @@ bool DBManager::remove_connection(const QString &connection_name)
     return true;
 }
 
+bool DBManager::wal_checkpoint() const
+{
+    QVariant v = m_db.driver()->handle();
+    if (!v.isValid() && (qstrcmp(v.typeName(), "sqlite3*") == 0)) {
+        qWarning()<<"Cannot get a sqlite3 handle to the driver."
+                      "Will not be able to complete manual WAL checkpoint.";
+        return false;
+    }
+    sqlite3* handle = *static_cast<sqlite3**>(v.data());
+    if (!handle) {
+        qWarning()<<"Cannot get a sqlite3 handle in DBManager::wal_checkpoint. "
+                      "Wal checkpoint failed.";
+        return false;
+    }
+    int status = sqlite3_wal_checkpoint(handle,"main",SQLITE_CHECKPOINT_PASSIVE,0,0);
+
+    if (status == SQLITE_OK )
+        return true;
+    else if(status == SQLITE_BUSY)
+    {
+        qWarning()<<"Couldn't complete wal checkpoint, SQLITE_BUSY returned";
+        return false;
+    }
+    else if(status == SQLITE_ERROR)
+    {
+        qWarning()<<"Couldn't complete wal checkpoint, returned: SQLITE_ERROR with error:"<<sqlite3_errmsg(handle);
+        return false;
+    }
+
+    qWarning()<<"Couldn't complete wal checkpoint. Error:"<<sqlite3_errmsg(handle);
+    return false;
+}
+
 bool DBManager::set_journal_mode(JournalMode mode)
 {
     QSqlQuery query(m_db);
