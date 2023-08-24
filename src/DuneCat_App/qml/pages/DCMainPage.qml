@@ -7,8 +7,33 @@ Rectangle {
     id:root
     property list<string> tableUrlList:["qrc:/DuneCat/imports/qml/controls/DCProcessTable.qml",
                                         "qrc:/DuneCat/imports/qml/controls/DCProcessHistoryTable.qml"]
+    property list<real> tableScrollPosList:[0.0,0.0]
     Material.accent: DCStyle.primaryColor
     color: "white"
+    function saveScrollPos(){
+        if(header.tableSelector.selectedId === 0)
+            tableScrollPosList[0] = tableLoader.item.scrollBarPos
+        else
+            tableScrollPosList[1] = tableLoader.item.scrollBarPos
+
+    }
+
+    Connections{
+        target:header.tableSelector
+        function onSelectedIdChanged(){
+            if(header.tableSelector.selectedId === 1)
+            {
+                tableScrollPosList[0] = tableLoader.item.scrollBarPos
+                tableLoader.setSource(tableUrlList[1])
+            }
+            else
+            {
+                tableScrollPosList[1] = tableLoader.item.scrollBarPos
+                tableLoader.setSource(tableUrlList[0])
+            }
+        }
+    }
+
     Row{
         id:header
         height: 50
@@ -63,7 +88,8 @@ Rectangle {
         anchors.bottom:parent.bottom
         height: parent.height
         width: parent.width
-        source: tableUrlList[header.tableSelector.selectedId]
+        onLoaded: item.scrollBarPos = tableScrollPosList[header.tableSelector.selectedId]
+        source: tableUrlList[0]
     }
 
 }

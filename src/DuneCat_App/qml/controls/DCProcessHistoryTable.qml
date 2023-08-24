@@ -8,6 +8,7 @@ import "qrc:/DuneCat/imports/qml/components"
 ScrollView {
     id:scrollView
     property alias model : tableView.model
+    property alias scrollBarPos: scrollBar.position
     ScrollBar.vertical: ScrollBar{
         id:scrollBar
         parent:scrollView
@@ -16,15 +17,6 @@ ScrollView {
         anchors.bottom: parent.bottom
         anchors.right:parent.right
         }
-//    Button{
-//        onPressed: tableView.model.refresh()
-//        width: 100
-//        z:5
-//        height: 60
-//        anchors.top: parent.top
-
-//    }
-
     TableView
     {
         id:tableView
@@ -95,6 +87,7 @@ ScrollView {
                         role = Qt.UserRole
                     else
                         role = Qt.DisplayRole
+
                     return Math.min(200,tableView.model.columnWidth(index,role,10))
                 }
                 label:tableView.model.headerData(index,Qt.Horizontal,Qt.DisplayRole)

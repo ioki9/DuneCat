@@ -9,7 +9,10 @@ DCMainWindow
     width: width = Settings.window_width
     height: height = Settings.window_height
     property list<string> pageUrlList:[]
-
+    property list<real> mainPageScrollPosList:[]
+    Component.onCompleted:{
+        startupFunction()
+    }
     Connections {
         target: SystemTray
         function onShow() {
@@ -53,10 +56,19 @@ DCMainWindow
             root.visibility = Window.Windowed
     }
 
-    Component.onCompleted:{
-        startupFunction()
+    Connections{
+        target: adminPanel.adminLoaderItem
+        function onActivePageChanged(){
+            if(adminPanel.adminLoaderItem.activePage !== DCAdminPanel.Home)
+            {
+                page.loaderItem.saveScrollPos()
+                mainPageScrollPosList = page.loaderItem.tableScrollPosList
+                page.loader.setSource(root.pageUrlList[adminPanel.adminLoaderItem.activePage])
+            }
+            else
+                page.loader.setSource(root.pageUrlList[adminPanel.adminLoaderItem.activePage],{"tableScrollPosList":mainPageScrollPosList})
+        }
     }
-
 
     Item{
         id:adminPanel
@@ -86,13 +98,14 @@ DCMainWindow
     Rectangle{
         id:page
         property alias loader: pageLoader
+        property alias loaderItem: pageLoader.item
         anchors.left: adminPanel.right
         anchors.bottom: parent.bottom
         anchors.top: parent.top
         anchors.right: parent.right
         Loader{
             id:pageLoader
-            source: root.pageUrlList[adminPanel.adminLoaderItem.activePage]
+            source: root.pageUrlList[DCAdminPanel.Home]
             anchors.fill: parent
         }
     }

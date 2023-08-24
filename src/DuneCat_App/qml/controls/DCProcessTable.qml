@@ -9,6 +9,7 @@ ScrollView {
     id:scrollView
     anchors.fill: parent
     property alias model : tableView.model
+    property alias scrollBarPos: scrollBar.position
     ScrollBar.vertical: ScrollBar{
         id:scrollBar
         parent:scrollView
