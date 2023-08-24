@@ -37,7 +37,7 @@ TextField{
             clip:true
 
             Rectangle{
-                x:searchTextField.activeFocus ? 0 : width
+                x:(searchTextField.activeFocus || searchTextField.text) ? 0 : width
                 z:2
                 height:1
                 width:placeholderTextMetrics.boundingRect.width/2
@@ -58,7 +58,7 @@ TextField{
             clip:true
 
             Rectangle{
-                x:searchTextField.activeFocus ? 0 : (-width)
+                x:(searchTextField.activeFocus || searchTextField.text) ? 0 : (-width)
                 z:2
                 height:1
                 width:parent.width
