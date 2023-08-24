@@ -17,6 +17,7 @@ public:
     Q_INVOKABLE int columnWidth(int c, int pointSize);
     Q_INVOKABLE QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     Q_INVOKABLE void refresh();
+    Q_INVOKABLE void setFilter(const QString& pattern, int column);
 
 private:
     ProcessTableModel m_model;

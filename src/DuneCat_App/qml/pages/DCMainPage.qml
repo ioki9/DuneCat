@@ -46,7 +46,8 @@ Rectangle {
         anchors.right: refreshButton.left
         anchors.rightMargin: 10
         placeholderText: qsTr("Search...")
-
+        property var filterCols:header.tableSelector.selectedId === 0 ? -1 : [0,1,2]
+        onTextChanged: tableLoader.item.model.setFilter(text,filterCols)
     }
 
     Rectangle{

@@ -35,7 +35,7 @@ void SqlTableModel::setQuery(const QString &query)
                    <<". Query:"<<m_query->lastQuery();
         return;
     }
-
+    m_main_query = query;
     if(m_query->exec())
         m_record = m_query->record();
     else
@@ -72,6 +72,100 @@ int SqlTableModel::rowCount(const QModelIndex &parent) const
     return m_row_count;
 }
 
+bool SqlTableModel::setFilterString(const QString filter, const QList<int> &columns)
+{
+    if(filter.isEmpty())
+    {
+        m_query->prepare(m_main_query);
+        refresh();
+    }
+    QString filter_query{" WHERE "};
+    for(size_t i{0};i<columns.size() - 1;i++)
+        filter_query += m_record.fieldName(columns[i]) + QStringLiteral(" LIKE '%") + filter + "%' OR ";
+
+    filter_query += m_record.fieldName(columns.back()) + QStringLiteral(" LIKE '%") + filter + "%'";
+    QSqlQuery count_query(m_db.get_database());
+    count_query.exec(QStringLiteral("SELECT COUNT(*) FROM processes_history") + filter_query);
+    qDebug()<<"Last count query:"<<count_query.lastQuery();
+
+    if(count_query.next())
+    {
+        int rows{count_query.value(0).toInt()};
+        if(m_row_count > rows)
+        {
+
+            beginRemoveRows({},rows,m_row_count);
+            m_row_count = rows;
+            endRemoveRows();
+        }
+        else if(m_row_count < rows)
+        {
+            beginInsertRows({},m_row_count,rows);
+            m_row_count = rows;
+            endInsertRows();
+        }
+    }
+    else
+    {
+        qWarning()<<"Can't get row count of sql database. setFilterString failed with error: "<<count_query.lastError().text();
+        return false;
+    }
+    m_query->prepare(m_main_query + filter_query);
+    if(!m_query->exec())
+    {
+        qWarning()<<"Couldn't filter SqlTableModel. Query exec error. Error:"<<m_query->lastError().text()
+                   <<". Query:"<<m_query->lastQuery();
+        return false;
+    }
+    return true;
+
+}
+
+int SqlTableModel::setFilterString(const QString filter, int column)
+{
+    if(filter.isEmpty())
+    {
+        m_query->prepare(m_main_query);
+        refresh();
+    }
+    QString filter_query{" WHERE "};
+    filter_query += m_record.fieldName(column) + QStringLiteral(" LIKE '%") + filter + "%'";
+    QSqlQuery count_query(m_db.get_database());
+    count_query.exec(QStringLiteral("SELECT COUNT(*) FROM processes_history") + filter_query);
+    if(count_query.next())
+    {
+        int rows{count_query.value(0).toInt()};
+        if(m_row_count > rows)
+        {
+
+            beginRemoveRows({},rows,m_row_count);
+            m_row_count = rows;
+            endRemoveRows();
+        }
+        else if(m_row_count < rows)
+        {
+            beginInsertRows({},m_row_count,rows);
+            m_row_count = rows;
+            endInsertRows();
+        }
+    }
+    else
+    {
+        qWarning()<<"Can't get row count of sql database. setFilterString failed with error:"
+                   <<count_query.lastError().text()<<". And query:"<<count_query.lastQuery();
+        return false;
+    }
+    m_query->prepare(m_main_query + filter_query);
+    if(!m_query->exec())
+    {
+        qWarning()<<"Couldn't filter SqlTableModel. Query exec error. Error:"<<m_query->lastError().text()
+                   <<". Query:"<<m_query->lastQuery();
+        return false;
+    }
+    return true;
+
+}
+
 QHash<int, QByteArray> SqlTableModel::generate_roles_from_fields()
 {
 
@@ -103,7 +197,7 @@ QVariant SqlTableModel::data(const QModelIndex &index, int role) const
 
         return {date_str};
     }
-    return {};
+    return {""};
 }
 
 
@@ -177,7 +271,6 @@ bool SqlTableModel::refresh()
         return false;
     }
     count_query.finish();
-    m_query->finish();
     if(!m_query->exec())
     {
         qWarning()<<"Couldn't refresh SqlTableModel. Query exec error. Error:"<<m_query->lastError().text()
@@ -187,6 +280,7 @@ bool SqlTableModel::refresh()
 
     emit dataChanged(index(0,0),index(rowCount()-1,columnCount()-1));
     m_reset_timer.restart();
+
     return true;
 }
 

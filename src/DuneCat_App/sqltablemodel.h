@@ -23,6 +23,8 @@ public:
     Q_INVOKABLE int columnWidth(int c,int role, int pointSize);
     Q_INVOKABLE bool refresh();
     Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    bool setFilterString(const QString filter, const QList<int> &columns);
+    int setFilterString(const QString filter,int column);
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     void setHeaderData(const std::vector<QVariant>& data);
@@ -34,12 +36,13 @@ private:
     QHash<int, QByteArray> generate_roles_from_fields();
     std::vector<int> m_column_widths;
     DBManager m_db;
-    std::pair<int,int> m_fl_view_item{0,1};
+    QString m_main_query;
     std::unique_ptr<QSqlQuery> m_query;
     QSqlRecord m_record;
     std::vector<QVariant> m_header_data;
     QElapsedTimer m_reset_timer;
     int m_row_count{0};
+    bool m_currently_filtered{false};
 };
 
 

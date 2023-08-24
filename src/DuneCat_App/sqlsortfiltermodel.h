@@ -17,11 +17,11 @@ public:
     Q_INVOKABLE int columnWidth(int c, int role, int pointSize);
     Q_INVOKABLE QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     Q_INVOKABLE void refresh();
+    Q_INVOKABLE void setFilter(const QString& pattern, int column);
+    Q_INVOKABLE void setFilter(const QString& pattern, const QList<int>& columns);
     void setSourceModel(QAbstractItemModel *sourceModel) override;
 private:
     SqlTableModel* m_model;
-    QSqlDatabase m_db;
-    mutable QSqlQuery m_query;
 };
 
 }

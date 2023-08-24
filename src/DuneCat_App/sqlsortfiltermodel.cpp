@@ -3,10 +3,8 @@
 namespace DuneCat
 {
 SqlSortFilterModel::SqlSortFilterModel(QSqlDatabase db,QObject *parent)
-    : QSortFilterProxyModel{parent}, m_db{db}
+    : QSortFilterProxyModel{parent}
 {
-    m_query.setForwardOnly(true);
-
 }
 
 void SqlSortFilterModel::sort(int column, Qt::SortOrder order)
@@ -45,8 +43,18 @@ QVariant SqlSortFilterModel::headerData(int section, Qt::Orientation orientation
 
 void SqlSortFilterModel::refresh()
 {
-
     m_model->checkpoint_refresh();
+}
+
+void SqlSortFilterModel::setFilter(const QString &pattern,int column)
+{
+    m_model->setFilterString(pattern,column);
+}
+
+void SqlSortFilterModel::setFilter(const QString &pattern, const QList<int> &columns)
+{
+    m_model->setFilterString(pattern,columns);
+
 }
 
 void SqlSortFilterModel::setSourceModel(QAbstractItemModel *sourceModel)

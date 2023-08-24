@@ -8,6 +8,7 @@ SortFilterProcessModel::SortFilterProcessModel(QObject *parent)
     : QSortFilterProxyModel{parent}
 {
     setSourceModel(&m_model);
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
 }
 
 void SortFilterProcessModel::sort(int column, Qt::SortOrder order)
@@ -42,5 +43,11 @@ QVariant SortFilterProcessModel::headerData(int section, Qt::Orientation orienta
 void SortFilterProcessModel::refresh()
 {
 
+}
+
+void SortFilterProcessModel::setFilter(const QString &pattern, int column)
+{
+    setFilterKeyColumn(column);
+    setFilterFixedString(pattern);
 }
 }
