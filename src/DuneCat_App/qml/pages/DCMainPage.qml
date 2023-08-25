@@ -7,29 +7,48 @@ Rectangle {
     id:root
     property list<string> tableUrlList:["qrc:/DuneCat/imports/qml/controls/DCProcessTable.qml",
                                         "qrc:/DuneCat/imports/qml/controls/DCProcessHistoryTable.qml"]
-    property list<real> tableScrollPosList:[0.0,0.0]
+    property list<var> activeStateProps
+    property list<var> historyStateProps
+
     Material.accent: DCStyle.primaryColor
     color: "white"
-    function saveScrollPos(){
-        if(header.tableSelector.selectedId === 0)
-            tableScrollPosList[0] = tableLoader.item.scrollBarPos
-        else
-            tableScrollPosList[1] = tableLoader.item.scrollBarPos
 
+    function setStateProps(props){
+        activeStateProps = props[1]
+        historyStateProps = props[2]
+        header.tableSelector.selectedId = props[0]
+        if(header.tableSelector.selectedId === 1)
+            tableLoader.item.setStateProps(historyStateProps)
+        else
+            tableLoader.item.setStateProps(activeStateProps)
+    }
+
+    function getStateProps(){
+        if(header.tableSelector.selectedId === 1)
+            historyStateProps = tableLoader.item.getStateProps()
+        else
+            activeStateProps = tableLoader.item.getStateProps()
+
+        return [header.tableSelector.selectedId,activeStateProps,historyStateProps]
     }
 
     Connections{
         target:header.tableSelector
         function onSelectedIdChanged(){
+            console.log(header.tableSelector.selectedId)
             if(header.tableSelector.selectedId === 1)
             {
-                tableScrollPosList[0] = tableLoader.item.scrollBarPos
+                activeStateProps = tableLoader.item.getStateProps()
                 tableLoader.setSource(tableUrlList[1])
+                if(historyStateProps.length !== 0)
+                    tableLoader.item.setStateProps(historyStateProps)
             }
             else
             {
-                tableScrollPosList[1] = tableLoader.item.scrollBarPos
+                historyStateProps = tableLoader.item.getStateProps()
                 tableLoader.setSource(tableUrlList[0])
+                if(activeStateProps.length !== 0)
+                    tableLoader.item.setStateProps(activeStateProps)
             }
         }
     }
@@ -88,8 +107,7 @@ Rectangle {
         anchors.bottom:parent.bottom
         height: parent.height
         width: parent.width
-        onLoaded: item.scrollBarPos = tableScrollPosList[header.tableSelector.selectedId]
-        source: tableUrlList[0]
+        source: source = tableUrlList[header.tableSelector.selectedId]
     }
 
 }

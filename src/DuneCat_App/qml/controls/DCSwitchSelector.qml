@@ -9,7 +9,7 @@ Item {
     property alias textRight: internRightButton.internTextRight
 //    property alias backgroundColor: internIndecator.color
 //    property alias selectionColor: internIndecator.internSelectionRectColor
-    property int selectedId: 0
+    property int selectedId: 1
     signal buttonClicked(emitter: int)
 
     DCSideRoundedRect{
@@ -23,7 +23,7 @@ Item {
         recOpacity:0.2
         recRadius: DCStyle.radius
         recRoundSide:DCSideRoundedRect.RoundedSide.Left
-        property bool checked: true
+        property bool checked: selectedId === 0 ? true : false
         property alias internTextLeft : internLeftText
         Connections {
              target: root
@@ -84,7 +84,7 @@ Item {
         borderColor:checked ? switchColor : "grey"
         borderWidth: 1
         recRoundSide:DCSideRoundedRect.RoundedSide.Right
-        property bool checked: false
+        property bool checked: selectedId === 1 ? true : false
         property alias internTextRight: internRightText
         Connections {
              target: root

@@ -9,7 +9,7 @@ DCMainWindow
     width: width = Settings.window_width
     height: height = Settings.window_height
     property list<string> pageUrlList:[]
-    property list<real> mainPageScrollPosList:[]
+    property list<var> mainPageStateProps:[]
     Component.onCompleted:{
         startupFunction()
     }
@@ -61,12 +61,14 @@ DCMainWindow
         function onActivePageChanged(){
             if(adminPanel.adminLoaderItem.activePage !== DCAdminPanel.Home)
             {
-                page.loaderItem.saveScrollPos()
-                mainPageScrollPosList = page.loaderItem.tableScrollPosList
+                mainPageStateProps = page.loaderItem.getStateProps()
                 page.loader.setSource(root.pageUrlList[adminPanel.adminLoaderItem.activePage])
             }
             else
-                page.loader.setSource(root.pageUrlList[adminPanel.adminLoaderItem.activePage],{"tableScrollPosList":mainPageScrollPosList})
+            {
+                page.loader.setSource(root.pageUrlList[adminPanel.adminLoaderItem.activePage])
+                page.loaderItem.setStateProps(mainPageStateProps)
+            }
         }
     }
 

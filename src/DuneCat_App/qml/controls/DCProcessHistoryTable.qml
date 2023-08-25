@@ -17,10 +17,45 @@ ScrollView {
         anchors.bottom: parent.bottom
         anchors.right:parent.right
         }
+
+    function setStateProps(props)
+    {
+
+        console.log("SET history table props:",props)
+        scrollBar.position = props[0]
+        for(var i = 0; i < tableView.columns; i++)
+            tableView.header.repeater.itemAt(i).width =props[1][i]
+    }
+
+    function getStateProps()
+    {
+        var headerWidths = []
+        for(var i = 0; i < tableView.columns; i++)
+            headerWidths.push(tableView.columnWidth(i))
+        console.log("GET history table props:",[scrollBar.position,headerWidths])
+
+        return [scrollBar.position,headerWidths]
+    }
+
+    function getColWidths()
+    {
+        var headerWidths = []
+        for(var i = 0; i < tableView.columns; i++)
+            headerWidths.push(tableView.columnWidth(i))
+        return headerWidths
+    }
+
+    function setColWidths(widths)
+    {
+        for(var i = 0; i < tableView.columns; i++)
+            tableView.header.repeater.itemAt(i).width = widths[i]
+    }
+
     TableView
     {
         id:tableView
         property int lastSelected
+        property alias header: header
         anchors.top:header.bottom
         delegate:viewDelegate
         boundsBehavior: Flickable.StopAtBounds
