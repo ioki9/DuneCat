@@ -18,8 +18,7 @@ qt_add_qml_module(${PROJECT_NAME}
     QML_FILES
         "main.qml"
         "qml/components/DCSideRoundedRect.qml"
-        "qml/controls/DCTableHeaderColumn.qml"
-        "qml/controls/DCDeviceTable.qml"
+        "qml/components/DCTableHeaderColumn.qml"
         "qml/pages/DCSettingsPage.qml"
         "qml/pages/DCMainPage.qml"
         "qml/DCStyle.qml"
@@ -27,9 +26,10 @@ qt_add_qml_module(${PROJECT_NAME}
         "qml/DCAdminPanel.qml"
         "qml/controls/DCProcessTable.qml"
         "qml/controls/DCProcessHistoryTable.qml"
-        "qml/controls/DCSwitchSelector.qml"
+        "qml/controls/DCSegmentedButton.qml"
         "qml/controls/DCSearchTextField.qml"
-
+        "qml/controls/DCDeviceTable.qml"
+        "qml/controls/DCButton.qml"
     SOURCES
         "sortfilterprocessmodel.h" "sortfilterprocessmodel.cpp"
         "processtablemodel.h" "processtablemodel.cpp"
@@ -49,6 +49,7 @@ qt_add_qml_module(${PROJECT_NAME}
         "icons/20x20/expand_more.png"
         "icons/20x20/expand_less.png"
         "icons/20x20/refresh.png"
+        "icons/20x20/filter_list.png"
         "icons/20x20@2/desktop.png"
         "icons/20x20@2/back.png"
         "icons/20x20@2/drawer.png"
@@ -59,6 +60,7 @@ qt_add_qml_module(${PROJECT_NAME}
         "icons/20x20@2/expand_more.png"
         "icons/20x20@2/expand_less.png"
         "icons/20x20@2/refresh.png"
+        "icons/20x20@2/filter_list.png"
         "icons/20x20@3/back.png"
         "icons/20x20@3/drawer.png"
         "icons/20x20@3/menu.png"

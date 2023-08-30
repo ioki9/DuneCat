@@ -56,7 +56,7 @@ int ProcessTableModel::columnWidth(int c, const QFont *font)
         QFontMetrics default_metrics = QFontMetrics(QGuiApplication::font());
         QFontMetrics fm = (font ? QFontMetrics(*font) : default_metrics);
         int ret = fm.horizontalAdvance(headerData(c,Qt::Horizontal,Qt::DisplayRole).toString()
-                                       + QLatin1String(" ^")) + 10;
+                                       + QLatin1String(" \u2B9F")) + 10;
 
         for (int r{0};r<m_processes.size();++r)
             ret = qMax(ret,(fm.horizontalAdvance(data(QAbstractItemModel::createIndex(r,c), Qt::DisplayRole).toString())+6));

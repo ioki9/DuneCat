@@ -25,7 +25,7 @@ Rectangle {
         anchors.right:parent.right
         anchors.margins: 4
         anchors.verticalCenter: parent.verticalCenter
-        text: "^"
+        text: "\u2B9F"
         visible:false
     }
 
@@ -33,7 +33,7 @@ Rectangle {
     MouseArea{
         id:borderMouseArea
         anchors.right: parent.right
-        height:parent.height
+        height:parent.eight
         width: 5
         acceptedButtons: Qt.LeftButton
         hoverEnabled: true

@@ -21,7 +21,7 @@ Item {
         width:parent.width + recRadius
         height: parent.height
         radius: recRadius
-        color:Qt.rgba(root.color.r,root.color.g,root.color.b,recOpacity)
+        color:Qt.rgba(root.color.r,root.color.g,root.color.b,recOpacity === 1.0 ? root.color.a : recOpacity)
         border.color: root.borderColor
         border.width: root.borderWidth
     }

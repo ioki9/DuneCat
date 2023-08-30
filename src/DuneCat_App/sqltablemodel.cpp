@@ -229,7 +229,7 @@ int SqlTableModel::columnWidth(int c,int role, const QFont *font)
         QFontMetrics default_metrics = QFontMetrics(QApplication::font());
         QFontMetrics fm = (font ? QFontMetrics(*font) : default_metrics);
         int ret = fm.horizontalAdvance(headerData(c,Qt::Horizontal,role).toString()
-                                       + QLatin1String(" ^")) + 10;
+                                       + QLatin1String(" \u2B9F")) + 10;
 
         int rows = qMax(m_row_count,3000);
         for (int r{0};r<rows;++r)

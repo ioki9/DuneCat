@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls.Material
 
+// TO DO: save header width state
 Rectangle {
     enum DCMenuButton{
         Home,
@@ -14,7 +15,6 @@ Rectangle {
     property alias activePage: listView.activePage
     ListView
     {
-
         id: listView
         clip:true
         focus: true

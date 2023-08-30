@@ -20,7 +20,6 @@ ScrollView {
         }
     function setStateProps(props)
     {
-        console.log("SET active table props:",props)
         scrollBar.position = props[0]
         for(var i = 0; i < tableView.columns; i++)
             tableView.header.repeater.itemAt(i).width = props[1][i]
@@ -31,8 +30,6 @@ ScrollView {
         var headerWidths = []
         for(var i = 0; i < tableView.columns; i++)
             headerWidths.push(tableView.columnWidth(i))
-        console.log("GET active table props:",[scrollBar.position,headerWidths])
-
         return [scrollBar.position,headerWidths]
     }
 

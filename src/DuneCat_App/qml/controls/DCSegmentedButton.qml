@@ -2,14 +2,20 @@ import QtQuick
 import DCStyle
 import QtQuick.Controls
 import "qrc:/DuneCat/imports/qml/components"
+
 Item {
     id:root
     property alias textLeft : internLeftButton.internTextLeft
-    property color switchColor : DCStyle.primaryColor
+    property color buttonColor : DCStyle.primaryColor
     property alias textRight: internRightButton.internTextRight
+    QtObject{
+        id:props
+        property color buttonColorActive: Qt.rgba(buttonColor.r,buttonColor.g,buttonColor.b,DCStyle.button.bgOpacity)
+    }
+
 //    property alias backgroundColor: internIndecator.color
 //    property alias selectionColor: internIndecator.internSelectionRectColor
-    property int selectedId: 1
+    property int selectedId: 0
     signal buttonClicked(emitter: int)
 
     DCSideRoundedRect{
@@ -17,10 +23,10 @@ Item {
         x:0
         height: root.height
         width: root.width/2
-        color: checked ? switchColor : "white"
-        borderColor:checked ? switchColor : "grey"
+        color: checked ? props.buttonColorActive : DCStyle.button.bgColor
+        borderColor:checked ? buttonColor : DCStyle.button.borderColor
         borderWidth: 1
-        recOpacity:0.2
+        //recOpacity: DCStyle.button.bgOpacity
         recRadius: DCStyle.radius
         recRoundSide:DCSideRoundedRect.RoundedSide.Left
         property bool checked: selectedId === 0 ? true : false
@@ -42,25 +48,29 @@ Item {
                 parent.checked = true;
                 buttonClicked(0);
                 root.selectedId = 0
+                parent.borderColor = parent.checked ? root.buttonColor : parent.borderColor
+                parent.color = parent.checked ? props.buttonColorActive : parent.color
+                internLeftText.color = internLeftButton.checked ? buttonColor : internLeftText.color
             }
             onHoveredChanged: {
                 if(containsMouse && !parent.checked)
                 {
-                    parent.borderColor = parent.borderColor.darker(1.5)
-                    internLeftText.color = internLeftText.color.darker(1.5)
-                    parent.color = "lightgrey"
+                    parent.borderColor = DCStyle.button.borderColorHovered
+                    internLeftText.color = DCStyle.button.textColorHovered
+                    parent.color = DCStyle.button.bgColorHovered
                 }
                 else
                 {
-                    parent.borderColor = Qt.binding(function() { return parent.checked ? root.switchColor : "grey"})
-                    parent.color = Qt.binding(function() { return  parent.checked ? switchColor : "white"})
-                    internLeftText.color = Qt.binding(function() { return internLeftButton.checked ? switchColor : "grey"})
+                    parent.borderColor = Qt.binding(function() { return parent.checked ? root.buttonColor : DCStyle.button.borderColor})
+                    parent.color = Qt.binding(function() { return  parent.checked ? props.buttonColorActive : DCStyle.button.bgColor})
+                    internLeftText.color = Qt.binding(function() { return internLeftButton.checked ? buttonColor : DCStyle.button.textColor})
                 }
             }
+
             onPressed: {
-                parent.borderColor = Qt.binding(function() { return parent.checked ? root.switchColor : "grey"})
-                parent.color = Qt.binding(function() { return  parent.checked ? switchColor : "white"})
-                internLeftText.color = Qt.binding(function() { return internLeftButton.checked ? switchColor : "grey"})
+                parent.borderColor = parent.checked ? root.buttonColor : parent.borderColor
+                parent.color = parent.checked ? props.buttonColorActive : DCStyle.button.bgColorDown
+                internLeftText.color = internLeftButton.checked ? buttonColor : internLeftText.color
             }
         }
     }
@@ -69,7 +79,7 @@ Item {
         z:3
         x: (internLeftButton.width - contentWidth)/2
         y: (internLeftButton.height-contentHeight)/2
-        color:internLeftButton.checked ? switchColor : "grey"
+        color:internLeftButton.checked ? buttonColor : "grey"
         font.bold: internLeftButton.checked ? true : false
     }
 
@@ -79,9 +89,9 @@ Item {
         x: root.width/2 -1
         height: root.height
         width: root.width/2
-        recOpacity:0.2
-        color: checked ? switchColor : "white"
-        borderColor:checked ? switchColor : "grey"
+        //recOpacity:DCStyle.button.bgOpacity
+        color: checked ? buttonColor : DCStyle.button.bgColor
+        borderColor:checked ? buttonColor : DCStyle.button.borderColor
         borderWidth: 1
         recRoundSide:DCSideRoundedRect.RoundedSide.Right
         property bool checked: selectedId === 1 ? true : false
@@ -103,26 +113,28 @@ Item {
                 parent.checked = true;
                 buttonClicked(1);
                 root.selectedId = 1
+                parent.borderColor = parent.checked ? root.buttonColor : parent.borderColor
+                parent.color = parent.checked ? props.buttonColorActive : parent.color
+                internRightText.color = internRightButton.checked ? buttonColor : internRightText.color
             }
             onHoveredChanged: {
                 if(containsMouse && !parent.checked)
                 {
-                    parent.borderColor = parent.borderColor.darker(1.5)
-                    internRightText.color = internRightText.color.darker(1.5)
-                    parent.color = "lightgrey"
+                    parent.borderColor = DCStyle.button.borderColorHovered
+                    internRightText.color = DCStyle.button.textColorHovered
+                    parent.color = DCStyle.button.bgColorHovered
                 }
                 else
                 {
-                    parent.borderColor = Qt.binding(function() { return parent.checked ? root.switchColor : "grey"})
-                    internRightText.color = Qt.binding(function() { return internRightButton.checked ? switchColor : "grey"})
-                    parent.color = Qt.binding(function() { return  parent.checked ? switchColor : "white"})
+                    parent.borderColor = Qt.binding(function() { return parent.checked ? buttonColor : DCStyle.button.borderColor})
+                    internRightText.color = Qt.binding(function() { return internRightButton.checked ? buttonColor : DCStyle.button.textColor})
+                    parent.color = Qt.binding(function() { return  parent.checked ? props.buttonColorActive : DCStyle.button.bgColor})
                 }
             }
             onPressed: {
-                parent.borderColor = Qt.binding(function() { return parent.checked ? root.switchColor : "grey"})
-                internRightText.color = Qt.binding(function() { return internRightButton.checked ? switchColor : "grey"})
-                parent.color = Qt.binding(function() { return  parent.checked ? switchColor : "white"})
-
+                parent.borderColor = parent.checked ? root.buttonColor : parent.borderColor
+                parent.color = parent.checked ? props.buttonColorActive : DCStyle.button.bgColorDown
+                internRightText.color = internRightButton.checked ? buttonColor : internRightText.color
             }
         }
     }
@@ -133,7 +145,7 @@ Item {
         anchors.left: internRightButton.left
         anchors.leftMargin: (internRightButton.width - contentWidth)/2
         opacity:1.0
-        color:internRightButton.checked ? switchColor : "grey"
+        color:internRightButton.checked ? buttonColor : DCStyle.button.textColor
         font.bold: internRightButton.checked ? true : false
 
     }
@@ -143,7 +155,7 @@ Item {
         z:2
         width: 1
         height: parent.height
-        color: switchColor
+        color: buttonColor
         anchors.centerIn: parent
     }
 
