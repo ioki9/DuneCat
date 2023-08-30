@@ -14,9 +14,9 @@ Rectangle {
     color: "white"
 
     function setStateProps(props){
+        header.tableSelector.selectedId = props[0]
         activeStateProps = props[1]
         historyStateProps = props[2]
-        header.tableSelector.selectedId = props[0]
         if(header.tableSelector.selectedId === 1)
             tableLoader.item.setStateProps(historyStateProps)
         else
@@ -35,7 +35,6 @@ Rectangle {
     Connections{
         target:header.tableSelector
         function onSelectedIdChanged(){
-            console.log(header.tableSelector.selectedId)
             if(header.tableSelector.selectedId === 1)
             {
                 activeStateProps = tableLoader.item.getStateProps()
@@ -62,7 +61,7 @@ Rectangle {
         spacing: 2
         property alias tableSelector: internTableSelector
         property bool hidden:false
-        DCSwitchSelector{
+        DCSegmentedButton{
             id:internTableSelector
             height:30            
             width: 120
@@ -76,22 +75,42 @@ Rectangle {
     RoundButton{
         id:refreshButton
         icon.name: "refresh"
+        icon.color: "white"
         anchors.verticalCenter: header.verticalCenter
         anchors.right:header.right
         anchors.rightMargin: 10
+        radius:DCStyle.radius
+        Material.background: DCStyle.primaryColor
         onPressed:tableLoader.item.model.refresh()
-    }
 
-    DCSearchTextField
-    {
-        width:200
+    }
+    DCButton{
+        id:filterButton
+        width:100
         height:30
         anchors.verticalCenter: header.verticalCenter
-        anchors.right: refreshButton.left
-        anchors.rightMargin: 10
-        placeholderText: qsTr("Search...")
-        property var filterCols:header.tableSelector.selectedId === 0 ? -1 : [0,1,2]
-        onTextChanged: tableLoader.item.model.setFilter(text,filterCols)
+        anchors.right:refreshButton.right
+        anchors.rightMargin: 40
+        radius:DCStyle.radius
+        icon.name: "filter_list"
+        icon.height: 20
+        icon.width: 20
+        text: activated ? "Filters \u2B9F" : "Filters \u2B9D"
+        font.pointSize: 10
+        buttonColor: DCStyle.primaryColor
+    }
+    Rectangle{
+        visible:false
+        DCSearchTextField
+        {
+            width:150
+            height:25
+            anchors.left: parent.left
+            anchors.leftMargin: 10
+            placeholderText: qsTr("Search...")
+            property var filterCols:header.tableSelector.selectedId === 0 ? -1 : [0,1,2]
+            onTextChanged: tableLoader.item.model.setFilter(text,filterCols)
+        }
     }
 
     Rectangle{
