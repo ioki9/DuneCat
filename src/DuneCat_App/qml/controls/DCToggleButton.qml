@@ -21,6 +21,7 @@ RoundButton {
     rightPadding: 0
     topPadding: 0
     bottomPadding: 0
+    font.bold: activated
     icon.color: Material.foreground
     function updateDelegateColor()
     {
@@ -50,6 +51,7 @@ RoundButton {
         activated = !activated
         updateDelegateColor()
     }
+    onActivatedChanged: updateDelegateColor()
 
     onHoveredChanged:updateDelegateColor()
     onDownChanged:updateDelegateColor()
