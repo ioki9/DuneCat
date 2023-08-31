@@ -4,16 +4,24 @@ import DCStyle
 TextField{
     id:searchTextField
     leftPadding:searchImage.width + 5
+    property alias icon: searchImage
     topPadding: 10
     Image{
         id:searchImage
         source:"qrc:/DuneCat/imports/icons/20x20@2/search.png"
-        width:parent.height - 3
-        height:parent.height - 3
+        width:textMetrics.boundingRect.height + 5
+        height:textMetrics.boundingRect.height + 5
         anchors.left: parent.left
         anchors.leftMargin: 3
         anchors.verticalCenter: parent.verticalCenter
     }
+    TextMetrics{
+        id:textMetrics
+        font.pointSize: searchTextField.font.pointSize
+        font.family: searchTextField.font.family
+        text:"A"
+    }
+
     placeholderTextColor: searchTextField.activeFocus ?  DCStyle.primaryColor : "lightgrey"
     background:Rectangle{
         radius: DCStyle.radius
@@ -44,7 +52,7 @@ TextField{
                 color:searchTextField.parent.color
                 Behavior on x{
                     NumberAnimation{
-                        duration:300
+                        duration:200
                     }
                 }
             }
@@ -65,7 +73,7 @@ TextField{
                 color:searchTextField.parent.color
                 Behavior on x{
                     NumberAnimation{
-                        duration:300
+                        duration:200
                     }
                 }
 

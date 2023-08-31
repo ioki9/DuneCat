@@ -84,7 +84,7 @@ Rectangle {
         onPressed:tableLoader.item.model.refresh()
 
     }
-    DCButton{
+    DCToggleButton{
         id:filterButton
         width:100
         height:30
@@ -95,21 +95,57 @@ Rectangle {
         icon.name: "filter_list"
         icon.height: 20
         icon.width: 20
-        text: activated ? "Filters \u2B9F" : "Filters \u2B9D"
+        text: activated ? "Filters \u2B9D" : "Filters \u2B9F"
         font.pointSize: 10
         buttonColor: DCStyle.primaryColor
     }
     Rectangle{
-        visible:false
+        clip:true
+        width: 200
+        radius:10
+        z:2
+        border.width: 1
+        border.color: "grey"
+        property real childrenHeight
+        Component.onCompleted: childrenHeight = childrenRect.height
+        height: filterButton.activated ? childrenHeight + 30 : 0
+        anchors.right: parent.right
+        anchors.rightMargin: 10
+        anchors.top: filterButton.bottom
+        anchors.topMargin:4
+        Behavior on height{
+            NumberAnimation{
+                duration:200
+            }
+        }
+        DCCloseButton{
+            width:20
+            height:20
+            z:3
+            icon.name: "close"
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.rightMargin: 5
+            anchors.topMargin: 5
+            onClosed:filterButton.activated = false
+        }
+
         DCSearchTextField
         {
             width:150
-            height:25
+            height:35
+            z:3
             anchors.left: parent.left
             anchors.leftMargin: 10
+            anchors.top: filterPaneText.top
+            anchors.topMargin: 7
             placeholderText: qsTr("Search...")
             property var filterCols:header.tableSelector.selectedId === 0 ? -1 : [0,1,2]
             onTextChanged: tableLoader.item.model.setFilter(text,filterCols)
+        }
+        MouseArea{
+            anchors.fill:parent
+            onClicked: focus = true
         }
     }
 

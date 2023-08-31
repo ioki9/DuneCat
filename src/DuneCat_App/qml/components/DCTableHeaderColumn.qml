@@ -23,7 +23,7 @@ Rectangle {
     Text{
         id:upDownIndicator
         anchors.right:parent.right
-        anchors.margins: 4
+        anchors.margins: 5
         anchors.verticalCenter: parent.verticalCenter
         text: "\u2B9F"
         visible:false
@@ -33,7 +33,7 @@ Rectangle {
     MouseArea{
         id:borderMouseArea
         anchors.right: parent.right
-        height:parent.eight
+        height:parent.height
         width: 5
         acceptedButtons: Qt.LeftButton
         hoverEnabled: true
@@ -45,6 +45,7 @@ Rectangle {
 
         Rectangle{
             id:columnBorder
+            z:2
             anchors.right: parent.right
             height:parent.height
             width:1
