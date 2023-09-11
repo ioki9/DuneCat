@@ -100,6 +100,7 @@ Rectangle {
         buttonColor: DCStyle.primaryColor
     }
     Rectangle{
+        id:filterPane
         clip:true
         width: 200
         radius:10
@@ -132,17 +133,31 @@ Rectangle {
 
         DCSearchTextField
         {
+            id:textSearchFilter
             width:150
             height:35
             z:3
             anchors.left: parent.left
             anchors.leftMargin: 10
-            anchors.top: filterPaneText.top
+            anchors.top: filterPane.top
             anchors.topMargin: 7
             placeholderText: qsTr("Search...")
             property var filterCols:header.tableSelector.selectedId === 0 ? -1 : [0,1,2]
             onTextChanged: tableLoader.item.model.setFilter(text,filterCols)
         }
+        DCDatePicker{
+            id:dateTime
+            z:3
+            width:150
+            height:35
+            radius: DCStyle.radius
+            anchors.top: textSearchFilter.bottom
+            anchors.topMargin: 10
+            border.width: 1
+            border.color: "black"
+            fontPointSize: 14
+        }
+
         MouseArea{
             anchors.fill:parent
             onClicked: focus = true

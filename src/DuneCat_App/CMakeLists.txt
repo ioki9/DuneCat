@@ -19,6 +19,7 @@ qt_add_qml_module(${PROJECT_NAME}
         "main.qml"
         "qml/components/DCSideRoundedRect.qml"
         "qml/components/DCTableHeaderColumn.qml"
+        "qml/components/DCTextInputInt.qml"
         "qml/pages/DCSettingsPage.qml"
         "qml/pages/DCMainPage.qml"
         "qml/DCStyle.qml"
@@ -31,13 +32,16 @@ qt_add_qml_module(${PROJECT_NAME}
         "qml/controls/DCDeviceTable.qml"
         "qml/controls/DCToggleButton.qml"
         "qml/controls/DCCloseButton.qml"
+        "qml/controls/DCDatePicker.qml"
+
     SOURCES
         "sortfilterprocessmodel.h" "sortfilterprocessmodel.cpp"
         "processtablemodel.h" "processtablemodel.cpp"
         "settings.h" "settings.cpp" "systemtray.h" "systemtray.cpp"
         "sqltablemodel.h" "sqltablemodel.cpp"
         "sqlsortfiltermodel.h" "sqlsortfiltermodel.cpp"
-
+        "datevalidator.h" "datevalidator.cpp"
+        "intvalidator.h" "intvalidator.cpp"
     RESOURCES
         "icons/20x20/desktop.png"
         "icons/20x20/circle_indicator.png"

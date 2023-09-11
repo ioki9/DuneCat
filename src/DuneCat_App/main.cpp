@@ -9,7 +9,8 @@
 #include "sqltablemodel.h"
 #include "sqlite3/sqlite3.h"
 #include "globalsignalemitter.h"
-
+#include "datevalidator.h"
+#include "intvalidator.h"
 using namespace DuneCat;
 
 //Creates db connection with all the necessary db table stuff.
@@ -19,6 +20,7 @@ SqlSortFilterModel* create_proc_history_model();
 
 int main(int argc, char *argv[])
 {
+
     QApplication app(argc, argv);
     QTranslator translator;
     app.setApplicationName(QStringLiteral("DuneCat"));
@@ -36,8 +38,10 @@ int main(int argc, char *argv[])
     qputenv("QT_QUICK_CONTROLS_CONF",":/DuneCat/imports/qtquickcontrols2.conf");
 
     qRegisterMetaType<ProcessInfo>("ProcessInfo");
-    qmlRegisterType<ProcessTableModel>("TableModels",1,0,"ProcessTableModel");
-    qmlRegisterType<SortFilterProcessModel>("TableModels",1,0,"SortFilterProcessModel");
+    qmlRegisterType<DateValidator>("DCComponents", 1, 0, "DCDateValidator");
+    qmlRegisterType<IntValidator>("DCComponents", 1, 0, "DCIntValidator");
+    qmlRegisterType<ProcessTableModel>("DCTableModels",1,0,"ProcessTableModel");
+    qmlRegisterType<SortFilterProcessModel>("DCTableModels",1,0,"SortFilterProcessModel");
     qmlRegisterSingletonType(QUrl(QStringLiteral("qrc:/DuneCat/imports/qml/DCStyle.qml")), "DCStyle", 1, 0, "DCStyle");
     QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << QStringLiteral(":/DuneCat/imports/icons"));
     QIcon::setThemeName(QStringLiteral("Default"));

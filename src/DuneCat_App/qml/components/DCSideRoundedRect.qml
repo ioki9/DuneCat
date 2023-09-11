@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Controls
- import QtQuick.Shapes
+import QtQuick.Shapes
 Item {
     enum RoundedSide{
         Left,

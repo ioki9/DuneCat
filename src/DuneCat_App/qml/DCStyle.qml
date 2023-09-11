@@ -24,6 +24,5 @@ QtObject {
         property color textColorHovered: textColor.darker(1.5)
         property color textColorDown: textColorHovered
         property color textColorActivated:primaryColor
-
     }
 }
