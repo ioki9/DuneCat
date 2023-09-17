@@ -8,19 +8,26 @@ import "qrc:/DuneCat/imports/qml/components"
 ScrollView {
     id:scrollView
     property alias model : tableView.model
-    property alias scrollBarPos: scrollBar.position
+    property alias scrollBarHoriz: scrollBarHoriz
     ScrollBar.vertical: ScrollBar{
-        id:scrollBar
+        id:scrollBarVert
         parent:scrollView
         anchors.topMargin: header.height
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.right:parent.right
         }
+    ScrollBar.horizontal: ScrollBar{
+        id:scrollBarHoriz
+        parent:scrollView
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.right:parent.right
+    }
 
     function setStateProps(props)
     {
-        scrollBar.position = props[0]
+        scrollBarVert.position = props[0]
         for(var i = 0; i < tableView.columns; i++)
             tableView.header.repeater.itemAt(i).width =props[1][i]
     }
@@ -30,7 +37,7 @@ ScrollView {
         var headerWidths = []
         for(var i = 0; i < tableView.columns; i++)
             headerWidths.push(tableView.columnWidth(i))
-        return [scrollBar.position,headerWidths]
+        return [scrollBarVert.position,headerWidths]
     }
 
     function getColWidths()
@@ -65,11 +72,9 @@ ScrollView {
             function onModelAboutToBeReset(){
                 var temp = ism.selectedRows(0)[0]
                 tableView.lastSelected = temp.row
-                console.log("on model about to be reset. Index = ",tableView.lastSelected)
 
             }
             function onModelReset(){
-                console.log("on model reset. Index = ", tableView.lastSelected)
 
                 if(tableView.lastSelected)
                     ism.select(tableView.model.index(tableView.lastSelected,0),
@@ -103,6 +108,8 @@ ScrollView {
         id:header
         parent:scrollView
         height: 30
+        x:-tableView.contentX
+        width:childrenRect.width
         property alias repeater: colRepeater
         Repeater
         {

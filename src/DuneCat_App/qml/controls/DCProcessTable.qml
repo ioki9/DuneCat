@@ -10,6 +10,8 @@ ScrollView {
     anchors.fill: parent
     property alias model : tableView.model
     property alias scrollBarPos: scrollBar.position
+    property alias scrollBarHoriz: scrollBarHoriz
+
     ScrollBar.vertical: ScrollBar{
         id:scrollBar
         parent:scrollView
@@ -18,6 +20,14 @@ ScrollView {
         anchors.bottom: parent.bottom
         anchors.right:parent.right
         }
+    ScrollBar.horizontal: ScrollBar{
+        id:scrollBarHoriz
+        parent:scrollView
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.right:parent.right
+    }
+
     function setStateProps(props)
     {
         scrollBar.position = props[0]
@@ -88,6 +98,7 @@ ScrollView {
         parent:scrollView
         height: 30
         width:parent.width
+        x:-tableView.contentX
         anchors.top:parent.top
         property alias repeater: colRepeater
         Repeater
