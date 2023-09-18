@@ -90,7 +90,7 @@ Item {
         height: root.height
         width: root.width/2
         //recOpacity:DCStyle.button.bgOpacity
-        color: checked ? buttonColor : DCStyle.button.bgColor
+        color: checked ? props.buttonColorActive : DCStyle.button.bgColor
         borderColor:checked ? buttonColor : DCStyle.button.borderColor
         borderWidth: 1
         recRoundSide:DCSideRoundedRect.RoundedSide.Right
