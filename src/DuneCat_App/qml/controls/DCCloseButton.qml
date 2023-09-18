@@ -23,7 +23,7 @@ Rectangle {
             parent.color = backgroundDefaultColor
         }
         onPressed:parent.color = parent.color.darker(DCStyle.button.darkerCoefficient)
-        onClicked: {closed();parent.color = backgroundColor}
+        onClicked: {closed();parent.color = containsMouse ? backgroundColor : backgroundDefaultColor}
     }
     IconImage{
         id:icon

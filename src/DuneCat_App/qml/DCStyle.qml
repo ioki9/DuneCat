@@ -3,7 +3,7 @@ import QtQuick
 import QtQuick.Controls
 
 QtObject {
-    property var primaryColor: Material.primaryColor
+    property color primaryColor: Material.primaryColor
     property real radius: 20
     property var button: QtObject{
         property real bgOpacity: 0.2
