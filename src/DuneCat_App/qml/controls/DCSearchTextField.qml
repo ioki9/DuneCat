@@ -1,16 +1,24 @@
 import QtQuick
 import QtQuick.Controls
 import DCStyle
+
 TextField{
     id:searchTextField
     leftPadding:searchImage.width + 5
     property alias icon: searchImage
     topPadding: 10
-    Image{
+    IconImage{
         id:searchImage
         source:"qrc:/DuneCat/imports/icons/20x20@2/search.png"
         width:textMetrics.boundingRect.height + 5
         height:textMetrics.boundingRect.height + 5
+        color:{
+            if(searchTextField.activeFocus)
+               return DCStyle.primaryColor
+           else
+               return "black"
+        }
+
         anchors.left: parent.left
         anchors.leftMargin: 3
         anchors.verticalCenter: parent.verticalCenter
