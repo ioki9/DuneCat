@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Controls.Material
-
+import DCStyle
 // TO DO: save header width state
 Rectangle {
     enum DCMenuButton{
@@ -10,7 +10,8 @@ Rectangle {
         About
     }
     id: root
-    color:Material.primaryColor
+    color:styleColor
+    property color styleColor: DCStyle.primaryColor
     property alias listSpacing : listView.spacing
     property alias activePage: listView.activePage
     ListView
@@ -34,13 +35,13 @@ Rectangle {
             anchors.rightMargin: 3
 
             icon.name: model.icon
-            icon.color: itemDelegate.highlighted ? Material.primary : "white";
+            icon.color: itemDelegate.highlighted ? root.styleColor : "white";
 
             Text{
                 id:buttonText
                 text:model.title
                 font.pointSize: 12
-                color: itemDelegate.highlighted ? Material.primary : "white";
+                color: itemDelegate.highlighted ? root.styleColor : "white";
                 anchors.left:parent.left
                 anchors.leftMargin: parent.icon.width + 30
                 anchors.verticalCenter: parent.verticalCenter
