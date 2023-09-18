@@ -9,11 +9,15 @@ class DateValidator : public QValidator
     Q_DISABLE_COPY_MOVE(DateValidator)
 public:
     explicit DateValidator(QObject *parent = nullptr);
-    State validate(QString& input, int& pos) const;
+    Q_INVOKABLE State validate(QString& input, int& pos) const override;
     Q_INVOKABLE void allowPastCurrentDate(bool allow);
     Q_INVOKABLE void setDateFormat(const QString& dateFormat);
+    Q_INVOKABLE void setMinDate(const QDateTime& date);
+    Q_INVOKABLE void setMaxDate(const QDateTime &date);
 private:
     QString m_format{};
     bool m_allow_past_current_date{};
+    QDateTime m_min_date{};
+    QDateTime m_max_date{};
 };
 }
