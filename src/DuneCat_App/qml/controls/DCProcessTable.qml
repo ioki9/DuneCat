@@ -109,7 +109,7 @@ ScrollView {
                 id:col
                 height:header.height
                 anchors.top: header.top
-                fontPointSize: 10
+                fontPixelSize: DCStyle.font.pixelSize.body
                 width:
                 {
                     if(Qt.platform.os === "linux")
@@ -150,7 +150,7 @@ ScrollView {
                         return display.toLocaleString(Locale.ShortFormat)
                     return display
                 }
-                font.pointSize: 10
+                font.pixelSize: DCStyle.font.pixelSize.body
                 anchors.left: parent.left
                 anchors.leftMargin: 5
                 anchors.verticalCenter: parent.verticalCenter

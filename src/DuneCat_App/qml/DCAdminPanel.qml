@@ -40,7 +40,7 @@ Rectangle {
             Text{
                 id:buttonText
                 text:model.title
-                font.pointSize: 12
+                font.pixelSize: DCStyle.font.pixelSize.bodyLarge
                 color: itemDelegate.highlighted ? root.styleColor : "white";
                 anchors.left:parent.left
                 anchors.leftMargin: parent.icon.width + 30

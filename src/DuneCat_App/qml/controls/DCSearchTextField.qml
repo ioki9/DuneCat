@@ -25,7 +25,7 @@ TextField{
     }
     TextMetrics{
         id:textMetrics
-        font.pointSize: searchTextField.font.pointSize
+        font.pixelSize: searchTextField.font.pixelSize
         font.family: searchTextField.font.family
         text:"A"
     }

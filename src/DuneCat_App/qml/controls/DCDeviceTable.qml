@@ -52,7 +52,7 @@ ScrollView {
 
                 Text {
                     text: model.name
-                    font.pointSize: 12
+                    font.pixelSize: DCStyle.font.pixelSize.body
                     color: wrapper.ListView.isCurrentItem ? "white" : "black"
                     elide: Text.ElideRight
                     Layout.fillWidth: true

@@ -5,6 +5,17 @@ import QtQuick.Controls
 QtObject {
     property color primaryColor: Material.primaryColor
     property real radius: 20
+    property var font: QtObject{
+        property var pixelSize: QtObject{
+            property int caption: 12
+            property int body:14
+            property int bodyLarge: 18
+            property int input: bodyLarge
+            property int button:14
+            property int title:28
+        }
+    }
+
     property var button: QtObject{
         property real bgOpacity: 0.2
         property real darkerCoefficient: 1.05

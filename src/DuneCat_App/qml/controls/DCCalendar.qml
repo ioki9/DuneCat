@@ -39,7 +39,7 @@ Rectangle{
                 anchors.verticalCenterOffset: 7
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left:parent.left
-                font.pointSize: 12
+                font.pixelSize: DCStyle.font.pixelSize.bodyLarge
             }
             Button{
                 id: unfoldMonth
@@ -65,6 +65,7 @@ Rectangle{
                     anchors.fill: parent
                     color: unfoldMonth.hovered ? root.styleColor : "transparent"
                 }
+
             }
 
             Text {
@@ -76,8 +77,8 @@ Rectangle{
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: unfoldMonth.right
                 anchors.leftMargin: 2
-                font.pointSize: 12
-            }
+                font.pixelSize: DCStyle.font.pixelSize.bodyLarge
+                }
             Button{
                 id: unfoldYear
                 height:22
@@ -102,6 +103,7 @@ Rectangle{
                     anchors.fill: parent
                     color: unfoldYear.hovered ? root.styleColor : "transparent"
                 }
+
             }
         }
 
@@ -136,6 +138,7 @@ Rectangle{
             icon.width: 40
             icon.height: 40
             icon.color: leftArrow.hovered ? "white" : "black"
+
             background:Rectangle{
                 id:leftArrowDelegate
                 radius:DCStyle.radius
@@ -189,7 +192,7 @@ Rectangle{
 
         DayOfWeekRow {
             locale: root.locale
-            font.pointSize: 8
+            font.pixelSize: DCStyle.font.pixelSize.caption
             Layout.column: 1
             Layout.fillWidth: true
         }
@@ -198,14 +201,14 @@ Rectangle{
             month: grid.month
             year: grid.year
             locale: grid.locale
-            font.pointSize: 8
+            font.pixelSize: DCStyle.font.pixelSize.caption
             Layout.fillHeight: true
         }
 
         MonthGrid {
             id: grid
             locale: root.locale
-            font.pointSize: 8
+            font.pixelSize: DCStyle.font.pixelSize.caption
             year:root.currentDate.getFullYear()
             month: root.currentDate.getMonth()
             Connections{
@@ -219,28 +222,43 @@ Rectangle{
             Layout.fillWidth: true
             Layout.fillHeight: true
             spacing: 1
+
             delegate: Rectangle{
                 id: gridDelegate
                 required property var model
                 radius: DCStyle.radius
                 color: "transparent"
+                function getDateGridOpacity()
+                {
+                    if(model.month === grid.month)
+                    {
+                        if(model.date >= root.minDate && model.date <= root.maxDate)
+                            return 1
+                        else
+                            return 0.3
+                    }
+                    else
+                        return 0.3
+                }
+
+                Connections{
+                    target: root
+                    function onMaxDateChanged()
+                    {
+                        dayText.opacity = Qt.binding(getDateGridOpacity)
+                    }
+                    function onMinDateChanged()
+                    {
+                        dayText.opacity = Qt.binding(getDateGridOpacity)
+                    }
+                }
+
                 Text{
                     id:dayText
                     anchors.centerIn: parent
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-                    opacity: {
-
-                        if(model.month === grid.month)
-                        {
-                            if(model.date >= root.minDate && model.date <= root.maxDate)
-                                return 1
-                            else
-                                return 0.3
-                        }
-                        else
-                            return 0.3
-                    }
+                    opacity:getDateGridOpacity()
                     text: model.day
                     font: grid.font
                     color: "black"

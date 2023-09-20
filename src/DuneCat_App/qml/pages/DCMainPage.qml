@@ -67,9 +67,9 @@ Rectangle {
             width: 120
             anchors.verticalCenter: header.verticalCenter
             textLeft.text: qsTr("Active")
-            textLeft.font.pointSize: 10
+            textLeft.font.pixelSize: DCStyle.font.pixelSize.button
             textRight.text: qsTr("History")
-            textRight.font.pointSize: 10
+            textRight.font.pixelSize: DCStyle.font.pixelSize.button
         }
     }
     RoundButton{
@@ -96,20 +96,20 @@ Rectangle {
         icon.height: 20
         icon.width: 20
         text: activated ? "Filters \u2B9D" : "Filters \u2B9F"
-        font.pointSize: 10
+        font.pixelSize: DCStyle.font.pixelSize.button
         buttonColor: DCStyle.primaryColor
     }
     Rectangle{
         id:filterPane
         clip:true
-        width: 200
+        width: 300
         radius:10
         z:2
         border.width: 1
         border.color: "grey"
         property real childrenHeight
         Component.onCompleted: childrenHeight = childrenRect.height
-        height: filterButton.activated ? childrenHeight + 30 : 0
+        height: filterButton.activated ? childrenHeight + 300 : 0
         anchors.right: parent.right
         anchors.rightMargin: 10
         anchors.top: filterButton.bottom
@@ -137,6 +137,7 @@ Rectangle {
             width:150
             height:35
             z:3
+            font.pixelSize: DCStyle.font.pixelSize.body
             anchors.left: parent.left
             anchors.leftMargin: 10
             anchors.top: filterPane.top
@@ -148,14 +149,14 @@ Rectangle {
         DCDatePicker{
             id:dateTime
             z:3
-            width:150
-            height:35
+//            width:110
+//            height:25
             radius: DCStyle.radius
             anchors.top: textSearchFilter.bottom
             anchors.topMargin: 10
             border.width: 1
-            border.color: "black"
-            fontPointSize: 14
+            border.color: "lightgrey"
+
         }
 
         MouseArea{

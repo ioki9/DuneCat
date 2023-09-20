@@ -118,7 +118,7 @@ ScrollView {
             DCTableHeaderColumn{
                 id:col
                 height:parent.height
-                fontPointSize: 10
+                fontPixelSize: 10
                 width:{
                     var role
                     if(index === 2 || index === 3)
@@ -159,7 +159,7 @@ ScrollView {
                     else
                         return display
                 }
-                font.pointSize: 10
+                font.pixelSize: DCStyle.font.pixelSize.body
                 anchors.left: parent.left
                 anchors.leftMargin: 5
                 anchors.verticalCenter: parent.verticalCenter
