@@ -17,8 +17,9 @@ public:
     Q_INVOKABLE int columnWidth(int c, int role, int pointSize);
     Q_INVOKABLE QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     Q_INVOKABLE void refresh();
-    Q_INVOKABLE void setFilter(const QString& pattern, int column);
-    Q_INVOKABLE void setFilter(const QString& pattern, const QList<int>& columns);
+    Q_INVOKABLE void setFilterText(const QString& pattern, int column, int filterId);
+    Q_INVOKABLE void setFilterText(const QString& pattern, const QList<int>& columns,int filterId);
+    Q_INVOKABLE void setFilterDate(const QDateTime &min_date, const QDateTime &max_date, int column, int filterId);
     void setSourceModel(QAbstractItemModel *sourceModel) override;
 private:
     SqlTableModel* m_model;

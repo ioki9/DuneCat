@@ -137,14 +137,17 @@ Rectangle {
             width:150
             height:35
             z:3
-            font.pixelSize: DCStyle.font.pixelSize.body
+            font.pixelSize: DCStyle.font.pixelSize.input
             anchors.left: parent.left
             anchors.leftMargin: 10
             anchors.top: filterPane.top
             anchors.topMargin: 7
+            font.bold: false
             placeholderText: qsTr("Search...")
+            property int idNum: IdGenerator.generate()
             property var filterCols:header.tableSelector.selectedId === 0 ? -1 : [0,1,2]
-            onTextChanged: tableLoader.item.model.setFilter(text,filterCols)
+            onTextChanged:header.tableSelector.selectedId === 0 ? tableLoader.item.model.setFilterText(text,filterCols)
+                                                                : tableLoader.item.model.setFilterText(text,filterCols,idNum)
         }
         DCDatePicker{
             id:dateTime
@@ -156,7 +159,9 @@ Rectangle {
             anchors.topMargin: 10
             border.width: 1
             border.color: "lightgrey"
-
+            property int idNum: IdGenerator.generate()
+            onCurrentDateChanged: header.tableSelector.selectedId === 1 ? tableLoader.item.model.setFilterDate(dateTime.currentDate,new Date(),3,idNum) :
+                                                                          undefined
         }
 
         MouseArea{

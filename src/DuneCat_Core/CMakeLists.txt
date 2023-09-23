@@ -3,7 +3,9 @@ set(SOURCE_LIST
     processtracker.h processinfo.h
     tools.cpp tools.h
     dbmanager.h dbmanager.cpp
-    globalsignalemitter.h globalsignalemitter.cpp)
+    globalsignalemitter.h globalsignalemitter.cpp
+    sqlqueryfilter.h sqlqueryfilter.cpp
+)
 if(WIN32)
     list(APPEND SOURCE_LIST windows/processtracker.cpp
         windows/wmieventsink.h windows/wmieventsink.cpp

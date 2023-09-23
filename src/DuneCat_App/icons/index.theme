@@ -7,7 +7,9 @@ Directories=20x20,20x20@2,20x20@3,20x20@4
 [20x20]
 Size=20
 Type=Fixed
-
+[24x24]
+Size=24
+Type=Fixed
 [20x20@2]
 Size=20
 Scale=2

@@ -46,20 +46,25 @@ void SqlSortFilterModel::refresh()
     m_model->checkpoint_refresh();
 }
 
-void SqlSortFilterModel::setFilter(const QString &pattern,int column)
+void SqlSortFilterModel::setFilterText(const QString &pattern,int column,int filterId)
 {
-    m_model->setFilterString(pattern,column);
+    m_model->setFilterText(pattern,column,filterId);
 }
 
-void SqlSortFilterModel::setFilter(const QString &pattern, const QList<int> &columns)
+void SqlSortFilterModel::setFilterText(const QString &pattern, const QList<int> &columns,int filterId)
 {
-    m_model->setFilterString(pattern,columns);
+    m_model->setFilterText(pattern,columns,filterId);
 
+}
+
+void SqlSortFilterModel::setFilterDate(const QDateTime &min_date,const QDateTime &max_date, int column, int filterId)
+{
+    m_model->setFilterDate(min_date,max_date,column,filterId);
 }
 
 void SqlSortFilterModel::setSourceModel(QAbstractItemModel *sourceModel)
 {
-    m_model = dynamic_cast<SqlTableModel*>(sourceModel);
+    m_model = qobject_cast<SqlTableModel*>(sourceModel);
     if(!m_model)
         qWarning()<<"dynamic_cast of QAbstractItemModel to SqlTableModel failed in SqlSortFilterModel::setSourceModel.";
     QSortFilterProxyModel::setSourceModel(sourceModel);

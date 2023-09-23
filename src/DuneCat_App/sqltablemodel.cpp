@@ -5,10 +5,13 @@
 #include <QFontMetrics>
 #include "processtracker.h"
 
+//TODO: SqlQueryFilter -> specific functions to create filter string from different values
+//      addFilter(...,filterId), removeFilter(filterId), modifyFilter(...,filterId) functions to work with current filters.
+//      Use filter array to construct end point query.
 namespace DuneCat
 {
 SqlTableModel::SqlTableModel(const DBManager& db,QObject *parent)
-    : QAbstractTableModel{parent},m_db{db}
+    : QAbstractTableModel{parent},m_db{db},m_filters{this}
 {
 
     m_reset_timer.start();
@@ -35,7 +38,7 @@ void SqlTableModel::setQuery(const QString &query)
                    <<". Query:"<<m_query->lastQuery();
         return;
     }
-    m_main_query = query;
+    m_main_string_query = query;
     if(m_query->exec())
         m_record = m_query->record();
     else
@@ -72,98 +75,71 @@ int SqlTableModel::rowCount(const QModelIndex &parent) const
     return m_row_count;
 }
 
-bool SqlTableModel::setFilterString(const QString filter, const QList<int> &columns)
+bool SqlTableModel::setFilterText(const QString& filter, const QList<int> &columns,int filterId)
 {
     if(filter.isEmpty())
     {
-        m_query->prepare(m_main_query);
-        refresh();
+        m_filters.remove_filter(filterId);
+        this->updateFilters();
+        if(this->refresh(false))
+            return true;
+        return false;
     }
-    QString filter_query{" WHERE "};
+    QString filter_query{"("};
     for(size_t i{0};i<columns.size() - 1;i++)
         filter_query += m_record.fieldName(columns[i]) + QStringLiteral(" LIKE '%") + filter + "%' OR ";
 
-    filter_query += m_record.fieldName(columns.back()) + QStringLiteral(" LIKE '%") + filter + "%'";
-    QSqlQuery count_query(m_db.get_database());
-    count_query.exec(QStringLiteral("SELECT COUNT(*) FROM processes_history") + filter_query);
-    qDebug()<<"Last count query:"<<count_query.lastQuery();
-
-    if(count_query.next())
-    {
-        int rows{count_query.value(0).toInt()};
-        if(m_row_count > rows)
-        {
-
-            beginRemoveRows({},rows,m_row_count);
-            m_row_count = rows;
-            endRemoveRows();
-        }
-        else if(m_row_count < rows)
-        {
-            beginInsertRows({},m_row_count,rows);
-            m_row_count = rows;
-            endInsertRows();
-        }
-    }
+    filter_query += m_record.fieldName(columns.back()) + QStringLiteral(" LIKE '%") + filter + "%')";
+    if(!m_filters.contains(filterId))
+        m_filters.add_filter(filter_query,filterId);
     else
-    {
-        qWarning()<<"Can't get row count of sql database. setFilterString failed with error: "<<count_query.lastError().text();
-        return false;
-    }
-    m_query->prepare(m_main_query + filter_query);
-    if(!m_query->exec())
-    {
-        qWarning()<<"Couldn't filter SqlTableModel. Query exec error. Error:"<<m_query->lastError().text()
-                   <<". Query:"<<m_query->lastQuery();
-        return false;
-    }
-    return true;
+        m_filters.modify_filter(filter_query,filterId);
+
+    this->updateFilters();
+    if(this->refresh(false))
+        return true;
+    return false;
 
 }
 
-int SqlTableModel::setFilterString(const QString filter, int column)
+bool SqlTableModel::setFilterText(const QString& filter, int column,int filterId)
 {
     if(filter.isEmpty())
     {
-        m_query->prepare(m_main_query);
-        refresh();
+        m_filters.remove_filter(filterId);
+        this->updateFilters();
+        if(this->refresh(false))
+            return true;
+        return false;
     }
-    QString filter_query{" WHERE "};
-    filter_query += m_record.fieldName(column) + QStringLiteral(" LIKE '%") + filter + "%'";
-    QSqlQuery count_query(m_db.get_database());
-    count_query.exec(QStringLiteral("SELECT COUNT(*) FROM processes_history") + filter_query);
-    if(count_query.next())
-    {
-        int rows{count_query.value(0).toInt()};
-        if(m_row_count > rows)
-        {
-
-            beginRemoveRows({},rows,m_row_count);
-            m_row_count = rows;
-            endRemoveRows();
-        }
-        else if(m_row_count < rows)
-        {
-            beginInsertRows({},m_row_count,rows);
-            m_row_count = rows;
-            endInsertRows();
-        }
-    }
+    QString filter_query{"("};
+    filter_query += m_record.fieldName(column) + QStringLiteral(" LIKE '%") + filter + "%')";
+    if(!m_filters.contains(filterId))
+        m_filters.add_filter(filter_query,filterId);
     else
-    {
-        qWarning()<<"Can't get row count of sql database. setFilterString failed with error:"
-                   <<count_query.lastError().text()<<". And query:"<<count_query.lastQuery();
-        return false;
-    }
-    m_query->prepare(m_main_query + filter_query);
-    if(!m_query->exec())
-    {
-        qWarning()<<"Couldn't filter SqlTableModel. Query exec error. Error:"<<m_query->lastError().text()
-                   <<". Query:"<<m_query->lastQuery();
-        return false;
-    }
-    return true;
+        m_filters.modify_filter(filter_query,filterId);
+    this->updateFilters();
+    return this->refresh(false);
 
+}
+
+bool SqlTableModel::setFilterDate(const QDateTime &min_date,const QDateTime &max_date,int column,int filterId)
+{
+    if(!min_date.isValid() || !max_date.isValid())
+    {
+        qWarning()<<"Dates in setFilterDate that are provided for filtering isn't valid.";
+        return false;
+    }
+
+    auto filter = QString("(%1 BETWEEN %2 AND %3)")
+                  .arg(m_record.fieldName(column),QString::number(min_date.toSecsSinceEpoch()),QString::number(max_date.toSecsSinceEpoch()));
+    if(!m_filters.contains(filterId))
+        m_filters.add_filter(filter,filterId);
+    else
+        m_filters.modify_filter(filter,filterId);
+    this->updateFilters();
+
+    return this->refresh(false);
 }
 
 QHash<int, QByteArray> SqlTableModel::generate_roles_from_fields()
@@ -219,7 +195,39 @@ bool SqlTableModel::checkpoint_refresh()
     m_query->finish();
     if(!m_db.wal_checkpoint())
         return false;
-    return refresh();
+    return refresh(true);
+}
+
+void SqlTableModel::updateFilters()
+{
+    const int amount = m_filters.get_filters_amount();
+    if(!amount)
+    {
+        m_query->prepare(m_main_string_query);
+        this->refresh();
+    }
+    else if(amount == 1)
+    {
+        auto res = m_main_string_query + QStringLiteral(" WHERE ") + *m_filters.get_filter_list_ptr()->begin();
+        m_query->prepare(res);
+        qDebug()<<res;
+        this->refresh();
+    }
+    else
+    {
+        auto* filters = m_filters.get_filter_list_ptr();
+        auto res = m_main_string_query + QStringLiteral(" WHERE ") + *filters->begin();
+        auto i = (std::next(filters->begin()));
+        for(i;i!=std::prev(filters->end());std::next(i))
+        {
+            res += QStringLiteral(" AND ") + *i;
+        }
+        res+= QStringLiteral(" AND ") + *i;
+        m_query->prepare(res);
+        this->refresh();
+    }
+
+
 }
 
 int SqlTableModel::columnWidth(int c,int role, const QFont *font)
@@ -229,7 +237,7 @@ int SqlTableModel::columnWidth(int c,int role, const QFont *font)
         QFontMetrics default_metrics = QFontMetrics(QApplication::font());
         QFontMetrics fm = (font ? QFontMetrics(*font) : default_metrics);
         int ret = fm.horizontalAdvance(headerData(c,Qt::Horizontal,role).toString()
-                                       + QLatin1String(" \u2B9F")) + 10;
+                                       + QStringLiteral(" \u2B9F")) + 10;
 
         int rows = qMax(m_row_count,3000);
         for (int r{0};r<rows;++r)
@@ -251,14 +259,21 @@ int SqlTableModel::columnWidth(int c,int role, int pointSize)
     return m_column_widths[c];
 }
 
-bool SqlTableModel::refresh()
+bool SqlTableModel::refresh(bool isDataChanged)
 {
     QSqlQuery count_query(m_db.get_database());
     count_query.exec(QStringLiteral("SELECT COUNT(*) FROM processes_history"));
     if(count_query.next())
     {
         int rows{count_query.value(0).toInt()};
-        if(m_row_count != rows)
+        if(m_row_count > rows)
+        {
+
+            beginRemoveRows({},rows,m_row_count);
+            m_row_count = rows;
+            endRemoveRows();
+        }
+        else if(m_row_count < rows)
         {
             beginInsertRows({},m_row_count,rows);
             m_row_count = rows;
@@ -277,8 +292,8 @@ bool SqlTableModel::refresh()
                    <<". Query:"<<m_query->lastQuery();
         return false;
     }
-
-    emit dataChanged(index(0,0),index(rowCount()-1,columnCount()-1));
+    if(isDataChanged)
+        emit dataChanged(index(0,0),index(rowCount()-1,columnCount()-1));
     m_reset_timer.restart();
 
     return true;
