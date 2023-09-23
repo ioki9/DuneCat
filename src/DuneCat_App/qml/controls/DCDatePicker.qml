@@ -8,29 +8,33 @@ Rectangle {
     property var dateOrderList: []
     property color styleColor: DCStyle.primaryColor
     property color inactiveColor: "lightgrey"
-    property int fontPointSize: 10
+    property int fontPixelSize: DCStyle.font.pixelSize.input
     property var currentLocale: Qt.locale()
     property bool active
     property string dateDelim:getDateDelimeter(localeDateFormat)
     property string localeDateFormat: currentLocale.dateFormat(Locale.ShortFormat)
     property date minDate: new Date(2023,0,1)
     property date maxDate: new Date(2099,0,1)
+    property date currentDate: new Date()
+    property int iconWidth:24
+    property int iconHeight: 24
+    implicitWidth: inputButtonRect.width + 20
+    implicitHeight: inputButtonRect.height + 10
     activeFocusOnTab: true
     border.color: inactiveColor
+    onActiveChanged: root.border.color = getRelevantBorderColor()
+    Component.onCompleted: {
+        setDateOrderList(localeDateFormat)
+        internal.dtFormat = getDateFormat(dateOrderList)
+    }
     enum Date{
         Day,
         Month,
         Year
     }
-
     QtObject{
         id:internal
         property string dtFormat
-    }
-    onActiveChanged: root.border.color = getRelevantBorderColor()
-    Component.onCompleted: {
-        setDateOrderList(localeDateFormat)
-        internal.dtFormat = getDateFormat(dateOrderList)
     }
     function getDateFormat(dateOrder)
     {
@@ -135,15 +139,15 @@ Rectangle {
     {
         var mask = internal.dtFormat.replace("MM","99")
         mask = mask.replace("dd","99")
-        mask = mask.replace("yyyy","2099")
+        mask = mask.replace("yyyy","2999")
         return mask
     }
 
-    function dateFromatToInputText(dtFormat)
+    function dateToInputText(date,dtFormat)
     {
-        var txt = internal.dtFormat.replace("MM","01")
-        txt  = txt.replace("dd","01")
-        txt = txt.replace("yyyy","2023")
+        var txt = internal.dtFormat.replace("MM",(date.getMonth()+1) <= 10 ? ("0" + (date.getMonth()+1).toString()) : (date.getMonth()+1).toString())
+        txt  = txt.replace("dd",date.getDate() <= 10 ? ("0" + date.getDate().toString()) : (date.getDate().toString()))
+        txt = txt.replace("yyyy",date.getFullYear())
         return txt
     }
 
@@ -182,8 +186,8 @@ Rectangle {
         property alias calendarButton: calendarButton
         RoundButton{
             id:calendarButton
-            width:root.height - 5
-            height:root.height - 5
+            width:iconWidth
+            height:iconHeight
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
             checkable: true
@@ -194,9 +198,11 @@ Rectangle {
             bottomPadding:0
             onCheckedChanged:{calendar.visible = checked; calendar.focus = checked}
             background: IconImage{
-                name: "date_range"
+                name: "calendar_month"
                 color: calendarButton.checked ? styleColor : "grey"
-                anchors.fill: parent
+                width: calendarButton.width
+                height: width
+                anchors.centerIn: parent
             }
 
         }
@@ -205,6 +211,7 @@ Rectangle {
             z:4
             anchors.top:calendarButton.bottom
             visible: false
+            onSelected: (date)=>{root.currentDate = date}
             onClosed: {visible = false; calendarButton.checked = false}
         }
         TextInput{
@@ -213,10 +220,10 @@ Rectangle {
             anchors.left: calendarButton.right
             anchors.leftMargin: 3
             anchors.verticalCenter: parent.verticalCenter
-            font.pointSize: fontPointSize
+            font.pixelSize: fontPixelSize
             validator: DCDateValidator{}
             inputMask: dateFromatToInputMask(internal.dtFormat)
-            text:dateFromatToInputText(internal.dtFormat)
+            text: dateToInputText(currentDate,internal.dtFormat)
             selectByMouse : false
             selectionColor: styleColor
             onFocusChanged: root.active = focus
@@ -224,8 +231,14 @@ Rectangle {
                 target:internal
                 function onDtFormatChanged(){
                     textInput.validator.setDateFormat(internal.dtFormat)
-                    textInput.text = dateFromatToInputText(internal.dtFormat)
+                    textInput.text = dateToInputText(currentDate,internal.dtFormat)
                     textInput.inputMask =  dateFromatToInputMask(internal.dtFormat)
+                }
+            }
+            Connections{
+                target:root
+                function onCurrentDateChanged(){
+                    textInput.text = dateToInputText(currentDate,internal.dtFormat)
                 }
             }
 

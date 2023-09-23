@@ -5,17 +5,42 @@ import DCStyle
 //TODO: animation(opacity, small movement), calendar icon
 Rectangle{
     id:root
-    property color styleColor:DCStyle.primaryColor
     border.width: 1
     border.color: "black"
     radius:7
-
     width:layoutGrid.width + 15
     height:childrenRect.height + 15
     property var locale: Qt.locale()
+    property color styleColor:DCStyle.primaryColor
     property date currentDate: new Date()
     property date maxDate: new Date()
     property date minDate: new Date(2022,6,23)
+    signal selected(date:date)
+    Component.onCompleted:{
+        populateYearList()
+        populateMonthList()
+    }
+    QtObject{
+        id:internal
+        property list<string> yearList
+        property list<string> monthList
+    }
+    function populateMonthList()
+    {
+        if(!internal.monthList.empty)
+            internal.monthList = []
+        for(var i = 0; i< 12; i++)
+            internal.monthList.push(root.locale.monthName(i))
+    }
+
+    function populateYearList()
+    {
+        if(!internal.yearList.empty)
+            internal.yearList = []
+        for(var i = 2000; i< 2100; i++)
+            internal.yearList.push(i)
+    }
+
     signal closed()
     Rectangle{
         id: header
@@ -29,9 +54,9 @@ Rectangle{
         anchors.rightMargin: 1
         Rectangle{
             anchors.centerIn: parent
-            width:childrenRect.width
-            height: childrenRect.height
-            Text {
+            width: monthText.contentWidth + spaceMetrics.advanceWidth + yearText.contentWidth
+            height: monthText.contentHeight
+            DCTextPopup {
                 id: monthText
                 text: root.locale.monthName(layoutGrid.monthGrid.month)
                 verticalAlignment: Text.AlignVCenter
@@ -40,70 +65,46 @@ Rectangle{
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left:parent.left
                 font.pixelSize: DCStyle.font.pixelSize.bodyLarge
-            }
-            Button{
-                id: unfoldMonth
-                height:22
-                width:22
-                anchors.left: monthText.right
-                anchors.leftMargin: 2
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.verticalCenterOffset: 7
-                leftPadding : 0
-                rightPadding: 0
-                topPadding: 0
-                bottomPadding: 0
-                padding:0
-                spacing: 0
-                icon.name: "unfold_more"
-                icon.width: 40
-                icon.height: 40
-                icon.color: unfoldMonth.hovered ? "white" : "black"
-                background:Rectangle{
-                    id:unfoldMonthDelegate
-                    radius:DCStyle.radius
-                    anchors.fill: parent
-                    color: unfoldMonth.hovered ? root.styleColor : "transparent"
+                itemList: internal.monthList
+                positionViewIndex: currentDate.getMonth()
+                onSelected:(item,index)=>{
+                    currentDate.setMonth(index)
+                }
+                Connections{
+                    target:layoutGrid.monthGrid
+                    function onMonthChanged(){
+                        monthText.text = root.locale.monthName(layoutGrid.monthGrid.month)
+                    }
                 }
 
             }
-
-            Text {
+            DCTextPopup {
                 id: yearText
                 text:layoutGrid.monthGrid.year
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 anchors.verticalCenterOffset: 7
                 anchors.verticalCenter: parent.verticalCenter
-                anchors.left: unfoldMonth.right
-                anchors.leftMargin: 2
+                anchors.left:monthText.right
+                anchors.leftMargin: spaceMetrics.advanceWidth
                 font.pixelSize: DCStyle.font.pixelSize.bodyLarge
+                itemList:internal.yearList
+                positionViewIndex: root.currentDate.getFullYear() - 2000
+                onSelected:(item)=>{
+                    root.currentDate.setFullYear( parseInt(item))
                 }
-            Button{
-                id: unfoldYear
-                height:22
-                width:22
-                anchors.left: yearText.right
-                anchors.leftMargin: 2
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.verticalCenterOffset: 7
-                leftPadding : 0
-                rightPadding: 0
-                topPadding: 0
-                bottomPadding: 0
-                padding:0
-                spacing: 0
-                icon.name: "unfold_more"
-                icon.width: 40
-                icon.height: 40
-                icon.color: unfoldYear.hovered ? "white" : "black"
-                background:Rectangle{
-                    id:unfoldYearDelegate
-                    radius:DCStyle.radius
-                    anchors.fill: parent
-                    color: unfoldYear.hovered ? root.styleColor : "transparent"
+                Connections{
+                    target:layoutGrid.monthGrid
+                    function onYearChanged(){
+                        yearText.text = layoutGrid.monthGrid.year
+                    }
                 }
+            }
 
+            TextMetrics{
+                id:spaceMetrics
+                font: monthText.font
+                text: " "
             }
         }
 
@@ -211,6 +212,10 @@ Rectangle{
             font.pixelSize: DCStyle.font.pixelSize.caption
             year:root.currentDate.getFullYear()
             month: root.currentDate.getMonth()
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            spacing: 1
+            property bool validDateSelected:false
             Connections{
                 target:root
                 function onCurrentDateChanged(){
@@ -218,11 +223,13 @@ Rectangle{
                     grid.month = root.currentDate.getMonth()
                 }
             }
-
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            spacing: 1
-
+            onClicked:(date)=>{
+                if(date >= root.minDate && date <= root.maxDate && date.getMonth() === grid.month)
+                {
+                    root.selected(date);
+                    root.closed()
+                }
+            }
             delegate: Rectangle{
                 id: gridDelegate
                 required property var model
@@ -262,10 +269,11 @@ Rectangle{
                     text: model.day
                     font: grid.font
                     color: "black"
-
                 }
+
                 MouseArea{
                     id: mouseArea
+                    propagateComposedEvents: true
                     anchors.fill: parent
                     hoverEnabled: true
                     onHoveredChanged:{
@@ -282,6 +290,12 @@ Rectangle{
                             dayText.color = "black"
                         }
                     }
+                    onClicked:(mouse)=>{mouse.accpeted = false}
+                    onPressed: (mouse)=>{mouse.accepted = false;}
+                    onReleased: (mouse)=>{mouse.accepted = false;}
+                    onDoubleClicked: (mouse)=>{mouse.accepted = false;}
+                    onPositionChanged: (mouse)=>{mouse.accepted = false;}
+                    onPressAndHold:(mouse)=>{mouse.accepted = false;}
                 }
             }
         }

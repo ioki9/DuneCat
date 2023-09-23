@@ -34,6 +34,7 @@ qt_add_qml_module(${PROJECT_NAME}
         "qml/controls/DCCloseButton.qml"
         "qml/controls/DCDatePicker.qml"
         "qml/controls/DCCalendar.qml"
+        "qml/controls/DCTextPopup.qml"
 
     SOURCES
         "sortfilterprocessmodel.h" "sortfilterprocessmodel.cpp"
@@ -43,6 +44,7 @@ qt_add_qml_module(${PROJECT_NAME}
         "sqlsortfiltermodel.h" "sqlsortfiltermodel.cpp"
         "datevalidator.h" "datevalidator.cpp"
         "intvalidator.h" "intvalidator.cpp"
+        "idgenerator.h" "idgenerator.cpp"
     RESOURCES
         "icons/20x20/desktop.png"
         "icons/20x20/circle_indicator.png"
@@ -62,6 +64,7 @@ qt_add_qml_module(${PROJECT_NAME}
         "icons/20x20/navigate_before.png"
         "icons/20x20/unfold_less.png"
         "icons/20x20/unfold_more.png"
+        "icons/24x24/calendar_month.png"
         "icons/20x20@2/desktop.png"
         "icons/20x20@2/back.png"
         "icons/20x20@2/drawer.png"
