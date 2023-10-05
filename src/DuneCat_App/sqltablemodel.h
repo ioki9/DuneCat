@@ -28,6 +28,7 @@ public:
     bool setFilterText(const QString& filter, const QList<int> &columns, int filterId);
     bool setFilterText(const QString& filter,int column, int filterId);
     bool setFilterDate(const QDateTime &min_date, const QDateTime &max_date, int column, int filterId);
+    void sort(int column, Qt::SortOrder order, int filterId);
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     void setHeaderData(const std::vector<QVariant>& data);

@@ -106,6 +106,7 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
     HANDLE hProcessSnap = INVALID_HANDLE_VALUE;
     PROCESSENTRY32 pe32;
     std::vector<ProcessInfo> result;
+    double elapsed_sum{0.0};
     // Take a snapshot of all processes in the system.
     hProcessSnap = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
     if( hProcessSnap == INVALID_HANDLE_VALUE )
@@ -179,12 +180,18 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
 //            info.icon = QPixmap::fromImage(QImage::fromHICON(ExtractIcon(GetModuleHandle(NULL),lol,0)));
 //            delete[] lol;
 //        }
+
+        const auto start{std::chrono::steady_clock::now()};
         result.push_back(std::move(info));
+        const auto end{std::chrono::steady_clock::now()};
+        const std::chrono::duration<double> elapsed_seconds{end - start};
+        elapsed_sum+=elapsed_seconds.count();
         CloseHandle(process_handle);
     } while( Process32Next( hProcessSnap, &pe32 ) );
     if(!set_debug_privilege(false))
         qDebug()<<"failed";
     CloseHandle( hProcessSnap );
+    qDebug()<<elapsed_sum;
     return result;
 }
 

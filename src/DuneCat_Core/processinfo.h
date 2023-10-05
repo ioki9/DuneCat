@@ -15,5 +15,4 @@ struct ProcessInfo{
     QDateTime creation_time;
     QPixmap icon;
 };
-
 }

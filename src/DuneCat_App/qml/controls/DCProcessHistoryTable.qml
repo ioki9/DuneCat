@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import DCStyle
+import DCBase
 import "qrc:/DuneCat/imports/qml/components"
 
 
@@ -119,6 +120,7 @@ ScrollView {
                 id:col
                 height:parent.height
                 fontPixelSize: 10
+                property int idNum: IdGenerator.generate()
                 width:{
                     var role
                     if(index === 2 || index === 3)
@@ -133,7 +135,7 @@ ScrollView {
                     for(var i = 0; i < colRepeater.model; i++)
                         if(i !== index)
                             colRepeater.itemAt(i).stopSorting()
-                    tableView.model.sort(index, state === "up" ? Qt.AscendingOrder : Qt.DescendingOrder)
+                    tableView.model.sort(index, state === "up" ? Qt.AscendingOrder : Qt.DescendingOrder, idNum)
                 }
             }
         }

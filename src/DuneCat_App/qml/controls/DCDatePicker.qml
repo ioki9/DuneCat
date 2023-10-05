@@ -145,8 +145,8 @@ Rectangle {
 
     function dateToInputText(date,dtFormat)
     {
-        var txt = internal.dtFormat.replace("MM",(date.getMonth()+1) <= 10 ? ("0" + (date.getMonth()+1).toString()) : (date.getMonth()+1).toString())
-        txt  = txt.replace("dd",date.getDate() <= 10 ? ("0" + date.getDate().toString()) : (date.getDate().toString()))
+        var txt = internal.dtFormat.replace("MM",(date.getMonth()+1) < 10 ? ("0" + (date.getMonth()+1).toString()) : (date.getMonth()+1).toString())
+        txt  = txt.replace("dd",date.getDate() < 10 ? ("0" + date.getDate().toString()) : (date.getDate().toString()))
         txt = txt.replace("yyyy",date.getFullYear())
         return txt
     }

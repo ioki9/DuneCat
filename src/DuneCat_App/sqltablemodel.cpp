@@ -91,9 +91,9 @@ bool SqlTableModel::setFilterText(const QString& filter, const QList<int> &colum
 
     filter_query += m_record.fieldName(columns.back()) + QStringLiteral(" LIKE '%") + filter + "%')";
     if(!m_filters.contains(filterId))
-        m_filters.add_filter(filter_query,filterId);
+        m_filters.add_filter(filter_query,filterId,FilterType::Where);
     else
-        m_filters.modify_filter(filter_query,filterId);
+        m_filters.modify_filter(filter_query,filterId,FilterType::Where);
 
     this->updateFilters();
     if(this->refresh(false))
@@ -115,9 +115,9 @@ bool SqlTableModel::setFilterText(const QString& filter, int column,int filterId
     QString filter_query{"("};
     filter_query += m_record.fieldName(column) + QStringLiteral(" LIKE '%") + filter + "%')";
     if(!m_filters.contains(filterId))
-        m_filters.add_filter(filter_query,filterId);
+        m_filters.add_filter(filter_query,filterId,FilterType::Where);
     else
-        m_filters.modify_filter(filter_query,filterId);
+        m_filters.modify_filter(filter_query,filterId,FilterType::Where);
     this->updateFilters();
     return this->refresh(false);
 
@@ -134,12 +134,30 @@ bool SqlTableModel::setFilterDate(const QDateTime &min_date,const QDateTime &max
     auto filter = QString("(%1 BETWEEN %2 AND %3)")
                   .arg(m_record.fieldName(column),QString::number(min_date.toSecsSinceEpoch()),QString::number(max_date.toSecsSinceEpoch()));
     if(!m_filters.contains(filterId))
-        m_filters.add_filter(filter,filterId);
+
+        m_filters.add_filter(filter,filterId,FilterType::Where);
     else
-        m_filters.modify_filter(filter,filterId);
+        m_filters.modify_filter(filter,filterId,FilterType::Where);
     this->updateFilters();
 
     return this->refresh(false);
+}
+
+void SqlTableModel::sort(int column, Qt::SortOrder order, int filterId)
+{
+    static int last_filter_id = filterId;
+    QString filter{""};
+    filter += m_record.fieldName(column) + " ";
+    filter += order == Qt::AscendingOrder ? "ASC" : "DESC";
+    if(m_filters.contains(filterId))
+        m_filters.modify_filter(filter,filterId,FilterType::OrderBy);
+    else
+    {
+        m_filters.remove_filter(last_filter_id);
+        last_filter_id  = filterId;
+        m_filters.add_filter(filter,filterId,FilterType::OrderBy);
+    }
+    this->updateFilters();
 }
 
 QHash<int, QByteArray> SqlTableModel::generate_roles_from_fields()
@@ -206,28 +224,12 @@ void SqlTableModel::updateFilters()
         m_query->prepare(m_main_string_query);
         this->refresh();
     }
-    else if(amount == 1)
-    {
-        auto res = m_main_string_query + QStringLiteral(" WHERE ") + *m_filters.get_filter_list_ptr()->begin();
-        m_query->prepare(res);
-        qDebug()<<res;
-        this->refresh();
-    }
     else
     {
-        auto* filters = m_filters.get_filter_list_ptr();
-        auto res = m_main_string_query + QStringLiteral(" WHERE ") + *filters->begin();
-        auto i = (std::next(filters->begin()));
-        for(i;i!=std::prev(filters->end());std::next(i))
-        {
-            res += QStringLiteral(" AND ") + *i;
-        }
-        res+= QStringLiteral(" AND ") + *i;
+        auto res = m_main_string_query + QStringLiteral(" ") + m_filters.get_filters_string();
         m_query->prepare(res);
         this->refresh();
     }
-
-
 }
 
 int SqlTableModel::columnWidth(int c,int role, const QFont *font)

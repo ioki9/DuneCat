@@ -7,9 +7,9 @@ SqlSortFilterModel::SqlSortFilterModel(QSqlDatabase db,QObject *parent)
 {
 }
 
-void SqlSortFilterModel::sort(int column, Qt::SortOrder order)
+void SqlSortFilterModel::sort(int column, Qt::SortOrder order, int filterId)
 {
-    QSortFilterProxyModel::sort(column,order);
+    m_model->sort(column,order, filterId);
 }
 
 int SqlSortFilterModel::rowCount(const QModelIndex &parent) const

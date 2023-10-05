@@ -9,6 +9,7 @@
 #include <QLocale>
 #include <QIcon>
 #include <vector>
+#include <utility>
 #ifdef Q_OS_WINDOWS
 #define _WIN32_DCOM
 #include <windows.h>

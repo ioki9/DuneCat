@@ -11,6 +11,7 @@ DateValidator::DateValidator(QObject *parent)
 
 QValidator::State DateValidator::validate(QString& input, int& pos) const
 {
+
     QDateTime dt = QDateTime::fromString(input,m_format);
     if (dt.isNull()) // If null, the input cannot be parsed
         return QValidator::Invalid;

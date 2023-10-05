@@ -10,7 +10,7 @@ class SqlSortFilterModel : public QSortFilterProxyModel
     Q_OBJECT
 public:
     explicit SqlSortFilterModel(QSqlDatabase db, QObject *parent = nullptr);
-    Q_INVOKABLE void sort(int column,Qt::SortOrder order = Qt::AscendingOrder) override;
+    Q_INVOKABLE void sort(int column, Qt::SortOrder order, int filterId);
     Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     Q_INVOKABLE int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     Q_INVOKABLE int columnWidth(int c, int role, const QFont *font = nullptr);

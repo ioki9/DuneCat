@@ -17,7 +17,7 @@ unsigned int IdGenerator::generate() const
     unsigned int timestamp =  duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<unsigned int> distrib(1, 1000000);
+    std::uniform_int_distribution<unsigned int> distrib(1, 10000000);
     timestamp += distrib(gen);
     return timestamp;
 }
