@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import DCStyle
 import DCBase
-import "qrc:/DuneCat/imports/qml/components"
+import "qrc:/DuneCat/qml/components"
 
 
 ScrollView {

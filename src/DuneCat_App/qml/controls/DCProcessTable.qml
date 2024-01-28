@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import DCStyle
-import "qrc:/DuneCat/imports/qml/components"
+import "qrc:/DuneCat/qml/components"
 import DCTableModels
 
 ScrollView {

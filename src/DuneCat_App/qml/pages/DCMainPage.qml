@@ -2,11 +2,11 @@ import QtQuick
 import QtQuick.Controls
 import DCBase
 import DCStyle
-import "qrc:/DuneCat/imports/qml/controls"
+import "qrc:/DuneCat/qml/controls"
 Rectangle {
     id:root
-    property list<string> tableUrlList:["qrc:/DuneCat/imports/qml/controls/DCProcessTable.qml",
-                                        "qrc:/DuneCat/imports/qml/controls/DCProcessHistoryTable.qml"]
+    property list<string> tableUrlList:["qrc:/DuneCat/qml/controls/DCProcessTable.qml",
+                                        "qrc:/DuneCat/qml/controls/DCProcessHistoryTable.qml"]
     property list<var> activeStateProps
     property list<var> historyStateProps
 

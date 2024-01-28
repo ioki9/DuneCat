@@ -137,7 +137,7 @@ std::vector<ProcessInfo> ProcessTracker::get_winapi_process_list()
         if (process_handle != NULL)
         {
             DWORD dwSize = sizeof(filename) / sizeof(*filename);
-            if (QueryFullProcessImageName(process_handle,NULL, filename, &dwSize) != 0)
+            if (QueryFullProcessImageName(process_handle, 0, filename, &dwSize) != 0)
                 info.file_path = QString::fromWCharArray(filename);
             else
                 qDebug()<<"couldn't get process path. Error:"<<GetLastError();

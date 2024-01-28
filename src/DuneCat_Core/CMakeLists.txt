@@ -20,7 +20,6 @@ endif()
 qt_add_qml_module(DCCore
     URI DCCore
     VERSION 1.0
-    RESOURCE_PREFIX /DuneCat/imports
     SOURCES
     ${SOURCE_LIST}
     )

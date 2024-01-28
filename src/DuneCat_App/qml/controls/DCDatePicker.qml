@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import DCComponents
 import DCStyle
-import "qrc:/DuneCat/imports/qml/components"
+import "qrc:/DuneCat/qml/components"
 Rectangle {
     id:root
     property var dateOrderList: []

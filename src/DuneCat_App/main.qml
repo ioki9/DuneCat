@@ -45,8 +45,8 @@ DCMainWindow
         }
     }
     function startupFunction(){
-        pageUrlList[DCAdminPanel.Home] = "qrc:/DuneCat/imports/qml/pages/DCMainPage.qml";
-        pageUrlList[DCAdminPanel.Settings] = "qrc:/DuneCat/imports/qml/pages/DCSettingsPage.qml";
+        pageUrlList[DCAdminPanel.Home] = "qrc:/DuneCat/qml/pages/DCMainPage.qml";
+        pageUrlList[DCAdminPanel.Settings] = "qrc:/DuneCat/qml/pages/DCSettingsPage.qml";
 
         if(Qt.application.arguments[1] === "--hidden")
            root.visibility = Window.Hidden

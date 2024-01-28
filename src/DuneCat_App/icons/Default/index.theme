@@ -2,7 +2,7 @@
 Name=Default
 Comment=Qt Quick Controls 2 Gallery Example Icon Theme
 
-Directories=20x20,20x20@2,20x20@3,20x20@4
+Directories=20x20,20x20@2,20x20@3,20x20@4,24x24
 
 [20x20]
 Size=20
@@ -23,4 +23,8 @@ Type=Fixed
 [20x20@4]
 Size=20
 Scale=4
+Type=Fixed
+
+[24x24]
+Size=24
 Type=Fixed

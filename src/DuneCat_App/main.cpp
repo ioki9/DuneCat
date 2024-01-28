@@ -35,24 +35,27 @@ int main(int argc, char *argv[])
     }
     if(!init_connect_db())
         app.exit(-1);
-    qputenv("QT_QUICK_CONTROLS_CONF",":/DuneCat/imports/qtquickcontrols2.conf");
+    qputenv("QT_QUICK_CONTROLS_CONF",":/DuneCat/qtquickcontrols2.conf");
 
     qRegisterMetaType<ProcessInfo>("ProcessInfo");
     qmlRegisterType<DateValidator>("DCComponents", 1, 0, "DCDateValidator");
     qmlRegisterType<IntValidator>("DCComponents", 1, 0, "DCIntValidator");
     qmlRegisterType<ProcessTableModel>("DCTableModels",1,0,"ProcessTableModel");
     qmlRegisterType<SortFilterProcessModel>("DCTableModels",1,0,"SortFilterProcessModel");
-    qmlRegisterSingletonType(QUrl(QStringLiteral("qrc:/DuneCat/imports/qml/DCStyle.qml")), "DCStyle", 1, 0, "DCStyle");
-    QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << QStringLiteral(":/DuneCat/imports/icons"));
+    qmlRegisterSingletonType(QUrl(QStringLiteral("qrc:/DuneCat/qml/DCStyle.qml")), "DCStyle", 1, 0, "DCStyle");
+
+    QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << QStringLiteral(":/DuneCat/icons"));
     QIcon::setThemeName(QStringLiteral("Default"));
+    QIcon icon = QIcon::fromTheme("desktop");
+    qDebug()<<QIcon::themeName();
     QQmlApplicationEngine engine;
 
     engine.rootContext()->setContextProperty("ProcessHistoryModel",create_proc_history_model());
-    engine.addImportPath(QStringLiteral(":/DuneCat/imports/qml"));
-    engine.addImportPath(QStringLiteral(":/DuneCat/imports/qml/controls"));
-    engine.addImportPath(QStringLiteral(":/DuneCat/imports/qml/pages"));
-    engine.addImportPath(QStringLiteral(":/DuneCat/imports/qml/components"));
-    const QUrl url(u"qrc:/DuneCat/imports/main.qml"_qs);
+    engine.addImportPath(QStringLiteral(":/DuneCat/qml"));
+    engine.addImportPath(QStringLiteral(":/DuneCat/qml/controls"));
+    engine.addImportPath(QStringLiteral(":/DuneCat/qml/pages"));
+    engine.addImportPath(QStringLiteral(":/DuneCat/qml/components"));
+    const QUrl url(u"qrc:/DuneCat/main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
         if (!obj && url == objUrl)

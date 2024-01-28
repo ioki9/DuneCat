@@ -1,7 +1,7 @@
 import QtQuick
 import DCStyle
 import QtQuick.Controls
-import "qrc:/DuneCat/imports/qml/components"
+import "qrc:/DuneCat/qml/components"
 
 Item {
     id:root

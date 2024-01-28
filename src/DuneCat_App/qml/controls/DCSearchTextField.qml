@@ -9,7 +9,8 @@ TextField{
     topPadding: 10
     IconImage{
         id:searchImage
-        source:"qrc:/DuneCat/imports/icons/20x20@2/search.png"
+        name: "search"
+        //source:"qrc:/DuneCat/icons/20x20@2/search.png"
         width:textMetrics.boundingRect.height + 5
         height:textMetrics.boundingRect.height + 5
         color:{

@@ -2,7 +2,6 @@ qt_add_library(DCNetwork STATIC)
 qt_add_qml_module(DCNetwork
     URI DCNetwork
     VERSION 1.0
-    RESOURCE_PREFIX /DuneCat/imports
     SOURCES
     stunclient.cpp  stunclient.h
     trackermanager.cpp trackermanager.h
