@@ -3,7 +3,6 @@
 #include <QSqlRecord>
 #include <QSqlField>
 #include <QFontMetrics>
-#include "processtracker.h"
 
 //TODO: SqlQueryFilter -> specific functions to create filter string from different values
 //      addFilter(...,filterId), removeFilter(filterId), modifyFilter(...,filterId) functions to work with current filters.
@@ -26,9 +25,7 @@ SqlTableModel::SqlTableModel(const DBManager& db,QObject *parent)
         qWarning()<<"can't get row count of sql database. Error: "<<count_query.lastError().text();
 }
 
-SqlTableModel::~SqlTableModel()
-{
-}
+SqlTableModel::~SqlTableModel() = default;
 
 void SqlTableModel::setQuery(const QString &query)
 {
@@ -81,12 +78,10 @@ bool SqlTableModel::setFilterText(const QString& filter, const QList<int> &colum
     {
         m_filters.remove_filter(filterId);
         this->updateFilters();
-        if(this->refresh(false))
-            return true;
-        return false;
+        return this->refresh(false);
     }
     QString filter_query{"("};
-    for(size_t i{0};i<columns.size() - 1;i++)
+    for(size_t i{0};i < columns.size() - 1; i++)
         filter_query += m_record.fieldName(columns[i]) + QStringLiteral(" LIKE '%") + filter + "%' OR ";
 
     filter_query += m_record.fieldName(columns.back()) + QStringLiteral(" LIKE '%") + filter + "%')";
@@ -96,10 +91,7 @@ bool SqlTableModel::setFilterText(const QString& filter, const QList<int> &colum
         m_filters.modify_filter(filter_query,filterId,FilterType::Where);
 
     this->updateFilters();
-    if(this->refresh(false))
-        return true;
-    return false;
-
+    return this->refresh(false);
 }
 
 bool SqlTableModel::setFilterText(const QString& filter, int column,int filterId)
@@ -108,9 +100,7 @@ bool SqlTableModel::setFilterText(const QString& filter, int column,int filterId
     {
         m_filters.remove_filter(filterId);
         this->updateFilters();
-        if(this->refresh(false))
-            return true;
-        return false;
+        return this->refresh(false);
     }
     QString filter_query{"("};
     filter_query += m_record.fieldName(column) + QStringLiteral(" LIKE '%") + filter + "%')";

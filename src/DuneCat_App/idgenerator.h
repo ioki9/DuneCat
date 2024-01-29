@@ -13,9 +13,10 @@ class IdGenerator : public QObject
     QML_SINGLETON
 public:
     explicit IdGenerator(QObject *parent = nullptr);
-    Q_INVOKABLE unsigned int generate() const;
+    Q_INVOKABLE quint32 generate() const;
+    ~IdGenerator() = default;
 signals:
 private:
-    mutable QAtomicInteger<quint32> m_last_returned{};
+    mutable QAtomicInteger<quint32> m_last_returned{0};
 };
 }

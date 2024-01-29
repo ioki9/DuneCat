@@ -270,12 +270,14 @@ bool DBManager::wal_checkpoint() const
 
     if (status == SQLITE_OK )
         return true;
-    else if(status == SQLITE_BUSY)
+
+    if(status == SQLITE_BUSY)
     {
         qWarning()<<"Couldn't complete wal checkpoint, SQLITE_BUSY returned";
         return false;
     }
-    else if(status == SQLITE_ERROR)
+
+    if(status == SQLITE_ERROR)
     {
         qWarning()<<"Couldn't complete wal checkpoint, returned: SQLITE_ERROR with error:"<<sqlite3_errmsg(handle);
         return false;

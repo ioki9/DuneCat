@@ -14,8 +14,8 @@ public:
     Q_INVOKABLE void setBottomTop(int bottom,int top);
     Q_INVOKABLE void setBottom(int bottom);
     Q_INVOKABLE void setTop(int top);
-    Q_INVOKABLE int getTop();
-    Q_INVOKABLE int getBottom();
+    Q_INVOKABLE int getTop() const;
+    Q_INVOKABLE int getBottom() const;
 signals:
     void bottomChanged();
     void topChanged();
